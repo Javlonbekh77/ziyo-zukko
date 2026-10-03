@@ -1,0 +1,29 @@
+Men Next.js va Firebase (Firestore) bazasida qurilayotgan maktab saytimizning Admin paneli xavfsizligini (Security) maksimal darajada kuchaytirmoqchiman. Quyidagi xavfsizlik talablarini loyihaga professional darajada tatbiq etib ber:
+
+1. Rate Limiting (Brute-Force va Cheksiz Urinishlarga Cheklov):
+   - Admin panelining login sahifasiga va login API endpoint'iga rate-limiting joriy qil.
+   - Bir xil IP manzildan 1 daqiqa ichida maksimal 5 marta muvaffaqiyatsiz kirish urinishiga ruxsat berilsin.
+   - 5 marta xato kiritilgach, foydalanuvchi bloklansin va 15 daqiqa davomida qayta urinish imkoniyati cheklansin (UI'da taymer va tegishli ogohlantirish ko'rinsin).
+   - Buni amalga oshirish uchun Upstash Redis yoki In-Memory Store / Firebase Security Custom Rules imkoniyatlaridan foydalan.
+
+2. Captcha Integratsiyasi:
+   - Ketma-ket 3 marta login/parol xato kiritilganda, bot va avtomatik skriptlardan himoyalanish uchun reCAPTCHA v3 yoki Cloudflare Turnstile funksiyasini faollashtir.
+
+3. Sessiya va Token Xavfsizligi (Session & Cookie Management):
+   - Admin session/tokenlarini brauzerning localStorage yoki sessionStorage'ida saqlama (XSS xavfini oldini olish uchun).
+   - Barcha sessiya tokenlarini faqat HTTP-only, Secure va SameSite=Strict flaglari yoqilgan Cookie fayllarda saqlansin.
+   - Sessiyaning amal qilish muddatini (expiration time) chekla (masalan, 2-4 soat passivlikdan keyin avtomatik logout bo'lsin).
+
+4. Input Validation va Sanitization:
+   - Login formasidagi inputlarni (email va parol) Zod yoki Yup sxemalari orqali server-side va client-side validation'dan o'tkaz.
+   - XSS (Cross-Site Scripting) va Injection hujumlarining oldini olish uchun barcha kiritilgan ma'lumotlarni trim/sanitize qil.
+
+5. Parol Siyosati va Xatolik Xabarlari (Error Masking):
+   - Admin paroli kamida 8 ta belgidan iborat, katta va kichik harflar, raqam va maxsus belgilarni o'z ichiga olishini majburiy qil.
+   - Login jarayonida xatolik yuz berganda "Email topilmadi" yoki "Parol xato" degan alohida xabarlar o'rniga umumiy "Email yoki parol noto'g'ri kiritildi" xabarini ko'rsat (User Enumeration hujumlaridan himoya).
+
+6. Route Protection va Middleware:
+   - Next.js Middleware orqali `/admin` bilan boshlanuvchi barcha ichki sahifalarni qat'iy himoyala.
+   - Avtorizatsiyadan o'tmagan yoki sessiyasi tugagan foydalanuvchi `/admin/*` sahifasiga kirishga urinish qilsa, uni darhol `/admin/login` sahifasiga redirect qil.
+
+Iltimos, ushbu xavfsizlik qoidalarini amalga oshirish uchun kerakli fayllarni (Middleware, API route validation, Rate limit util sahifalari) clean code va eng yaxshi xavfsizlik amaliyotlariga (Best Practices) amal qilgan holda yozib ber.

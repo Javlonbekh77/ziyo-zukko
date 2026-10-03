@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Inter", "San Francisco", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Match the fog background color of the frames. E.g., #EBEBEB or similar */
+  --background: #d8d8d8;
+  --foreground: #000000;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure no scrollbar issues on the body */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Tesseract Marketing style Border & Line Animations */
+@keyframes tesseractBeam {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: -1000;
+  }
+}
+
+@keyframes beamTravel {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%, 100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes beamTravelReverse {
+  0% {
+    transform: translateX(100%);
+  }
+  60%, 100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-tesseractBeam {
+  animation: tesseractBeam 5s linear infinite;
+}
+
+.animate-tesseractBeamFast {
+  animation: tesseractBeam 1.8s linear infinite;
+}
+
+.animate-beamTravel {
+  animation: beamTravel 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-beamTravelFast {
+  animation: beamTravel 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-beamTravelReverse {
+  animation: beamTravelReverse 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-beamTravelReverseFast {
+  animation: beamTravelReverse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

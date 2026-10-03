@@ -1,0 +1,33 @@
+Men Next.js (App Router) va Firebase/Supabase loyihamizdagi Admin panel uchun rasm va PDF fayllarni Cloudflare R2 xotirasiga yuklash hamda ma'lumotlarni bazaga saqlash mantiqini sozlamoqchiman.
+
+Quyidagi arxitektura va xavfsizlik talablariga muvofiq kodingni yozib ber:
+
+1. Texnologiyalar stack'i:
+   - Fayllar (Rasm va PDF) uchun: Cloudflare R2 Storage (@aws-sdk/client-s3 kutubxonasi orqali).
+   - Matnli post ma'lumotlari uchun: Firebase Firestore (yoki Supabase DB).
+   - Backend: Next.js Server Actions yoki API Routes.
+
+2. .env.local Fayli uchun talab qilinadigan o'zgaruvchilar:
+   - R2_ACCOUNT_ID
+   - R2_ACCESS_KEY_ID
+   - R2_SECRET_ACCESS_KEY
+   - R2_BUCKET_NAME
+   - NEXT_PUBLIC_R2_PUBLIC_URL (Custom domain yoki pub-xxx.r2.dev havola)
+
+3. Cloudflare R2 Helper fayli (`lib/r2.ts`):
+   - `@aws-sdk/client-s3` yordamida S3Client instansiyasini yarat.
+   - Endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+   - Region: "auto" qilib belgilansin.
+
+4. Fayl yuklash va saqlash mantiqi (Server Action / API):
+   - Admin paneldan kelgan post ma'lumotlarini (sarlavha, matn, teglar) va fayllarni (100 ta rasm, 20MB gacha PDF) qabul qiladigan funksiya tuz.
+   - Fayl nomlari takrorlanmasligi va xavfsiz bo'lishi uchun har bir fayl nomiga `uuid` yoki `Date.now()` va fayl kengaytmasini (`.jpg`, `.png`, `.pdf`) qo'sh.
+   - Faylni Cloudflare R2'dagi mos papkalarga yukla (masalan: `images/` va `documents/`).
+   - R2'ga yuklangach, hosil bo'lgan Public URL havolani ol.
+   - Yakuniy ma'lumotlar obyektini (sarlavha, matn, rasmlar URL massivi, PDF URL havolasi, yaratilgan vaqti) Firebase/Supabase ma'lumotlar bazasiga saqla.
+
+5. Validation va Xatoliklarni ushlash:
+   - PDF fayllar hajmi 20MB'dan oshmasligini va faqat rasm/PDF formatdagi fayllar qabul qilinishini server-side va client-side validation orqali tekshir.
+   - Yuklash jarayonida xatolik bo'lsa (masalan R2'ga fayl chiqmay qolsa), bazaga ma'lumot yozilmasin va UI'ga tushunarli xatolik xabari qaytarilsin.
+
+Iltimos, ushbu mantiqni to'liq, clean code va Next.js App Router standartlariga mos ravishda tayyorlab ber.

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# large media
+/public/data/
+/public/frames/
+/public/rasmlar/
+/public/sertifikatlar/
+/public/talaba_rasm.png
