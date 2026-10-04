@@ -41,8 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # large media
-/public/data/
-/public/frames/
 /public/rasmlar/
 /public/sertifikatlar/
 /public/talaba_rasm.png
