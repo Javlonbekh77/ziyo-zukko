@@ -26,7 +26,7 @@ export async function loginAction(prevState: any, formData: FormData) {
   const validatedFields = loginSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errorMessage = validatedFields.error.errors[0]?.message || "Ma'lumotlar noto'g'ri formatda kiritildi.";
+    const errorMessage = validatedFields.error.issues?.[0]?.message || (validatedFields.error as any).errors?.[0]?.message || "Ma'lumotlar noto'g'ri formatda kiritildi.";
     return {
       error: errorMessage,
       attempts: rateLimitStatus.attempts

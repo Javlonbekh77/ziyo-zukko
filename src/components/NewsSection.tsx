@@ -34,7 +34,7 @@ export default function NewsSection() {
     { id: 9, img: "/rasmlar/2026-10-02 17.59.21.jpg", caption: "Math olympiad prep", embedUrl: "https://www.instagram.com/p/C1ZlbZwNWXI/embed/" },
   ];
 
-  const newsItems = [
+  const newsItems: Array<{ id: number; title: string; summary: string; tag: string; img: string; date: string; social: string; embedUrl?: string }> = [
     { id: 1, title: "Maktabimizda bayram!", summary: "O'quvchilar tomonidan tayyorlangan maxsus bayram dasturi ajoyib o'tdi. To'liq tafsilotlar va rasmlar galereyasi sahifada e'lon qilindi.", tag: "TADBIRLAR", img: "/rasmlar/2026-10-02 17.59.48.jpg", date: "2026-10-02", social: 'instagram' },
     { id: 2, title: "National AI Hackathon | Karshi Winners", summary: "Qarshi shahrida bo'lib o'tgan sun'iy intellekt xakatonida bizning jamoa g'olib bo'ldi. Ular o'z loyihalari bilan hakamlarni lol qoldirdilar.", tag: "@sabui_2026", img: "/rasmlar/2026-10-02 17.59.54.jpg", date: "2026-09-04", social: 'youtube' },
     { id: 3, title: "🔴 Diqqat! Hurmatli ota-onalar!", summary: "Yangi o'quv yili uchun qabul jarayonlari boshlandi. Barcha kerakli hujjatlar ro'yxati saytimizda e'lon qilindi. Shoshiling, o'rinlar soni cheklangan.", tag: "@sabui_2026", img: "/rasmlar/2026-10-02 18.00.24.jpg", date: "2026-09-04", social: 'instagram' },
