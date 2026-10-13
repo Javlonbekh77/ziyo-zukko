@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ContactSection() {
+  const { t, lang } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -20,11 +24,27 @@ export default function ContactSection() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name || !formData.phone) {
+      alert(lang === "ru" ? "Пожалуйста, введите имя и телефон!" : lang === "en" ? "Please enter your name and phone!" : "Iltimos, ism va telefon raqamingizni kiriting!");
+      return;
+    }
+
     setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
+    try {
+      if (db) {
+        await addDoc(collection(db, "messages"), {
+          name: formData.name.trim(),
+          phone: formData.phone.trim(),
+          grade: formData.grade || (lang === "ru" ? "Не указан" : lang === "en" ? "Not specified" : "Ko'rsatilmagan"),
+          region: formData.region || (lang === "ru" ? "Не указан" : lang === "en" ? "Not specified" : "Ko'rsatilmagan"),
+          message: formData.message.trim() || (lang === "ru" ? "Заявка на консультацию" : lang === "en" ? "Consultation request" : "Maslahat olish uchun murojaat"),
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
       setFormData({
         name: "",
         phone: "",
@@ -32,9 +52,53 @@ export default function ContactSection() {
         region: "",
         message: "",
       });
-      alert("Arizangiz qabul qilindi! Operatorlarimiz tez orada bog'lanishadi.");
-    }, 600);
+
+      const successMsg = lang === "ru" 
+        ? "Ваша заявка принята! Наши операторы свяжутся с вами в ближайшее время."
+        : lang === "en"
+        ? "Your application has been received! Our operators will contact you soon."
+        : "Arizangiz qabul qilindi! Operatorlarimiz tez orada siz bilan bog'lanishadi.";
+      alert(successMsg);
+    } catch (error) {
+      console.error("Error saving message:", error);
+      alert(lang === "ru" ? "Ошибка при отправке. Пожалуйста, попробуйте еще раз." : "Xatolik yuz berdi. Iltimos qayta urinib ko'ring.");
+    } finally {
+      setSubmitted(false);
+    }
   };
+
+  const campusTitle = lang === "ru" ? "Главный кампус в Ташкенте" : lang === "en" ? "Tashkent Main Campus" : "Toshkent bosh kampusi";
+
+  const gradeOptions = [
+    { val: "1-sinf", uz: "1-sinf", ru: "1-класс", en: "Grade 1" },
+    { val: "2-sinf", uz: "2-sinf", ru: "2-класс", en: "Grade 2" },
+    { val: "3-sinf", uz: "3-sinf", ru: "3-класс", en: "Grade 3" },
+    { val: "4-sinf", uz: "4-sinf", ru: "4-класс", en: "Grade 4" },
+    { val: "5-sinf", uz: "5-sinf", ru: "5-класс", en: "Grade 5" },
+    { val: "6-sinf", uz: "6-sinf", ru: "6-класс", en: "Grade 6" },
+    { val: "7-sinf", uz: "7-sinf", ru: "7-класс", en: "Grade 7" },
+    { val: "8-sinf", uz: "8-sinf", ru: "8-класс", en: "Grade 8" },
+    { val: "9-sinf", uz: "9-sinf", ru: "9-класс", en: "Grade 9" },
+    { val: "10-sinf", uz: "10-sinf", ru: "10-класс", en: "Grade 10" },
+    { val: "11-sinf", uz: "11-sinf", ru: "11-класс", en: "Grade 11" },
+  ];
+
+  const regionOptions = [
+    { val: "Toshkent shahri", uz: "Toshkent shahri", ru: "г. Ташкент", en: "Tashkent city" },
+    { val: "Toshkent viloyati", uz: "Toshkent viloyati", ru: "Ташкентская область", en: "Tashkent region" },
+    { val: "Andijon viloyati", uz: "Andijon viloyati", ru: "Андижанская область", en: "Andijan region" },
+    { val: "Buxoro viloyati", uz: "Buxoro viloyati", ru: "Бухарская область", en: "Bukhara region" },
+    { val: "Farg'ona viloyati", uz: "Farg'ona viloyati", ru: "Ферганская область", en: "Fergana region" },
+    { val: "Jizzax viloyati", uz: "Jizzax viloyati", ru: "Джизакская область", en: "Jizzakh region" },
+    { val: "Xorazm viloyati", uz: "Xorazm viloyati", ru: "Хорезмская область", en: "Khorezm region" },
+    { val: "Namangan viloyati", uz: "Namangan viloyati", ru: "Наманганская область", en: "Namangan region" },
+    { val: "Navoiy viloyati", uz: "Navoiy viloyati", ru: "Навоийская область", en: "Navoi region" },
+    { val: "Qashqadaryo viloyati", uz: "Qashqadaryo viloyati", ru: "Кашкадарьинская область", en: "Kashkadarya region" },
+    { val: "Qoraqalpog'iston Respublikasi", uz: "Qoraqalpog'iston Respublikasi", ru: "Республика Каракалпакстан", en: "Republic of Karakalpakstan" },
+    { val: "Samarqand viloyati", uz: "Samarqand viloyati", ru: "Самаркандская область", en: "Samarkand region" },
+    { val: "Sirdaryo viloyati", uz: "Sirdaryo viloyati", ru: "Сырдарьинская область", en: "Syrdarya region" },
+    { val: "Surxondaryo viloyati", uz: "Surxondaryo viloyati", ru: "Сурхандарьинская область", en: "Surkhandarya region" },
+  ];
 
   return (
     <section id="contact" className="relative py-20 lg:py-28 bg-gradient-to-br from-[#06113c] via-[#0d1a4a] to-[#152259] text-white overflow-hidden">
@@ -56,17 +120,22 @@ export default function ContactSection() {
             <div>
               <div className="mb-8">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
-                  Maslahat olish uchun raqamingizni qoldiring
+                  {t("contactHeading")}
                 </h3>
                 <p className="text-white/60 text-base">
-                  Biz siz bilan 24 soat ichida bog'lanamiz.
+                  {t("contactSubheading")}
                 </p>
               </div>
 
               {/* Info Rows */}
               <div className="flex flex-col space-y-6 mb-8">
                 {/* Location 1 */}
-                <div className="flex items-center gap-4 group cursor-pointer">
+                <a
+                  href="https://www.google.com/maps?q=41.3237234294552,69.25740194417808"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 group cursor-pointer"
+                >
                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ffa055] via-[#ff8a32] to-[#ff7a1a] flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-orange-500/30 group-hover:scale-105 group-hover:-rotate-3 transition-all duration-300">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
@@ -74,10 +143,10 @@ export default function ContactSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">Manzil</span>
-                    <span className="block text-white font-semibold text-sm sm:text-base">Абдулла Кадыри, 11, Шайхантахурский район, Ташкент</span>
+                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">{t("addressLabel")}</span>
+                    <span className="block text-white font-semibold text-sm sm:text-base group-hover:text-[#ff8a32] transition-colors">{t("addressValue")}</span>
                   </div>
-                </div>
+                </a>
 
                 {/* Phone */}
                 <div className="flex items-center gap-4 group">
@@ -87,7 +156,7 @@ export default function ContactSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">Telefon</span>
+                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">{t("phoneLabel")}</span>
                     <a href="tel:+998712443581" className="block text-white font-semibold text-sm sm:text-base hover:text-[#ff8a32] transition-colors">
                       +998 71 244 35 81
                     </a>
@@ -103,8 +172,8 @@ export default function ContactSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">Ish vaqti</span>
-                    <span className="block text-white font-semibold text-sm sm:text-base">Dushanba–Shanba · 9:00–18:00</span>
+                    <span className="block text-[11px] font-bold tracking-widest uppercase text-[#ff8a32]">{t("workHoursLabel")}</span>
+                    <span className="block text-white font-semibold text-sm sm:text-base">{t("workHoursValue")}</span>
                   </div>
                 </div>
               </div>
@@ -112,7 +181,7 @@ export default function ContactSection() {
               {/* Social links */}
               <div className="flex items-center gap-3 pt-2">
                 <a
-                  href="https://t.me/sodiq_school"
+                  href="https://t.me/ziyo_zukko"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-11 h-11 rounded-xl bg-white/10 hover:bg-[#ff8a32] text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
@@ -123,7 +192,7 @@ export default function ContactSection() {
                   </svg>
                 </a>
                 <a
-                  href="https://instagram.com/sodiqschool.uz"
+                  href="https://www.instagram.com/ziyo_zukko.uz/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-11 h-11 rounded-xl bg-white/10 hover:bg-[#ff8a32] text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
@@ -136,7 +205,7 @@ export default function ContactSection() {
                   </svg>
                 </a>
                 <a
-                  href="https://youtube.com/@sodiq_school"
+                  href="https://www.youtube.com/@ziyozukko_uz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-11 h-11 rounded-xl bg-white/10 hover:bg-[#ff8a32] text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
@@ -160,10 +229,10 @@ export default function ContactSection() {
             <form onSubmit={handleSubmit} className="flex flex-col space-y-3.5 bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
               <div className="mb-2">
                 <h3 className="text-2xl font-extrabold text-white tracking-tight mb-1">
-                  Bog'lanish
+                  {t("contactFormTitle")}
                 </h3>
                 <p className="text-white/60 text-sm">
-                  Biz siz bilan 24 soat ichida bog'lanamiz.
+                  {t("contactSubheading")}
                 </p>
               </div>
 
@@ -172,7 +241,7 @@ export default function ContactSection() {
                 type="text"
                 name="name"
                 required
-                placeholder="Ismingiz"
+                placeholder={t("namePlaceholder")}
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full bg-white text-[#06113c] px-5 py-4 rounded-xl border-2 border-[#ff8a32] focus:outline-none focus:ring-4 focus:ring-[#ff8a32]/20 font-medium text-sm placeholder:text-[#06113c]/50 transition-all"
@@ -183,7 +252,7 @@ export default function ContactSection() {
                 type="tel"
                 name="phone"
                 required
-                placeholder="+998 90 123 45 67"
+                placeholder={t("phonePlaceholder")}
                 value={formData.phone}
                 onChange={handleChange}
                 className="w-full bg-white text-[#06113c] px-5 py-4 rounded-xl border-2 border-[#ff8a32] focus:outline-none focus:ring-4 focus:ring-[#ff8a32]/20 font-medium text-sm placeholder:text-[#06113c]/50 transition-all"
@@ -196,18 +265,10 @@ export default function ContactSection() {
                 onChange={handleChange}
                 className="w-full bg-white text-[#06113c] px-5 py-4 rounded-xl border-2 border-[#ff8a32] focus:outline-none focus:ring-4 focus:ring-[#ff8a32]/20 font-medium text-sm transition-all"
               >
-                <option value="" disabled>Sinfni tanlang</option>
-                <option value="1-sinf">1-sinf</option>
-                <option value="2-sinf">2-sinf</option>
-                <option value="3-sinf">3-sinf</option>
-                <option value="4-sinf">4-sinf</option>
-                <option value="5-sinf">5-sinf</option>
-                <option value="6-sinf">6-sinf</option>
-                <option value="7-sinf">7-sinf</option>
-                <option value="8-sinf">8-sinf</option>
-                <option value="9-sinf">9-sinf</option>
-                <option value="10-sinf">10-sinf</option>
-                <option value="11-sinf">11-sinf</option>
+                <option value="" disabled>{t("gradeSelectDefault")}</option>
+                {gradeOptions.map((g) => (
+                  <option key={g.val} value={g.val}>{g[lang]}</option>
+                ))}
               </select>
 
               {/* Region select */}
@@ -217,28 +278,17 @@ export default function ContactSection() {
                 onChange={handleChange}
                 className="w-full bg-white text-[#06113c] px-5 py-4 rounded-xl border-2 border-[#ff8a32] focus:outline-none focus:ring-4 focus:ring-[#ff8a32]/20 font-medium text-sm transition-all"
               >
-                <option value="" disabled>Viloyatni tanlang...</option>
-                <option value="Toshkent shahri">Toshkent shahri</option>
-                <option value="Toshkent viloyati">Toshkent viloyati</option>
-                <option value="Andijon viloyati">Andijon viloyati</option>
-                <option value="Buxoro viloyati">Buxoro viloyati</option>
-                <option value="Farg'ona viloyati">Farg'ona viloyati</option>
-                <option value="Jizzax viloyati">Jizzax viloyati</option>
-                <option value="Xorazm viloyati">Xorazm viloyati</option>
-                <option value="Namangan viloyati">Namangan viloyati</option>
-                <option value="Navoiy viloyati">Navoiy viloyati</option>
-                <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
-                <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
-                <option value="Samarqand viloyati">Samarqand viloyati</option>
-                <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
-                <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
+                <option value="" disabled>{t("regionSelectDefault")}</option>
+                {regionOptions.map((r) => (
+                  <option key={r.val} value={r.val}>{r[lang]}</option>
+                ))}
               </select>
 
               {/* Message textarea */}
               <textarea
                 name="message"
                 rows={3}
-                placeholder="Savolingizni yozing..."
+                placeholder={t("messagePlaceholder")}
                 value={formData.message}
                 onChange={handleChange}
                 className="w-full bg-white text-[#06113c] px-5 py-4 rounded-xl border-2 border-[#ff8a32] focus:outline-none focus:ring-4 focus:ring-[#ff8a32]/20 font-medium text-sm placeholder:text-[#06113c]/50 resize-none transition-all"
@@ -248,15 +298,15 @@ export default function ContactSection() {
               <button
                 type="submit"
                 disabled={submitted}
-                className="w-full bg-[#ff8a32] hover:bg-[#e07524] text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/30 transition-all duration-300 hover:-translate-y-0.5 text-base mt-2 disabled:opacity-50"
+                className="w-full bg-[#ff8a32] hover:bg-[#e07524] text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/30 transition-all duration-300 hover:-translate-y-0.5 text-base mt-2 disabled:opacity-50 cursor-pointer"
               >
-                {submitted ? "Yuborilmoqda..." : "Maslahat olaman"}
+                {submitted ? t("sendingBtn") : t("sendBtn")}
               </button>
             </form>
           </motion.div>
         </div>
 
-        {/* Maps Grid Section (Single Location) */}
+        {/* Maps Grid Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -264,16 +314,28 @@ export default function ContactSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="w-full"
         >
-          {/* Card 1 */}
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col w-full h-[400px] lg:h-[500px]">
-            <div className="p-4 border-b border-white/10 bg-white/5 flex flex-col justify-center">
-              <strong className="block text-white text-base font-bold">Toshkent filiali</strong>
-              <span className="block text-white/60 text-sm mt-0.5">Абдулла Кадыри, 11, Шайхантахурский район, Ташкент</span>
+            <div className="p-4 border-b border-white/10 bg-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <strong className="block text-white text-base font-bold">{campusTitle}</strong>
+                <span className="block text-white/60 text-sm mt-0.5">{t("addressValue")}</span>
+              </div>
+              <a
+                href="https://www.google.com/maps?q=41.3237234294552,69.25740194417808"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#ff8a32] text-white transition-all w-fit shrink-0"
+              >
+                <span>Google Maps</span>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
             <div className="w-full flex-1">
               <iframe
-                src="https://www.google.com/maps?q=41.26229879714372%2C69.25543075582065&z=16&output=embed"
-                title="Sodiq School manzili: Aeroport (Sirg'ali, Qumariq)"
+                src="https://www.google.com/maps?q=41.3237234294552%2C69.25740194417808&z=17&output=embed"
+                title="ZIYO-ZUKKO maktabi joylashuvi"
                 className="w-full h-full border-0 grayscale-[15%] contrast-[95%]"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

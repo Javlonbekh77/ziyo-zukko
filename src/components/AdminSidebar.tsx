@@ -8,15 +8,22 @@ import {
   Image as ImageIcon, 
   Trophy, 
   MessageSquare,
-  LayoutDashboard
+  LayoutDashboard,
+  Newspaper,
+  Video,
+  GraduationCap
 } from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Statistika (Natijalar)", href: "/admin/stats", icon: Award },
+  { name: "Ustozlar", href: "/admin/teachers", icon: GraduationCap },
   { name: "Bitiruvchilar", href: "/admin/graduates", icon: Users },
   { name: "Sertifikatlar", href: "/admin/certificates", icon: Award },
+  { name: "Yangiliklar", href: "/admin/news", icon: Newspaper },
   { name: "Maktab Hayoti", href: "/admin/gallery", icon: ImageIcon },
   { name: "Olimpiadachilar", href: "/admin/olympiads", icon: Trophy },
+  { name: "Videolar (YouTube & Insta)", href: "/admin/videos", icon: Video },
   { name: "Xabarlar", href: "/admin/messages", icon: MessageSquare },
 ];
 

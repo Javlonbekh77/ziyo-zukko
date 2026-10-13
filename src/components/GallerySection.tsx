@@ -1,25 +1,86 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { getLocalCache, setLocalCache } from "@/lib/cache";
+import { useLanguage } from "@/context/LanguageContext";
+
+const defaultImages = [
+  "/rasmlar/2026-10-02 17.56.31.jpg",
+  "/rasmlar/2026-10-02 17.57.37.jpg",
+  "/rasmlar/2026-10-02 17.57.45.jpg",
+  "/rasmlar/2026-10-02 17.58.25.jpg",
+  "/rasmlar/2026-10-02 17.58.36.jpg",
+  "/rasmlar/2026-10-02 17.58.46.jpg",
+  "/rasmlar/2026-10-02 17.59.06.jpg",
+  "/rasmlar/2026-10-02 17.59.16.jpg",
+  "/rasmlar/2026-10-02 17.59.21.jpg",
+  "/rasmlar/2026-10-02 17.59.48.jpg",
+  "/rasmlar/2026-10-02 17.59.54.jpg",
+  "/rasmlar/2026-10-02 18.00.24.jpg",
+  "/rasmlar/2026-10-02 18.01.23.jpg",
+  "/rasmlar/2026-10-02 18.01.32.jpg"
+];
 
 export default function GallerySection() {
-  const images = [
-    "/rasmlar/2026-10-02 17.56.31.jpg",
-    "/rasmlar/2026-10-02 17.57.37.jpg",
-    "/rasmlar/2026-10-02 17.57.45.jpg",
-    "/rasmlar/2026-10-02 17.58.25.jpg",
-    "/rasmlar/2026-10-02 17.58.36.jpg",
-    "/rasmlar/2026-10-02 17.58.46.jpg",
-    "/rasmlar/2026-10-02 17.59.06.jpg",
-    "/rasmlar/2026-10-02 17.59.16.jpg",
-    "/rasmlar/2026-10-02 17.59.21.jpg",
-    "/rasmlar/2026-10-02 17.59.48.jpg",
-    "/rasmlar/2026-10-02 17.59.54.jpg",
-    "/rasmlar/2026-10-02 18.00.24.jpg",
-    "/rasmlar/2026-10-02 18.01.23.jpg",
-    "/rasmlar/2026-10-02 18.01.32.jpg"
-  ];
+  const { t } = useLanguage();
+  const [images, setImages] = useState<string[]>(defaultImages);
+
+  useEffect(() => {
+    // Read cache upon client mount
+    const cached = getLocalCache<string[] | null>("gallery_home_cache", null);
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      setImages(cached);
+    }
+
+    if (!db) return;
+
+    let unsub: (() => void) | undefined;
+    try {
+      const colRef = collection(db, "gallery");
+      const q = query(colRef, orderBy("createdAt", "desc"));
+      unsub = onSnapshot(
+        q,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const fetched = snapshot.docs
+              .map((doc) => doc.data().imageUrl as string)
+              .filter(Boolean);
+            if (fetched.length > 0) {
+              const combined = Array.from(new Set([...fetched, ...defaultImages]));
+              setImages(combined);
+              setLocalCache("gallery_home_cache", combined);
+            }
+          }
+        },
+        (error) => {
+          console.warn("Gallery ordered query fallback:", error);
+          const simpleUnsub = onSnapshot(colRef, (simpleSnap) => {
+            if (!simpleSnap.empty) {
+              const fetched = simpleSnap.docs
+                .map((doc) => doc.data().imageUrl as string)
+                .filter(Boolean);
+              if (fetched.length > 0) {
+                const combined = Array.from(new Set([...fetched, ...defaultImages]));
+                setImages(combined);
+                setLocalCache("gallery_home_cache", combined);
+              }
+            }
+          });
+          unsub = simpleUnsub;
+        }
+      );
+    } catch (e) {
+      console.error("Error setting up gallery listener:", e);
+    }
+
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
 
   return (
     <section id="galereya" className="py-24 bg-[#f8fafc] text-[#071a33] overflow-hidden">
@@ -31,7 +92,7 @@ export default function GallerySection() {
             viewport={{ once: true }}
             className="text-[#ff6b00] font-bold text-xs md:text-sm tracking-widest uppercase mb-3"
           >
-            FOTO GALEREYA
+            {t("galleryBadge")}
           </motion.p>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -39,7 +100,7 @@ export default function GallerySection() {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#071a33]"
           >
-            ZIYO-ZUKKO hayotidan lavhalar
+            {t("galleryTitle")}
           </motion.h2>
         </div>
       </div>
@@ -57,11 +118,11 @@ export default function GallerySection() {
           {[...images, ...images].map((img, idx) => (
             <div 
               key={idx} 
-              className="relative w-[340px] md:w-[420px] aspect-[16/10] rounded-3xl overflow-hidden shadow-lg shadow-black/5 shrink-0 border border-black/5 group"
+              className="relative w-[180px] sm:w-[260px] md:w-[420px] aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 shrink-0 border border-black/5 group"
             >
               <Image 
                 src={img} 
-                alt={`ZIYO-ZUKKO galereya ${idx + 1}`} 
+                alt={`${t("galleryTitle")} ${idx + 1}`} 
                 fill 
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
                 unoptimized

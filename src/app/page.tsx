@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import AboutSection from "@/components/AboutSection";
 import NewsSection from "@/components/NewsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import TeamSection from "@/components/TeamSection";
 import UniversitiesSection from "@/components/UniversitiesSection";
 import ResultsSection from "@/components/ResultsSection";
 import OlympiadsSection from "@/components/OlympiadsSection";
@@ -16,9 +17,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 export default function Home() {
   return (
     <main className="relative w-full overflow-x-clip bg-[#f8fafc]">
-      <div style={{ zoom: "120%" }}>
-        <Navbar />
-      </div>
+      <Navbar />
 
       {/* 1. Main Hero Keyboard Scroll Animation */}
       <div id="home">
@@ -34,7 +33,10 @@ export default function Home() {
       {/* 4. Parent Testimonials (Shorts style) */}
       <TestimonialsSection />
 
-      {/* 5. Graduates & University Marquee */}
+      {/* 5. Bizning Jamoa (Teachers Section cloned from Rakhimov School) */}
+      <TeamSection />
+
+      {/* 6. Graduates & University Marquee */}
       <UniversitiesSection />
 
       {/* 6. Results & Certificates Stats */}

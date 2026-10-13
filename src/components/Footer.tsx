@@ -2,15 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Footer() {
+  const { lang, t } = useLanguage();
+
+  const galleryLinkText = lang === "ru" ? "Галерея" : lang === "en" ? "Gallery" : "Galereya";
+
   return (
     <footer className="bg-[#071a33] text-white pt-16 pb-12 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-6">
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-white/10">
           
-          {/* Brand info (6 cols) */}
+          {/* Brand info (5 cols) */}
           <div className="md:col-span-5 flex flex-col items-start gap-4">
             <Image 
               src="/data/logo-removebg-preview.png" 
@@ -20,35 +25,42 @@ export default function Footer() {
               className="object-contain brightness-0 invert"
             />
             <p className="text-white/60 text-sm leading-relaxed max-w-sm">
-              Kelajak shu yerdan qanot qoqadi. Ilm-fan, texnologiya va tarbiya uyg'unlashgan maskan.
+              {t("footerSlogan")}
             </p>
           </div>
 
           {/* Links (3 cols) */}
           <div className="md:col-span-3">
             <h3 className="font-bold text-base uppercase tracking-wider text-white mb-4">
-              Havolalar
+              {t("footerLinksTitle")}
             </h3>
             <nav className="flex flex-col gap-2.5 text-sm text-white/70">
-              <Link href="#home" className="hover:text-[#ff6b00] transition-colors">Bosh sahifa</Link>
-              <Link href="#about" className="hover:text-[#ff6b00] transition-colors">Maktab haqida</Link>
-              <Link href="#graduates" className="hover:text-[#ff6b00] transition-colors">Natijalar</Link>
-              <Link href="#galereya" className="hover:text-[#ff6b00] transition-colors">Galereya</Link>
+              <Link href="/" className="hover:text-[#ff6b00] transition-colors">{t("home")}</Link>
+              <Link href="/about" className="hover:text-[#ff6b00] transition-colors">{t("about")}</Link>
+              <Link href="/certificates" className="hover:text-[#ff6b00] transition-colors">{t("certificates")}</Link>
+              <Link href="/#galereya" className="hover:text-[#ff6b00] transition-colors">{galleryLinkText}</Link>
             </nav>
           </div>
 
           {/* Contact (4 cols) */}
           <div className="md:col-span-4">
             <h3 className="font-bold text-base uppercase tracking-wider text-white mb-4">
-              Aloqa
+              {t("footerContactTitle")}
             </h3>
             <div className="flex flex-col gap-2.5 text-sm text-white/70">
-              <Link href="#aloqa" className="text-[#ff6b00] font-semibold hover:underline">
-                Savol yoki taklif qoldirish
+              <Link href="#contact" className="text-[#ff6b00] font-semibold hover:underline">
+                {t("footerAskQuestion")}
               </Link>
               <span>+998 71 244 35 81</span>
               <span>info@ziyozukko.uz</span>
-              <span>Абдулла Кадыри, 11, Шайхантахурский район, Ташкент</span>
+              <a
+                href="https://www.google.com/maps?q=41.3237234294552,69.25740194417808"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#ff6b00] transition-colors"
+              >
+                {t("addressValue")}
+              </a>
             </div>
           </div>
 
@@ -56,17 +68,10 @@ export default function Footer() {
 
         {/* Bottom Credits */}
         <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/50">
-          <p>© {new Date().getFullYear()} ZIYO-ZUKKO. Barcha huquqlar himoyalangan.</p>
+          <p>© {new Date().getFullYear()} ZIYO-ZUKKO. {t("footerCopyright")}</p>
           <div className="flex items-center gap-1.5">
-            <span>Designed & Developed by</span>
-            <a 
-              href="https://t.me/Javlonbekhs_Blog" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-white hover:text-[#ff6b00] font-semibold underline transition-colors"
-            >
-              Javlonbek Xoliqulov
-            </a>
+            <span>Designed & Developed for</span>
+            <span className="text-white font-semibold">ZIYO-ZUKKO</span>
           </div>
         </div>
 

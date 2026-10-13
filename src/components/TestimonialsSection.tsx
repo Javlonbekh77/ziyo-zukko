@@ -1,9 +1,98 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, ExternalLink, Play } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+
+interface TestimonialItem {
+  id: string | number;
+  title: { uz: string; ru: string; en: string };
+  quote: { uz: string; ru: string; en: string };
+  platform: "youtube" | "instagram";
+  url: string;
+  embedUrl: string;
+  thumbnail: string;
+}
+
+// 4 ta qat'iy o'zgarmas asosiy fikrlar (Home page uchun)
+const fixedTestimonials: TestimonialItem[] = [
+  {
+    id: 1,
+    title: {
+      uz: "Ota-onalar fikri",
+      ru: "Отзывы родителей",
+      en: "Parent Testimonials",
+    },
+    quote: {
+      uz: "Farzandlarimiz quvonchi va ta'lim sifati haqida ota-onalar fikri",
+      ru: "Отзывы родителей о радости детей и высоком качестве образования",
+      en: "Parents' feedback on students' happiness and academic quality",
+    },
+    platform: "youtube",
+    url: "https://www.youtube.com/shorts/asuL_CFqh0E",
+    embedUrl: "https://www.youtube.com/embed/asuL_CFqh0E?autoplay=1&rel=0",
+    thumbnail: "https://img.youtube.com/vi/asuL_CFqh0E/hqdefault.jpg"
+  },
+  {
+    id: 2,
+    title: {
+      uz: "Ota-onalar fikri",
+      ru: "Отзывы родителей",
+      en: "Parent Testimonials",
+    },
+    quote: {
+      uz: "ZIYO-ZUKKO maktabi muhiti va erishilgan natijalar",
+      ru: "Школьная атмосфера ZIYO-ZUKKO и достигнутые результаты",
+      en: "The inspiring atmosphere of ZIYO-ZUKKO and student results",
+    },
+    platform: "youtube",
+    url: "https://www.youtube.com/shorts/JCv6fvrnKpw",
+    embedUrl: "https://www.youtube.com/embed/JCv6fvrnKpw?autoplay=1&rel=0",
+    thumbnail: "https://img.youtube.com/vi/JCv6fvrnKpw/hqdefault.jpg"
+  },
+  {
+    id: 3,
+    title: {
+      uz: "Ota-onalar fikri",
+      ru: "Отзывы родителей",
+      en: "Parent Testimonials",
+    },
+    quote: {
+      uz: "Farzandlarimiz kelajagi va ta'lim maskani haqida samimiy so'zlar",
+      ru: "Искренние слова о будущем наших детей и образовательной среде",
+      en: "Heartfelt feedback regarding our children's future and education",
+    },
+    platform: "instagram",
+    url: "https://www.instagram.com/p/DdtLw6zoPVQ/",
+    embedUrl: "https://www.instagram.com/p/DdtLw6zoPVQ/embed",
+    thumbnail: "/rasmlar/2026-10-02 17.58.36.jpg"
+  },
+  {
+    id: 4,
+    title: {
+      uz: "Ota-onalar fikri",
+      ru: "Отзывы родителей",
+      en: "Parent Testimonials",
+    },
+    quote: {
+      uz: "Ota-onalarning samimiy tavsiyalari va taassurotlari",
+      ru: "Искренние рекомендации и впечатления родителей",
+      en: "Honest recommendations and impressions from parents",
+    },
+    platform: "instagram",
+    url: "https://www.instagram.com/p/DddWx2Boiex/",
+    embedUrl: "https://www.instagram.com/p/DddWx2Boiex/embed",
+    thumbnail: "/rasmlar/2026-10-02 17.58.46.jpg"
+  }
+];
 
 export default function TestimonialsSection() {
+  const { lang, t } = useLanguage();
+  const [activeVideo, setActiveVideo] = useState<TestimonialItem | null>(null);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -17,113 +106,115 @@ export default function TestimonialsSection() {
     show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
-  const testimonials = [
-    {
-      id: 1,
-      image: "https://picsum.photos/seed/parent1/400/600",
-      quote: "bolalarimiz, ikkalasi ham...",
-      platform: "youtube"
-    },
-    {
-      id: 2,
-      image: "https://picsum.photos/seed/parent2/400/600",
-      quote: "Hotirjammiz shu yerda o'qiyotganidan.",
-      platform: "instagram"
-    },
-    {
-      id: 3,
-      image: "https://picsum.photos/seed/parent3/400/600",
-      quote: "Haqiqatdan ham har bir o'qituvchi",
-      platform: "youtube"
-    },
-    {
-      id: 4,
-      image: "https://picsum.photos/seed/parent4/400/600",
-      quote: "tenglashtirilgan",
-      platform: "instagram"
-    }
-  ];
+  const watchBtnText = lang === "ru" ? "Смотреть" : lang === "en" ? "Watch video" : "Tomosha qilish";
 
   return (
     <section id="testimonials" className="py-24 bg-white text-[#0b1b36] relative">
       <div className="max-w-7xl mx-auto px-6">
 
-        {/* Header */}
-        <div className="text-center mb-16">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-[#ff6b00] font-bold text-sm tracking-widest uppercase mb-4"
+        {/* Header with Barchasini ko'rish */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-16 gap-4">
+          <div className="text-center sm:text-left">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-[#ff6b00] font-bold text-xs md:text-sm tracking-widest uppercase mb-3"
+            >
+              {t("testimonialsBadge")}
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-5xl font-black tracking-tight uppercase leading-tight text-[#0b1b36]"
+            >
+              {t("testimonialsTitle")}
+            </motion.h2>
+          </div>
+          <Link
+            href="/testimonials"
+            className="inline-flex items-center gap-2 border-2 border-[#ff6b00] text-[#ff6b00] font-bold text-sm px-6 py-2.5 rounded-xl hover:bg-[#ff6b00] hover:text-white transition-all shadow-sm shrink-0 cursor-pointer"
           >
-            ISHONCH
-          </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black tracking-tight"
-          >
-            OTA-ONALAR NIMA DEYDI?
-          </motion.h2>
+            {t("seeAll")}
+          </Link>
         </div>
 
-        {/* Video Cards Grid */}
+        {/* Fixed 4 Video Cards Grid on Home Page */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"
         >
-          {testimonials.map((item) => (
+          {fixedTestimonials.map((item) => (
             <motion.div
               key={item.id}
               variants={itemVariants}
-              className="relative w-full aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer"
+              onClick={() => setActiveVideo(item)}
+              className="relative w-full aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer border border-slate-100"
             >
               <Image
-                src={item.image}
-                alt="Parent Testimonial"
+                src={item.thumbnail}
+                alt={item.title[lang]}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-cover brightness-110 contrast-105 transition-transform duration-700 group-hover:scale-105"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60"></div>
+              {/* Subtle hover overlay */}
+              <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors duration-300"></div>
 
-              {/* Header inside card */}
-              <div className="absolute top-4 left-4 right-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#0b1b36] flex items-center justify-center shrink-0 border border-white/10">
-                  <span className="text-[#ff6b00] font-black text-xs">ZZ</span>
+              {/* Play / Pause Button Icon */}
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 active:scale-95 transition-all duration-300 ${
+                    item.platform === "youtube"
+                      ? "bg-[#ff0033] shadow-red-500/50"
+                      : "bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] shadow-pink-500/50"
+                  }`}
+                >
+                  <Play className="w-7 h-7 sm:w-8 sm:h-8 text-white fill-white ml-1" />
                 </div>
-                <div>
-                  <h3 className="text-white font-bold text-sm leading-tight">Ota-onalar fikri</h3>
-                  <p className="text-white/70 text-xs font-medium">ZIYO-ZUKKO</p>
-                </div>
-              </div>
-
-              {/* Play Button Icon (Shorts / Reels style) */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${item.platform === 'youtube' ? 'bg-[#ff0033]' : 'bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]'}`}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 4L20 12L6 20V4Z" fill="white" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Caption */}
-              <div className="absolute bottom-6 left-6 right-6 text-center">
-                <p className="text-white font-medium text-sm leading-relaxed drop-shadow-md">
-                  {item.quote}
-                </p>
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-
-
       </div>
+
+      {/* Video Modal Player */}
+      <AnimatePresence>
+        {activeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveVideo(null)}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/20"
+            >
+              <button
+                onClick={() => setActiveVideo(null)}
+                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <iframe
+                src={activeVideo.embedUrl}
+                title={activeVideo.title[lang]}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

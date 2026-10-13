@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Search, X } from "lucide-react";
-import Image from "next/image";
+import { ImageUploader } from "@/components/ImageUploader";
+import { deleteFileFromR2 } from "@/lib/r2-client";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 
 interface Graduate {
   id: string;
@@ -10,34 +13,142 @@ interface Graduate {
   university: string;
   year: string;
   imageUrl: string;
+  r2Key?: string;
+  notes?: string;
 }
 
-const MOCK_DATA: Graduate[] = [
-  {
-    id: "1",
-    name: "Aliyev Vali",
-    university: "Toshkent Axborot Texnologiyalari Universiteti",
-    year: "2023",
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150&h=150",
-  },
-  {
-    id: "2",
-    name: "Karimova Ziyoda",
-    university: "Jahon Tillari Universiteti",
-    year: "2023",
-    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150",
-  },
-];
-
 export default function GraduatesPage() {
-  const [graduates, setGraduates] = useState<Graduate[]>(MOCK_DATA);
+  const [graduates, setGraduates] = useState<Graduate[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Form states
+  const [name, setName] = useState("");
+  const [university, setUniversity] = useState("");
+  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [imageUrl, setImageUrl] = useState("");
+  const [r2Key, setR2Key] = useState("");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    fetchGraduates();
+  }, []);
+
+  const fetchGraduates = async () => {
+    setIsLoading(true);
+    try {
+      if (!db) {
+        console.error("Firebase db is not initialized");
+        return;
+      }
+      const q = query(collection(db, "graduates"), orderBy("year", "desc"));
+      const querySnapshot = await getDocs(q);
+      const fetchedGraduates: Graduate[] = [];
+      querySnapshot.forEach((doc) => {
+        fetchedGraduates.push({ id: doc.id, ...doc.data() } as Graduate);
+      });
+      setGraduates(fetchedGraduates);
+    } catch (error) {
+      console.error("Error fetching graduates: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredGraduates = graduates.filter(g => 
     g.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     g.university.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleOpenEdit = (grad: Graduate) => {
+    setEditingId(grad.id);
+    setName(grad.name);
+    setUniversity(grad.university);
+    setYear(grad.year);
+    setImageUrl(grad.imageUrl);
+    setR2Key(grad.r2Key || "");
+    setNotes(grad.notes || "");
+    setIsModalOpen(true);
+  };
+
+  const handleAddOrEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !university || !imageUrl) {
+      alert("Iltimos, ism, OTM va rasmni to'liq kiriting!");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (!db) throw new Error("Firebase db not initialized");
+
+      const gradData = {
+        name,
+        university,
+        year: year || "2024",
+        imageUrl,
+        r2Key: r2Key || "",
+        notes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (editingId) {
+        // Tahrirlash
+        const docRef = doc(db, "graduates", editingId);
+        await updateDoc(docRef, gradData);
+        setGraduates(graduates.map(g => g.id === editingId ? { ...g, ...gradData } : g));
+      } else {
+        // Yangi qo'shish
+        const newGradData = { ...gradData, createdAt: new Date().toISOString() };
+        const docRef = await addDoc(collection(db, "graduates"), newGradData);
+        setGraduates([{ id: docRef.id, ...newGradData }, ...graduates]);
+      }
+
+      setIsModalOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error saving document: ", error);
+      alert("Xatolik yuz berdi. Iltimos qayta urinib ko'ring.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (grad: Graduate) => {
+    if (!confirm(`"${grad.name}" bitiruvchisini o'chirishga ishonchingiz komilmi?`)) return;
+
+    if (grad.r2Key || grad.imageUrl.includes("cloudflarestorage.com") || grad.imageUrl.includes("r2.dev")) {
+      try {
+        await deleteFileFromR2(grad.r2Key || grad.imageUrl);
+      } catch (err) {
+        console.error("R2 delete error:", err);
+      }
+    }
+
+    try {
+      if (!db) throw new Error("Firebase db not initialized");
+      await deleteDoc(doc(db, "graduates", grad.id));
+      setGraduates(graduates.filter((g) => g.id !== grad.id));
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+      alert("O'chirishda xatolik yuz berdi.");
+    }
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setName("");
+    setUniversity("");
+    setYear(new Date().getFullYear().toString());
+    setImageUrl("");
+    setR2Key("");
+    setNotes("");
+  };
 
   return (
     <div className="space-y-6">
@@ -47,8 +158,8 @@ export default function GraduatesPage() {
           <p className="text-slate-500 text-sm mt-1">Maktabimiz faxrli bitiruvchilari ro'yxati</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+          onClick={() => { resetForm(); setIsModalOpen(true); }}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
         >
           <Plus className="w-5 h-5" />
           <span>Yangi qo'shish</span>
@@ -64,7 +175,7 @@ export default function GraduatesPage() {
               placeholder="Ism yoki OTM bo'yicha qidirish..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
             />
           </div>
         </div>
@@ -81,7 +192,13 @@ export default function GraduatesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {filteredGraduates.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-slate-500">
+                    Yuklanmoqda...
+                  </td>
+                </tr>
+              ) : filteredGraduates.length > 0 ? (
                 filteredGraduates.map((grad) => (
                   <tr key={grad.id} className="hover:bg-slate-50 transition-colors">
                     <td className="p-4">
@@ -92,15 +209,23 @@ export default function GraduatesPage() {
                     <td className="p-4 font-medium text-slate-900">{grad.name}</td>
                     <td className="p-4 text-slate-600">{grad.university}</td>
                     <td className="p-4 text-slate-600">
-                      <span className="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                      <span className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
                         {grad.year}
                       </span>
                     </td>
-                    <td className="p-4 text-right space-x-2">
-                      <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <td className="p-4 text-right space-x-1">
+                      <button 
+                        onClick={() => handleOpenEdit(grad)}
+                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                        title="Tahrirlash"
+                      >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <button 
+                        onClick={() => handleDelete(grad)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="O'chirish"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -118,67 +243,100 @@ export default function GraduatesPage() {
         </div>
       </div>
 
-      {/* Add Modal Placeholder */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-slate-900">Yangi bitiruvchi qo'shish</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="text-xl font-bold text-slate-900">
+                {editingId ? "Bitiruvchini tahrirlash" : "Yangi bitiruvchi qo'shish"}
+              </h2>
+              <button 
+                onClick={() => { setIsModalOpen(false); resetForm(); }} 
+                className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto">
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Rasm (Supabase'ga yuklanadi)</label>
-                  <div className="mt-1 relative rounded-lg overflow-hidden border border-slate-200 group">
-                    <img 
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400&h=300" 
-                      alt="Sample preview" 
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                      <div className="text-center text-white">
-                        <Plus className="mx-auto h-8 w-8 mb-1" />
-                        <span className="text-sm font-medium">Rasmni o'zgartirish</span>
-                      </div>
-                      <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
-                    </div>
-                  </div>
-                </div>
+            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
+              <ImageUploader
+                label="Bitiruvchi rasmi (Cloudflare R2 storage)"
+                folder="graduates"
+                value={imageUrl}
+                cropShape="round"
+                aspectRatio={1}
+                onChange={(url, key) => {
+                  setImageUrl(url);
+                  if (key) setR2Key(key);
+                }}
+              />
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
-                  <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" placeholder="Masalan: Aliyev Vali" />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
+                <input 
+                  type="text" 
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                  placeholder="Masalan: Aliyev Vali" 
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Oliygoh nomi (OTM)</label>
-                  <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" placeholder="Masalan: TATU" />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Oliygoh nomi (OTM)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                  placeholder="Masalan: TATU" 
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">O'qishga kirgan yili</label>
-                  <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" placeholder="Masalan: 2023" />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">O'qishga kirgan yili</label>
+                <input 
+                  type="text" 
+                  required
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                  placeholder="Masalan: 2024" 
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Qo'shimcha izoh (ixtiyoriy)</label>
-                  <textarea rows={3} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none" placeholder="Bitiruvchi haqida qisqacha..."></textarea>
-                </div>
-              </form>
-            </div>
-            
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors">
-                Bekor qilish
-              </button>
-              <button className="px-4 py-2 bg-blue-600 text-white font-medium hover:bg-blue-700 rounded-lg transition-colors">
-                Saqlash
-              </button>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Qo'shimcha izoh (ixtiyoriy)</label>
+                <textarea 
+                  rows={3} 
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none" 
+                  placeholder="Bitiruvchi haqida qisqacha..."
+                ></textarea>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <button 
+                  type="button"
+                  onClick={() => { setIsModalOpen(false); resetForm(); }} 
+                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors"
+                >
+                  Bekor qilish
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors ${
+                    isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
+                  }`}
+                >
+                  {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

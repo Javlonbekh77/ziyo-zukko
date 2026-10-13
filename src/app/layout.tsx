@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "@/context/LanguageContext";
+import SmoothScroll from "@/components/SmoothScroll";
 
 export const metadata: Metadata = {
   title: "ZIYO-ZUKKO — Xususiy Maktab",
   description: "ZIYO-ZUKKO xususiy maktabi — Bilim, tarbiya va kelajak bir maskanda.",
+};
+
+import type { Viewport } from "next";
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -12,10 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz" className="h-full antialiased">
+    <html lang="uz" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans bg-[#f8fafc] text-[#071a33]">
-        {children}
+        <LanguageProvider>
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </LanguageProvider>
       </body>
     </html>
   );
 }
+

@@ -1,17 +1,69 @@
 "use client";
 
-import { Users, Award, Image as ImageIcon, Trophy, MessageSquare } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, Award, Image as ImageIcon, Trophy, MessageSquare, Newspaper, Video, GraduationCap, BarChart3 } from "lucide-react";
 import Link from "next/link";
-
-const stats = [
-  { name: "Bitiruvchilar", href: "/admin/graduates", icon: Users, count: "0", color: "bg-blue-500" },
-  { name: "Sertifikatlar", href: "/admin/certificates", icon: Award, count: "0", color: "bg-purple-500" },
-  { name: "Maktab Hayoti", href: "/admin/gallery", icon: ImageIcon, count: "0", color: "bg-pink-500" },
-  { name: "Olimpiadachilar", href: "/admin/olympiads", icon: Trophy, count: "0", color: "bg-amber-500" },
-  { name: "Xabarlar", href: "/admin/messages", icon: MessageSquare, count: "0", color: "bg-green-500" },
-];
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function DashboardPage() {
+  const [counts, setCounts] = useState({
+    stats: 0,
+    teachers: 0,
+    graduates: 0,
+    certificates: 0,
+    gallery: 0,
+    olympiads: 0,
+    messages: 0,
+    news: 0,
+    videos: 0,
+  });
+
+  useEffect(() => {
+    if (!db) return;
+    const firestore = db;
+
+    const unsubs: (() => void)[] = [];
+    const collections = [
+      { key: "stats", col: "stats" },
+      { key: "teachers", col: "teachers" },
+      { key: "graduates", col: "graduates" },
+      { key: "certificates", col: "certificates" },
+      { key: "gallery", col: "gallery" },
+      { key: "olympiads", col: "olympiads" },
+      { key: "messages", col: "messages" },
+      { key: "news", col: "news" },
+      { key: "videos", col: "videos" },
+    ];
+
+    collections.forEach(({ key, col }) => {
+      try {
+        const unsub = onSnapshot(collection(firestore, col), (snapshot) => {
+          setCounts((prev) => ({ ...prev, [key]: snapshot.size }));
+        });
+        unsubs.push(unsub);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    return () => {
+      unsubs.forEach((unsub) => unsub());
+    };
+  }, []);
+
+  const stats = [
+    { name: "Natijalar (Statistika)", href: "/admin/stats", icon: BarChart3, count: counts.stats.toString(), color: "bg-orange-500" },
+    { name: "Ustozlar", href: "/admin/teachers", icon: GraduationCap, count: counts.teachers.toString(), color: "bg-teal-500" },
+    { name: "Bitiruvchilar", href: "/admin/graduates", icon: Users, count: counts.graduates.toString(), color: "bg-blue-500" },
+    { name: "Sertifikatlar", href: "/admin/certificates", icon: Award, count: counts.certificates.toString(), color: "bg-purple-500" },
+    { name: "Yangiliklar", href: "/admin/news", icon: Newspaper, count: counts.news.toString(), color: "bg-rose-500" },
+    { name: "Maktab Hayoti", href: "/admin/gallery", icon: ImageIcon, count: counts.gallery.toString(), color: "bg-pink-500" },
+    { name: "Olimpiadachilar", href: "/admin/olympiads", icon: Trophy, count: counts.olympiads.toString(), color: "bg-amber-500" },
+    { name: "Videolar (YT & Insta)", href: "/admin/videos", icon: Video, count: counts.videos.toString(), color: "bg-indigo-500" },
+    { name: "Xabarlar", href: "/admin/messages", icon: MessageSquare, count: counts.messages.toString(), color: "bg-green-500" },
+  ];
+
   return (
     <div>
       <div className="mb-8">

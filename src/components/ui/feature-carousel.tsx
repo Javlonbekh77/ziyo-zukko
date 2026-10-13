@@ -39,7 +39,7 @@ export const FeatureCarousel = React.forwardRef<HTMLDivElement, FeatureCarouselP
       if (activeStory === null) {
         const timer = setInterval(() => {
             handleNext();
-        }, 4000);
+        }, 8000);
         return () => clearInterval(timer);
       }
     }, [handleNext, activeStory]);
@@ -105,7 +105,7 @@ export const FeatureCarousel = React.forwardRef<HTMLDivElement, FeatureCarouselP
         )}
         {...props}
       >
-        <div className="relative w-full h-[400px] md:h-[500px] flex items-center justify-center">
+        <div className="relative w-full h-[450px] md:h-[580px] flex items-center justify-center">
           {/* Carousel Wrapper */}
           <div 
             className="relative w-full h-full flex items-center justify-center [perspective:1000px] touch-none cursor-grab active:cursor-grabbing"
@@ -130,12 +130,12 @@ export const FeatureCarousel = React.forwardRef<HTMLDivElement, FeatureCarouselP
                 <div
                   key={item.id}
                   className={cn(
-                    'absolute w-52 h-[320px] sm:w-64 sm:h-[400px] md:w-72 md:h-[450px] transition-all duration-500 ease-in-out',
+                    'absolute w-64 h-[380px] sm:w-80 sm:h-[480px] md:w-[360px] md:h-[540px] transition-all duration-500 ease-in-out',
                     'flex items-center justify-center cursor-pointer'
                   )}
                   style={{
                     transform: `
-                      translateX(${(pos) * 45}%) 
+                      translateX(${(pos) * 50}%) 
                       scale(${isCenter ? 1 : isAdjacent ? 0.85 : 0.7})
                       rotateY(${(pos) * -10}deg)
                     `,
@@ -175,14 +175,21 @@ export const FeatureCarousel = React.forwardRef<HTMLDivElement, FeatureCarouselP
                     {/* Always render the cropped iframe to act as the thumbnail/video player */}
                     <div 
                       className={cn(
-                        "absolute inset-0 overflow-hidden transition-all duration-500",
+                        "absolute inset-0 overflow-hidden bg-black transition-all duration-500",
                         isActiveStory ? "z-10 pointer-events-auto" : "z-0 pointer-events-none opacity-80 group-hover:opacity-100 group-hover:scale-105"
                       )}
                       onClick={(e) => isActiveStory && e.stopPropagation()}
                     >
                       <iframe 
                         src={`${item.embedUrl}?hidecaption=1`} 
-                        className="absolute w-full h-full border-none bg-black" 
+                        style={{ 
+                          width: '104%', 
+                          height: 'calc(100% + 180px)', 
+                          top: '-56px',
+                          left: '-2%',
+                          position: 'absolute'
+                        }}
+                        className="border-none bg-black" 
                         scrolling="no" 
                         allow="encrypted-media; autoplay"
                         tabIndex={-1}

@@ -44,3 +44,9 @@ next-env.d.ts
 /public/rasmlar/
 /public/sertifikatlar/
 /public/talaba_rasm.png
+
+# temporary files
+crop_frames.js
+promplems_with_vercel.txt
+test-*.mjs
+/public/frames/mobile/

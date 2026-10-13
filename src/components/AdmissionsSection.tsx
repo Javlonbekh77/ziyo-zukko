@@ -1,14 +1,40 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AdmissionsSection() {
+  const { lang, t } = useLanguage();
+
   const scrollToContact = () => {
     const el = document.getElementById("contact") || document.getElementById("aloqa");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const col2Title = lang === "ru" ? "ПРЕДМЕТЫ ЭКЗАМЕНА" : lang === "en" ? "EXAM SUBJECTS" : "IMTIHON FANLARI";
+  const col3Title = lang === "ru" ? "ИНФОРМАЦИЯ" : lang === "en" ? "INFORMATION" : "MA'LUMOT";
+
+  const mathTitle = lang === "ru" ? "Математика" : lang === "en" ? "Mathematics" : "Matematika";
+  const mathSub = lang === "ru" ? "Логика и вычисления" : lang === "en" ? "Logic and calculations" : "Mantiq va hisoblash";
+
+  const logicTitle = lang === "ru" ? "Логическое мышление" : lang === "en" ? "Logical Thinking" : "Mantiqiy fikrlash";
+  const logicSub = lang === "ru" ? "Анализ и рассуждение" : lang === "en" ? "Analysis and reasoning" : "Tahlil va mushohada";
+
+  const engTitle = lang === "ru" ? "Английский язык" : lang === "en" ? "English Language" : "Ingliz tili";
+  const engSub = lang === "ru" ? "Grammar и reading" : lang === "en" ? "Grammar and reading" : "Grammar va reading";
+
+  const gradeLabel = lang === "ru" ? "Классы приёма" : lang === "en" ? "Eligible grades" : "Qabul qilinadigan sinflar";
+  const gradeVal = lang === "ru" ? "5–11 классы" : lang === "en" ? "Grades 5–11" : "5–11 sinf";
+
+  const durationLabel = lang === "ru" ? "Длительность" : lang === "en" ? "Duration" : "Imtihon davomiyligi";
+  const durationVal = lang === "ru" ? "2 часа" : lang === "en" ? "2 hours" : "2 soat";
+
+  const resultLabel = lang === "ru" ? "Результат" : lang === "en" ? "Admission basis" : "Natija";
+  const resultVal = lang === "ru" ? "Конкурсный отбор" : lang === "en" ? "Competitive selection" : "Saralash asosida";
+
+  const questionText = lang === "ru" ? "Остались вопросы? " : lang === "en" ? "Have questions? " : "Savollaringiz bormi? ";
 
   return (
     <section id="qabul" className="py-16 md:py-24 bg-[#06113c] text-white relative overflow-hidden">
@@ -22,13 +48,13 @@ export default function AdmissionsSection() {
           className="text-center mb-12 md:mb-16"
         >
           <span className="inline-block text-[#ff8a32] text-xs md:text-sm font-bold tracking-widest uppercase mb-3">
-            QABUL 2026–2027
+            {t("admissionsBadge")}
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold uppercase text-white tracking-tight leading-tight mb-4 max-w-3xl mx-auto">
-            FARZANDINGIZNI <br className="hidden sm:inline" /> KELAJAK UCHUN HOZIRDAN TAYYORLANG
+            {t("admissionsTitle1")} <br className="hidden sm:inline" /> {t("admissionsTitle2")}
           </h2>
           <p className="text-white/60 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            Imtihon asosida saralangan bolalar qatorida farzandingiz tahsil oladi.
+            {t("admissionsSubtitle")}
           </p>
         </motion.div>
 
@@ -44,7 +70,7 @@ export default function AdmissionsSection() {
           >
             <div>
               <h3 className="text-xs font-bold tracking-widest uppercase text-[#ff8a32] mb-6">
-                QABUL JARAYONI
+                {t("processHeader")}
               </h3>
               <div className="flex flex-col space-y-6">
                 {/* Step 1 */}
@@ -57,10 +83,10 @@ export default function AdmissionsSection() {
                   </div>
                   <div className="pb-4">
                     <span className="block font-semibold text-white text-base mb-1 group-hover:text-[#ff8a32] transition-colors duration-300">
-                      Imtihon
+                      {t("step1Title")}
                     </span>
                     <span className="block text-white/50 text-sm leading-relaxed">
-                      Matematika, ingliz tili, tanqidiy fikrlash — 2 soat
+                      {t("step1Desc")}
                     </span>
                   </div>
                 </div>
@@ -75,10 +101,10 @@ export default function AdmissionsSection() {
                   </div>
                   <div className="pb-4">
                     <span className="block font-semibold text-white text-base mb-1 group-hover:text-[#ff8a32] transition-colors duration-300">
-                      Suhbat
+                      {t("step2Title")}
                     </span>
                     <span className="block text-white/50 text-sm leading-relaxed">
-                      Bola va ota-onalari bilan suhbat
+                      {t("step2Desc")}
                     </span>
                   </div>
                 </div>
@@ -92,10 +118,10 @@ export default function AdmissionsSection() {
                   </div>
                   <div>
                     <span className="block font-semibold text-white text-base mb-1">
-                      Natija va qabul
+                      {t("step3Title")}
                     </span>
                     <span className="block text-white/50 text-sm leading-relaxed">
-                      Natijaga ko'ra qabul qilinadi
+                      {t("step3Desc")}
                     </span>
                   </div>
                 </div>
@@ -113,7 +139,7 @@ export default function AdmissionsSection() {
           >
             <div>
               <h3 className="text-xs font-bold tracking-widest uppercase text-[#ff8a32] mb-6">
-                IMTIHON FANLARI
+                {col2Title}
               </h3>
               <div className="flex flex-col space-y-3.5">
                 {/* Test 1 */}
@@ -125,8 +151,8 @@ export default function AdmissionsSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block font-semibold text-white text-sm md:text-base">Matematika</span>
-                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">Mantiq va hisoblash</span>
+                    <span className="block font-semibold text-white text-sm md:text-base">{mathTitle}</span>
+                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">{mathSub}</span>
                   </div>
                 </div>
 
@@ -139,8 +165,8 @@ export default function AdmissionsSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block font-semibold text-white text-sm md:text-base">Mantiqiy fikrlash</span>
-                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">Tahlil va mushohada</span>
+                    <span className="block font-semibold text-white text-sm md:text-base">{logicTitle}</span>
+                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">{logicSub}</span>
                   </div>
                 </div>
 
@@ -152,8 +178,8 @@ export default function AdmissionsSection() {
                     </svg>
                   </div>
                   <div>
-                    <span className="block font-semibold text-white text-sm md:text-base">Ingliz tili</span>
-                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">Grammar va reading</span>
+                    <span className="block font-semibold text-white text-sm md:text-base">{engTitle}</span>
+                    <span className="block text-[#ff8a32]/80 text-xs md:text-sm mt-0.5">{engSub}</span>
                   </div>
                 </div>
               </div>
@@ -170,20 +196,20 @@ export default function AdmissionsSection() {
           >
             <div>
               <h3 className="text-xs font-bold tracking-widest uppercase text-[#ff8a32] mb-6">
-                MA'LUMOT
+                {col3Title}
               </h3>
               <div className="flex flex-col divide-y divide-white/10 mb-6">
                 <div className="flex justify-between items-center py-3.5">
-                  <span className="text-white/50 text-sm">Qabul qilinadigan sinflar</span>
-                  <span className="font-bold text-white text-base">5–11 sinf</span>
+                  <span className="text-white/50 text-sm">{gradeLabel}</span>
+                  <span className="font-bold text-white text-base">{gradeVal}</span>
                 </div>
                 <div className="flex justify-between items-center py-3.5">
-                  <span className="text-white/50 text-sm">Imtihon davomiyligi</span>
-                  <span className="font-bold text-white text-base">2 soat</span>
+                  <span className="text-white/50 text-sm">{durationLabel}</span>
+                  <span className="font-bold text-white text-base">{durationVal}</span>
                 </div>
                 <div className="flex justify-between items-center py-3.5">
-                  <span className="text-white/50 text-sm">Natija</span>
-                  <span className="font-bold text-white text-base">Saralash asosida</span>
+                  <span className="text-white/50 text-sm">{resultLabel}</span>
+                  <span className="font-bold text-white text-base">{resultVal}</span>
                 </div>
               </div>
             </div>
@@ -191,12 +217,12 @@ export default function AdmissionsSection() {
             <div>
               <button
                 onClick={scrollToContact}
-                className="w-full bg-gradient-to-r from-[#ffa055] via-[#ff8a32] to-[#ff7a1a] hover:from-[#ffb070] hover:to-[#e07524] text-white font-bold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(255,138,50,0.4)] hover:shadow-[0_0_30px_rgba(255,138,50,0.6)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] text-center text-base"
+                className="w-full bg-gradient-to-r from-[#ffa055] via-[#ff8a32] to-[#ff7a1a] hover:from-[#ffb070] hover:to-[#e07524] text-white font-bold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(255,138,50,0.4)] hover:shadow-[0_0_30px_rgba(255,138,50,0.6)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] text-center text-base cursor-pointer"
               >
-                Ro'yxatdan o'tish
+                {t("admissionsRegisterBtn")}
               </button>
               <p className="mt-4 text-center text-white/50 text-sm">
-                Savollaringiz bormi?{" "}
+                {questionText}
                 <a href="tel:+998788888080" className="text-white font-semibold hover:text-[#ff8a32] transition-colors">
                   +998 78 888 80 80
                 </a>
