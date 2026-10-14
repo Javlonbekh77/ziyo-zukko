@@ -174,15 +174,15 @@ export default function ResultsSection() {
       console.error("Error setting up results listeners:", e);
     }
 
-      if (siteStats.length === 0 && adminCerts.length === 0) {
-    return null;
-  }
-
-  return () => {
+    return () => {
       if (statsUnsub) statsUnsub();
       if (certsUnsub) certsUnsub();
     };
   }, []);
+
+  if (siteStats.length === 0 && adminCerts.length === 0) {
+    return null;
+  }
 
   // Merge admin-uploaded certificates at the top
   const combinedList = [...adminCerts, ...allCertificatesList];
