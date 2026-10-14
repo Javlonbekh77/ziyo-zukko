@@ -214,15 +214,25 @@ export default function KeyboardScroll() {
 
   // Scrollni qulflash va Auto-playni boshqarish (oldinga va orqaga)
   useEffect(() => {
+    // "interactive" holatida hech qanday non-passive listener bo'lmasligi shart!
+    // Bu butun sayt bo'ylab 120Hz/60Hz silliq aylanishini kafolatlaydi.
+    if (phase === "interactive") {
+      const handleTopWheel = (e: WheelEvent) => {
+        if (window.scrollY <= 0 && e.deltaY < -20) {
+          setPhase("playing-backward");
+        }
+      };
+      window.addEventListener("wheel", handleTopWheel, { passive: true });
+      return () => window.removeEventListener("wheel", handleTopWheel);
+    }
+
     let touchStartY = 0;
 
     const handleScrollAttempt = (e: Event) => {
-      let isScrollingUp = false;
       let isScrollingDown = false;
 
       if (e.type === "wheel") {
         const wheelEvent = e as WheelEvent;
-        isScrollingUp = wheelEvent.deltaY < 0;
         isScrollingDown = wheelEvent.deltaY > 0;
       } else if (e.type === "touchstart") {
         const touchEvent = e as TouchEvent;
@@ -230,12 +240,10 @@ export default function KeyboardScroll() {
       } else if (e.type === "touchmove") {
         const touchEvent = e as TouchEvent;
         const currentY = touchEvent.touches[0].clientY;
-        isScrollingUp = currentY > touchStartY;
-        isScrollingDown = currentY < touchStartY;
+        isScrollingDown = currentY < touchStartY - 10;
       }
 
       if (phase === "start") {
-        // Agar sahifa eng tepada bo'lmasa, demak allaqachon scroll qilingan
         if (window.scrollY > 10) {
           setPhase("interactive");
           return;
@@ -245,13 +253,7 @@ export default function KeyboardScroll() {
           e.preventDefault();
           setPhase("playing-forward");
         } else {
-          // Boshqa yo'nalishga ruxsat berish yoki lock qilish
           e.preventDefault();
-        }
-      } else if (phase === "interactive") {
-        if (window.scrollY <= 0 && isScrollingUp) {
-          e.preventDefault();
-          setPhase("playing-backward");
         }
       } else if (phase === "playing-forward" || phase === "playing-backward") {
         e.preventDefault();
@@ -269,11 +271,11 @@ export default function KeyboardScroll() {
     };
   }, [phase]);
 
-  // Auto-play videosi (oldinga va orqaga) tezlashtirilgan 60 fps
+  // Auto-play videosi (oldinga va orqaga) - tez va chaqqon 100 fps
   useEffect(() => {
     if (phase === "playing-forward" || phase === "playing-backward") {
       let lastTime = performance.now();
-      const fps = 84; // Tezlashtirilgan video tezligi (40% ga oshirilgan)
+      const fps = 100; // Tezlashtirilgan video tezligi
       const interval = 1000 / fps;
       let animationFrameId: number;
 
@@ -289,10 +291,17 @@ export default function KeyboardScroll() {
 
         const deltaTime = currentTime - lastTime;
         if (deltaTime >= interval) {
+          const step = Math.max(1, Math.min(3, Math.floor(deltaTime / interval)));
           if (phase === "playing-forward") {
-            currentFrameRef.current++;
+            currentFrameRef.current = Math.min(
+              interactiveStartFrame,
+              currentFrameRef.current + step
+            );
           } else {
-            currentFrameRef.current--;
+            currentFrameRef.current = Math.max(
+              0,
+              currentFrameRef.current - step
+            );
           }
           renderFrame(currentFrameRef.current);
           lastTime = currentTime - (deltaTime % interval);
@@ -304,9 +313,9 @@ export default function KeyboardScroll() {
 
       return () => cancelAnimationFrame(animationFrameId);
     }
-  }, [phase, renderFrame]);
+  }, [phase, renderFrame, interactiveStartFrame]);
 
-  // Auto-play tugagandan so'ng, scroll orqali qolgan kadrlarni (100 - 191) boshqarish
+  // Auto-play tugagandan so'ng, scroll orqali qolgan kadrlarni boshqarish
   useEffect(() => {
     if (phase === "interactive") {
       const handleRender = () => {
@@ -329,10 +338,10 @@ export default function KeyboardScroll() {
         window.removeEventListener("resize", handleRender);
       };
     }
-  }, [phase, scrollFrameIndex, renderFrame]);
+  }, [phase, scrollFrameIndex, renderFrame, totalFrames, interactiveStartFrame]);
 
-  // Lenis smooth scrollni birinchi video/frame animatsiyalari vaqtida (faqat sahifa eng tepada bo'lsa) to'xtatish,
-  // faqat interactive bosqichga o'tgach faollashtirish
+  // Lenis smooth scrollni birinchi video/frame animatsiyalari vaqtida to'xtatish,
+  // faqat interactive bosqichga o'tgach darhol faollashtirish
   useEffect(() => {
     const checkAndToggleLenis = () => {
       const lenis = (window as any).lenis;
@@ -341,7 +350,6 @@ export default function KeyboardScroll() {
       if (phase === "interactive") {
         lenis.start();
       } else {
-        // Faqat sahifa eng tepada (window.scrollY <= 10) bo'lgandagina lenis.stop() qilish
         if (typeof window !== "undefined" && window.scrollY <= 10) {
           lenis.stop();
         } else {
@@ -352,13 +360,12 @@ export default function KeyboardScroll() {
 
     checkAndToggleLenis();
 
-    const timer1 = setTimeout(checkAndToggleLenis, 100);
-    const timer2 = setTimeout(checkAndToggleLenis, 500);
+    const timer1 = setTimeout(checkAndToggleLenis, 50);
+    const timer2 = setTimeout(checkAndToggleLenis, 200);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      // Komponent unmount bo'lganda (boshqa sahifaga o'tilganda) albatta Lenis scrollni faollashtirish
       const lenis = (window as any).lenis;
       if (lenis) {
         lenis.start();
@@ -369,7 +376,11 @@ export default function KeyboardScroll() {
   const { t } = useLanguage();
 
   return (
-    <div ref={containerRef} data-lenis-prevent className="h-[250vh] relative bg-black">
+    <div
+      ref={containerRef}
+      data-lenis-prevent={phase !== "interactive" ? "" : undefined}
+      className="h-[160vh] md:h-[190vh] relative bg-black"
+    >
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         {!loaded && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">

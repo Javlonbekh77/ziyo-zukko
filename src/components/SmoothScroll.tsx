@@ -9,15 +9,14 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // numeo.ai kabi silliq inertia va mometun scroll effekti yaratish uchun Lenis sozlanmalari
     const lenis = new Lenis({
-      duration: 1.2, // Scroll davomiyligi (soniya)
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // numeo.ai uslubidagi silliq inersiya (exponential decay)
+      duration: 0.85, // Chaqqon, silliq va o'ta sezgir inersiya (ortiqcha kechikishsiz)
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.0,
       infinite: false,
     });
 

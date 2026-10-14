@@ -298,9 +298,9 @@ export default function NewsSection() {
               {t("newsSubTitle")}<span className="text-[#8c1c3f]">{t("newsSubTitleAccent")}</span>
             </h3>
             
-            <div className="flex flex-col gap-4 h-full justify-between">
+            <div className="flex flex-col gap-3 h-full justify-between">
               {displayNewsItems.length > 0 ? (
-                displayNewsItems.slice(0, 3).map((item) => (
+                displayNewsItems.slice(0, 4).map((item) => (
                   <Link 
                     key={item.id} 
                     href={`/news/${item.id}`} 
@@ -308,10 +308,10 @@ export default function NewsSection() {
                   >
                     <motion.div 
                       variants={itemVariants} 
-                      className="bg-white rounded-2xl p-3 md:p-3.5 shadow-sm hover:shadow-md transition-all flex gap-3.5 md:gap-4 items-center cursor-pointer border border-gray-100 hover:border-gray-200 h-[125px] sm:h-[135px] md:h-[145px] overflow-hidden"
+                      className="bg-white rounded-2xl p-2.5 sm:p-3 md:p-3.5 shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-3.5 items-center cursor-pointer border border-gray-100 hover:border-gray-200 h-[110px] sm:h-[118px] md:h-[126px] overflow-hidden"
                     >
                       {/* News Image - Fixed dimensions */}
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                      <div className="relative w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
                         <Image 
                           src={item.img} 
                           alt={item.title} 
@@ -321,8 +321,8 @@ export default function NewsSection() {
                         />
                         {(item.social === 'youtube' || item.social === 'instagram' || item.embedUrl) && (
                           <div className="absolute inset-0 bg-black/25 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-white/95 text-slate-900 flex items-center justify-center shadow-md">
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <div className="w-5 h-5 rounded-full bg-white/95 text-slate-900 flex items-center justify-center shadow-md">
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                             </div>
                           </div>
                         )}
@@ -331,7 +331,7 @@ export default function NewsSection() {
                       {/* News Content - Uniform flex layout with strict text-ellipsis */}
                       <div className="flex flex-col flex-1 h-full justify-between min-w-0 py-0.5 overflow-hidden">
                         <div>
-                          <h3 className="font-bold text-xs sm:text-sm md:text-[14px] text-[#0b1b36] leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-1 overflow-hidden text-ellipsis">
+                          <h3 className="font-bold text-xs sm:text-sm text-[#0b1b36] leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-1 overflow-hidden text-ellipsis">
                             {item.title}
                           </h3>
                           <p className="text-[9px] md:text-[10px] text-[#8c1c3f] font-bold uppercase tracking-wider mt-0.5">
@@ -345,17 +345,17 @@ export default function NewsSection() {
                         </p>
                         
                         <div className="flex items-center gap-2 shrink-0">
-                          <div className="bg-[#8c1c3f] text-white text-[10px] md:text-[11px] font-bold px-2.5 py-0.5 rounded-lg">
+                          <div className="bg-[#8c1c3f] text-white text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-md">
                             {item.date}
                           </div>
                           {(item.social === 'youtube' || item.social === 'both') && (
                             <div className="text-[#FF0000]">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
                             </div>
                           )}
                           {(item.social === 'instagram' || item.social === 'both') && (
                             <div className="text-[#E1306C]">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
                             </div>
                           )}
                         </div>
