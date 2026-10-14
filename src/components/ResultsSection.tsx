@@ -45,48 +45,13 @@ interface CertCardItem {
   image: string;
 }
 
-const defaultStatsList: StatItem[] = [
-  {
-    value: 100,
-    suffix: "%",
-    title: "OTMga kirish ko'rsatkichi",
-    subtitle: "Bitiruvchilarimizning nufuzli oliygohlarga qabuli",
-    order: 1,
-    statKey: "statAdmission",
-  },
-  {
-    value: 150,
-    suffix: "+",
-    title: "Xalqaro sertifikatlar",
-    subtitle: "IELTS 7.0-8.5 va CEFR C1/B2 natijalari",
-    order: 2,
-    statKey: "statIelts",
-  },
-  {
-    value: 40,
-    suffix: "+",
-    title: "Olimpiada sovrindorlari",
-    subtitle: "Xalqaro va Respublika olimpiada medallari",
-    order: 3,
-    statKey: "statOlympiad",
-  },
-  {
-    value: 25,
-    suffix: "+",
-    title: "Grant sohiblari",
-    subtitle: "Xalqaro universitetlar grantlari egalari",
-    order: 4,
-    statKey: "statGrants",
-  },
-];
-
 const allCertificatesList: CertCardItem[] = [];
 
 export default function ResultsSection() {
   const { lang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState("all");
   // Default state matches SSR to prevent hydration mismatch
-  const [siteStats, setSiteStats] = useState<StatItem[]>(defaultStatsList);
+  const [siteStats, setSiteStats] = useState<StatItem[]>([]);
   const [adminCerts, setAdminCerts] = useState<CertCardItem[]>([]);
   const [isStatsLoading, setIsStatsLoading] = useState(false);
 
@@ -175,7 +140,7 @@ export default function ResultsSection() {
                 score: data.score || "",
                 subject: data.subject || data.category || "Fan",
                 category: data.category || "Boshqa",
-                image: data.imageUrl || "/sertifikatlar/cefr/cert1.jpeg",
+                image: data.imageUrl || "/data/maktab_binosi.png",
               });
             });
             setAdminCerts(fetchedCerts);
@@ -195,7 +160,7 @@ export default function ResultsSection() {
                   score: data.score || "",
                   subject: data.subject || data.category || "Fan",
                   category: data.category || "Boshqa",
-                  image: data.imageUrl || "/sertifikatlar/cefr/cert1.jpeg",
+                  image: data.imageUrl || "/data/maktab_binosi.png",
                 });
               });
               setAdminCerts(fetchedCerts);
@@ -209,7 +174,11 @@ export default function ResultsSection() {
       console.error("Error setting up results listeners:", e);
     }
 
-    return () => {
+      if (siteStats.length === 0 && adminCerts.length === 0) {
+    return null;
+  }
+
+  return () => {
       if (statsUnsub) statsUnsub();
       if (certsUnsub) certsUnsub();
     };
@@ -279,82 +248,89 @@ export default function ResultsSection() {
         </div>
 
         {/* Stats Counters */}
-        <div className={`grid grid-cols-1 md:grid-cols-${Math.min(siteStats.length || 3, 4)} gap-8 py-10 border-y border-black/10 mb-12 min-h-[140px]`}>
-          {siteStats.map((item, idx) => {
-            const title = item.statKey ? t(`${item.statKey}Title`) : item.title;
-            const subtitle = item.statKey ? t(`${item.statKey}Subtitle`) : item.subtitle;
+        {siteStats.length > 0 && (
+          <div className={`grid grid-cols-1 md:grid-cols-${Math.min(siteStats.length || 3, 4)} gap-8 py-10 border-y border-black/10 mb-12 min-h-[140px]`}>
+            {siteStats.map((item, idx) => {
+              const title = item.statKey ? t(`${item.statKey}Title`) : item.title;
+              const subtitle = item.statKey ? t(`${item.statKey}Subtitle`) : item.subtitle;
 
-            return (
-              <div
-                key={item.id || idx}
-                className={`text-center md:text-left flex flex-col justify-center gap-1 ${
-                  idx !== siteStats.length - 1 ? "md:border-r border-black/10 pr-6" : "pl-0 md:pl-6"
-                } ${idx > 0 && idx < siteStats.length - 1 ? "px-0 md:px-6" : ""}`}
-              >
-                <span className="text-5xl md:text-6xl font-black text-[#ff6b00] tracking-tight">
-                  <CountUp to={item.value} suffix={item.suffix} />
-                </span>
-                <h4 className="font-bold text-base text-[#071a33] mt-2">
-                  {title}
-                </h4>
-                <p className="text-xs text-black/60">{subtitle}</p>
-              </div>
-            );
-          })}
-        </div>
+              return (
+                <div
+                  key={item.id || idx}
+                  className={`text-center md:text-left flex flex-col justify-center gap-1 ${
+                    idx !== siteStats.length - 1 ? "md:border-r border-black/10 pr-6" : "pl-0 md:pl-6"
+                  } ${idx > 0 && idx < siteStats.length - 1 ? "px-0 md:px-6" : ""}`}
+                >
+                  <span className="text-5xl md:text-6xl font-black text-[#ff6b00] tracking-tight">
+                    <CountUp to={item.value} suffix={item.suffix} />
+                  </span>
+                  <h4 className="font-bold text-base text-[#071a33] mt-2">
+                    {title}
+                  </h4>
+                  <p className="text-xs text-black/60">{subtitle}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Category Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-12">
-          {defaultCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveTab(cat.id)}
-              className={`px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer ${
-                activeTab === cat.id
-                  ? "bg-[#ff6b00] text-white shadow-md shadow-orange-500/30 scale-105"
-                  : "bg-[#f1f5f9] text-black/70 hover:bg-[#e2e8f0] hover:text-black"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        {/* Certificates Section */}
+        {adminCerts.length > 0 && (
+          <>
+            {/* Category Tabs */}
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-12">
+              {defaultCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer ${
+                    activeTab === cat.id
+                      ? "bg-[#ff6b00] text-white shadow-md shadow-orange-500/30 scale-105"
+                      : "bg-[#f1f5f9] text-black/70 hover:bg-[#e2e8f0] hover:text-black"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
 
-        {/* Certificates Grid */}
-        <motion.div
-          key={activeTab}
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
-        >
-          {homeCertificates.map((cert) => (
+            {/* Certificates Grid */}
             <motion.div
-              key={cert.id}
-              variants={itemVariants}
-              className="relative rounded-2xl p-1 bg-white border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
+              key={activeTab}
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
             >
-              <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} />
-              <div className="relative z-10 p-3 bg-white rounded-xl flex flex-col h-full">
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-50 mb-3 border border-slate-100 flex items-center justify-center">
-                  <Image
-                    src={cert.image}
-                    alt={cert.name}
-                    fill
-                    unoptimized
-                    className="object-contain group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <h4 className="font-bold text-sm text-[#071a33] truncate">{cert.name}</h4>
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
-                  <span className="text-xs font-semibold text-[#ff6b00]">{cert.score}</span>
-                  <span className="text-[11px] text-slate-400 font-medium">{cert.subject}</span>
-                </div>
-              </div>
+              {homeCertificates.map((cert) => (
+                <motion.div
+                  key={cert.id}
+                  variants={itemVariants}
+                  className="relative rounded-2xl p-1 bg-white border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
+                >
+                  <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} />
+                  <div className="relative z-10 p-3 bg-white rounded-xl flex flex-col h-full">
+                    <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-50 mb-3 border border-slate-100 flex items-center justify-center">
+                      <Image
+                        src={cert.image}
+                        alt={cert.name}
+                        fill
+                        unoptimized
+                        className="object-contain group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <h4 className="font-bold text-sm text-[#071a33] truncate">{cert.name}</h4>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                      <span className="text-xs font-semibold text-[#ff6b00]">{cert.score}</span>
+                      <span className="text-[11px] text-slate-400 font-medium">{cert.subject}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
+          </>
+        )}
       </div>
     </section>
   );

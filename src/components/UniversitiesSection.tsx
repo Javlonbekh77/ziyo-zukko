@@ -20,23 +20,10 @@ interface GraduateItem {
 
 const defaultGraduates: GraduateItem[] = [];
 
-const defaultUniversityPills = [
-  "JAHON IQTISODIYOTI VA DIPLOMATIYA UNIVERSITETI",
-  "TOSHKENT DAVLAT IQTISODIYOT UNIVERSITETI",
-  "TOSHKENT AXBOROT TEXNOLOGIYALARI UNIVERSITETI",
-  "O'ZBEKISTON MILLIY UNIVERSITETI",
-  "TOSHKENT DAVLAT YURIDIK UNIVERSITETI",
-  "TOSHKENT TIBBIYOT AKADEMIYASI",
-  "XALQARO ISLOMSHUNOSLIK AKADEMIYASI",
-  "WIUT (WESTMINSTER)",
-  "MDIST (SINGAPUR UNIVERSITETI)",
-  "INHA UNIVERSITETI",
-];
-
 export default function UniversitiesSection() {
   const { lang, t } = useLanguage();
   const [graduates, setGraduates] = useState<GraduateItem[]>([]);
-  const [universityPills, setUniversityPills] = useState<string[]>(defaultUniversityPills);
+  const [universityPills, setUniversityPills] = useState<string[]>([]);
 
   useEffect(() => {
     // Read cache upon client mount
@@ -73,15 +60,13 @@ export default function UniversitiesSection() {
             setGraduates(merged);
             setLocalCache("graduates_home_cache", merged);
             const dynamicUnis = Array.from(
-              new Set([
-                ...merged.map((g) => g.university).filter(Boolean),
-                ...defaultUniversityPills,
-              ])
+              new Set(merged.map((g) => g.university).filter(Boolean))
             );
             setUniversityPills(dynamicUnis);
             setLocalCache("unis_home_cache", dynamicUnis);
           } else {
-            setGraduates(defaultGraduates);
+            setGraduates([]);
+            setUniversityPills([]);
           }
         },
         (error) => {
@@ -102,15 +87,13 @@ export default function UniversitiesSection() {
               setGraduates(merged);
               setLocalCache("graduates_home_cache", merged);
               const dynamicUnis = Array.from(
-                new Set([
-                  ...merged.map((g) => g.university).filter(Boolean),
-                  ...defaultUniversityPills,
-                ])
+                new Set(merged.map((g) => g.university).filter(Boolean))
               );
               setUniversityPills(dynamicUnis);
               setLocalCache("unis_home_cache", dynamicUnis);
             } else {
-              setGraduates(defaultGraduates);
+              setGraduates([]);
+              setUniversityPills([]);
             }
           });
           unsub = simpleUnsub;

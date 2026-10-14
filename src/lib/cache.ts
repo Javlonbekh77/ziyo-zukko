@@ -1,6 +1,6 @@
 // Client-side caching utility with localStorage persistence and stale-while-revalidate pattern
 
-const CACHE_PREFIX = "zz_cache_";
+const CACHE_PREFIX = "zz_db_v2_cache_";
 const DEFAULT_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 interface CachePayload<T> {

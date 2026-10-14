@@ -22,39 +22,49 @@ interface StudentItem {
   bio?: string;
 }
 
-const fallbackStudentsMap: Record<string, StudentItem> = {};
-
 export default function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const studentId = resolvedParams.id;
 
   const [student, setStudent] = useState<StudentItem | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStudent() {
-      if (fallbackStudentsMap[studentId]) {
-        setStudent(fallbackStudentsMap[studentId]);
-        setLoading(false);
-        return;
-      }
-
       if (!db) {
         setLoading(false);
         return;
       }
 
       try {
-        const docRef = doc(db, "students", studentId);
-        const docSnap = await getDoc(docRef);
+        let docRef = doc(db, "graduates", studentId);
+        let docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+          docRef = doc(db, "students", studentId);
+          docSnap = await getDoc(docRef);
+        }
+
         if (docSnap.exists()) {
-          setStudent({ id: docSnap.id, ...docSnap.data() } as StudentItem);
+          const data = docSnap.data();
+          setStudent({
+            id: docSnap.id,
+            name: data.name || "Bitiruvchi",
+            university: data.university || "",
+            universities: data.universities || (data.university ? [data.university] : []),
+            status: data.notes || data.status || (data.year ? `${data.year}-yil bitiruvchisi` : "Grant"),
+            grantAmount: data.grantAmount || (data.notes?.includes("$") ? data.notes : undefined),
+            image: data.imageUrl || data.image || "/data/maktab_binosi.png",
+            bio: data.notes || data.bio || "",
+            ielts: data.ielts,
+            sat: data.sat,
+          } as StudentItem);
         } else {
-          setStudent(fallbackStudentsMap["stud-1"]);
+          setStudent(null);
         }
       } catch (err) {
         console.error("Error fetching single student:", err);
-        setStudent(fallbackStudentsMap["stud-1"]);
+        setStudent(null);
       } finally {
         setLoading(false);
       }

@@ -20,47 +20,9 @@ interface TestimonialItem {
   thumbnail: string;
 }
 
-const defaultTestimonials: TestimonialItem[] = [
-  {
-    id: "fixed-1",
-    title: "Ota-onalar fikri — Farzandlarimiz quvonchi",
-    quote: "Farzandlarimiz quvonchi va ta'lim sifati haqida ota-onalar fikri",
-    platform: "youtube",
-    url: "https://www.youtube.com/shorts/asuL_CFqh0E",
-    embedUrl: "https://www.youtube.com/embed/asuL_CFqh0E?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/asuL_CFqh0E/hqdefault.jpg"
-  },
-  {
-    id: "fixed-2",
-    title: "Ota-onalar fikri — Maktab muhiti va natijalar",
-    quote: "ZIYO-ZUKKO maktabi muhiti va erishilgan natijalar",
-    platform: "youtube",
-    url: "https://www.youtube.com/shorts/JCv6fvrnKpw",
-    embedUrl: "https://www.youtube.com/embed/JCv6fvrnKpw?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/JCv6fvrnKpw/hqdefault.jpg"
-  },
-  {
-    id: "fixed-3",
-    title: "Ota-onalar fikri — Kelajak sari qadam",
-    quote: "Farzandlarimiz kelajagi va ta'lim maskani haqida samimiy so'zlar",
-    platform: "instagram",
-    url: "https://www.instagram.com/p/DdtLw6zoPVQ/",
-    embedUrl: "https://www.instagram.com/p/DdtLw6zoPVQ/embed",
-    thumbnail: "/rasmlar/2026-10-02 17.58.36.jpg"
-  },
-  {
-    id: "fixed-4",
-    title: "Ota-onalar fikri",
-    quote: "Ota-onalarning samimiy tavsiyalari va taassurotlari",
-    platform: "instagram",
-    url: "https://www.instagram.com/p/DddWx2Boiex/",
-    embedUrl: "https://www.instagram.com/p/DddWx2Boiex/embed",
-    thumbnail: "/rasmlar/2026-10-02 17.58.46.jpg"
-  }
-];
-
 export default function TestimonialsPage() {
-  const [videoList, setVideoList] = useState<TestimonialItem[]>(defaultTestimonials);
+  const [videoList, setVideoList] = useState<TestimonialItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState<TestimonialItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState<"all" | "youtube" | "instagram">("all");
@@ -85,11 +47,15 @@ export default function TestimonialsPage() {
                 platform: (data.platform === "instagram" ? "instagram" : "youtube") as "youtube" | "instagram",
                 url: data.url || "",
                 embedUrl: data.embedUrl || "",
-                thumbnail: data.thumbnail || (data.platform === "youtube" ? "https://img.youtube.com/vi/asuL_CFqh0E/hqdefault.jpg" : "/rasmlar/2026-10-02 17.56.31.jpg"),
+                thumbnail: data.thumbnail || (data.platform === "youtube" ? "/data/maktab_binosi.png" : "/data/maktab_binosi.png"),
               };
             });
             // Combine newly added admin videos with default ones
-            setVideoList([...fetched, ...defaultTestimonials]);
+            setVideoList(fetched);
+            setLoading(false);
+          } else {
+            setVideoList([]);
+            setLoading(false);
           }
         },
         () => {
@@ -105,10 +71,14 @@ export default function TestimonialsPage() {
                   platform: (data.platform === "instagram" ? "instagram" : "youtube") as "youtube" | "instagram",
                   url: data.url || "",
                   embedUrl: data.embedUrl || "",
-                  thumbnail: data.thumbnail || (data.platform === "youtube" ? "https://img.youtube.com/vi/asuL_CFqh0E/hqdefault.jpg" : "/rasmlar/2026-10-02 17.56.31.jpg"),
+                  thumbnail: data.thumbnail || "/data/maktab_binosi.png",
                 };
               });
-              setVideoList([...fetched, ...defaultTestimonials]);
+              setVideoList(fetched);
+              setLoading(false);
+            } else {
+              setVideoList([]);
+              setLoading(false);
             }
           });
           unsub = simpleUnsub;

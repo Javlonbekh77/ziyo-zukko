@@ -24,72 +24,9 @@ interface OlympiadCardItem {
   showOnHome?: boolean;
 }
 
-const defaultOlympiads: OlympiadCardItem[] = [
-  {
-    id: "yutuq-1",
-    title: {
-      uz: "Maktabdagi ta’lim katta natijalarga yo‘l! Bunyodbek — Matematika olimpiadasi g'olibi",
-      ru: "Образование в школе — путь к успеху! Бунёдбек — победитель математической олимпиады",
-      en: "Quality education opens doors to success! Bunyodbek — Math Olympiad Winner",
-    },
-    text: {
-      uz: "🎓 Bunyodbek Ziyo Zukko maktabining o‘quvchisi. U 🇲🇾 Malayziyada o‘tkazilgan matematika olimpiadasida 🥇 1-o‘rin, mental arifmetika yo‘nalishida esa 🥉 3-o‘rinni egalladi. 📚 Bunyodbek to‘qqiz yildan buyon Ziyo Zukko maktabida tahsil oladi!",
-      ru: "🎓 Бунёдбек — ученик школы Ziyo Zukko. На олимпиаде по математике в Малайзии он занял 🥇 1-е место, а по ментальной арифметике — 🥉 3-е место. 📚 Учится в Ziyo Zukko уже девять лет!",
-      en: "🎓 Bunyodbek is a proud student of Ziyo Zukko. At the International Math Olympiad in Malaysia, he won 🥇 1st place in mathematics and 🥉 3rd place in mental arithmetic. 📚 He has studied at Ziyo Zukko for 9 years!",
-    },
-    image: "/rasmlar/yutuqlar/bunyodbek.jpg",
-    badge: {
-      uz: "🥇 1-o'rin (Malayziya)",
-      ru: "🥇 1-е место (Малайзия)",
-      en: "🥇 1st Place (Malaysia)",
-    },
-    showOnHome: true,
-  },
-  {
-    id: "yutuq-2",
-    title: {
-      uz: "🏅 11-sinf bitiruvchisi Abdullayeva Lobar oltin medal bilan taqdirlandi!",
-      ru: "🏅 Выпускница 11-класса Абдуллаева Лобар награждена золотой медалью!",
-      en: "🏅 Grade 11 graduate Abdullayeva Lobar awarded Gold Medal!",
-    },
-    text: {
-      uz: "“Ziyo-zukko umumta’lim maktabi” NTMning 11-“A” sinf bitiruvchisi Abdullayeva Lobar Nigmatullayevna a’lo baholari va erishgan yutuqlari uchun O‘zbekiston Respublikasi Maktabgacha va maktab ta’limi vazirligi tomonidan oltin medal bilan taqdirlandi.",
-      ru: "Выпускница 11-«А» класса школы Ziyo-Zukko Абдуллаева Лобар Нигматуллаевна награждена золотой медалью Министерства дошкольного и школьного образования Республики Узбекистан.",
-      en: "Grade 11-A graduate of Ziyo-Zukko school, Abdullayeva Lobar, was honored with the prestigious Gold Medal by the Ministry of Preschool and School Education of the Republic of Uzbekistan.",
-    },
-    image: "/rasmlar/yutuqlar/lobar.jpg",
-    badge: {
-      uz: "🏅 Oltin medal",
-      ru: "🏅 Золотая медаль",
-      en: "🏅 Gold Medal",
-    },
-    showOnHome: true,
-  },
-  {
-    id: "yutuq-3",
-    title: {
-      uz: "Tulkinjonova Osiyo — Cambridge English Young Learners Flyers darajasi!",
-      ru: "Тулкинжонова Осиё — уровень Cambridge English Young Learners Flyers!",
-      en: "Tulkinjonova Osiyo — Cambridge English Young Learners Flyers achiever!",
-    },
-    text: {
-      uz: "“Ziyo-zukko umumta’lim maktabi” NTMning 4-“E” sinf o‘quvchisi Tulkinjonova Osiyo xalqaro “Cambridge English Young Learners” imtihonida muvaffaqiyatli ishtirok etib, “Flyers” darajasini qo‘lga kiritdi.",
-      ru: "Ученица 4-«Е» класса школы Ziyo-Zukko Тулкинжонова Осиё успешно сдала международный кембриджский экзамен, получив сертификат высшего уровня «Flyers».",
-      en: "Grade 4-E student of Ziyo-Zukko school, Tulkinjonova Osiyo, successfully passed the international Cambridge English Young Learners exam and achieved the Flyers certificate.",
-    },
-    image: "/rasmlar/yutuqlar/osiyo.jpg",
-    badge: {
-      uz: "📜 Cambridge Flyers",
-      ru: "📜 Cambridge Flyers",
-      en: "📜 Cambridge Flyers",
-    },
-    showOnHome: true,
-  },
-];
-
 export default function OlympiadsSection() {
   const { lang, t } = useLanguage();
-  const [olympiads, setOlympiads] = useState<OlympiadCardItem[]>(defaultOlympiads.slice(0, 3));
+  const [olympiads, setOlympiads] = useState<OlympiadCardItem[]>([]);
 
   useEffect(() => {
     // Read cache upon client mount
@@ -107,7 +44,7 @@ export default function OlympiadsSection() {
       if (sanitized.length > 0) {
         setOlympiads(sanitized.slice(0, 3));
       } else {
-        setOlympiads(defaultOlympiads.slice(0, 3));
+        setOlympiads([]);
       }
     }
 
@@ -136,18 +73,17 @@ export default function OlympiadsSection() {
                   id: doc.id,
                   title: data.title || (data.name ? `${data.name} — ${data.subject || "Fan"}` : "Yutuq"),
                   text: data.text || data.description || "",
-                  image: data.imageUrl || "/rasmlar/yutuqlar/bunyodbek.jpg",
+                  image: data.imageUrl || "/data/maktab_binosi.png",
                   badge: data.badge || data.result || "Yutuq",
                   showOnHome: true,
                 });
               }
             });
-            const merged = [...fetched, ...defaultOlympiads].slice(0, 3);
-            setOlympiads(merged);
-            setLocalCache("olympiads_home_cache", merged);
+            setOlympiads(fetched.slice(0, 3));
+            setLocalCache("olympiads_home_cache", fetched.slice(0, 3));
           } else {
-            setOlympiads(defaultOlympiads.slice(0, 3));
-            setLocalCache("olympiads_home_cache", defaultOlympiads.slice(0, 3));
+            setOlympiads([]);
+            setLocalCache("olympiads_home_cache", []);
           }
         },
         (error) => {
@@ -169,18 +105,17 @@ export default function OlympiadsSection() {
                     id: doc.id,
                     title: data.title || (data.name ? `${data.name} — ${data.subject || "Fan"}` : "Yutuq"),
                     text: data.text || data.description || "",
-                    image: data.imageUrl || "/rasmlar/yutuqlar/bunyodbek.jpg",
+                    image: data.imageUrl || "/data/maktab_binosi.png",
                     badge: data.badge || data.result || "Yutuq",
                     showOnHome: true,
                   });
                 }
               });
-              const merged = [...fetched, ...defaultOlympiads].slice(0, 3);
-              setOlympiads(merged);
-              setLocalCache("olympiads_home_cache", merged);
+              setOlympiads(fetched.slice(0, 3));
+              setLocalCache("olympiads_home_cache", fetched.slice(0, 3));
             } else {
-              setOlympiads(defaultOlympiads.slice(0, 3));
-              setLocalCache("olympiads_home_cache", defaultOlympiads.slice(0, 3));
+              setOlympiads([]);
+              setLocalCache("olympiads_home_cache", []);
             }
           });
           unsub = simpleUnsub;
@@ -219,6 +154,10 @@ export default function OlympiadsSection() {
   // Fixed 3 items guarantee
   const displayItems = olympiads.slice(0, 3);
   const seeAllText = lang === "ru" ? "Смотреть все достижения →" : lang === "en" ? "View all achievements →" : "Barcha yutuqlarni ko'rish →";
+
+  if (olympiads.length === 0) {
+    return null;
+  }
 
   return (
     <section

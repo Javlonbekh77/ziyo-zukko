@@ -27,92 +27,7 @@ interface MultilingualNewsItem {
   embedUrl?: string;
 }
 
-const fallbackMultilingualNews: MultilingualNewsItem[] = [
-  {
-    id: "news-1",
-    title: {
-      uz: "Maktabimizda bayram shukuhi!",
-      ru: "Праздничная атмосфера в нашей школе!",
-      en: "Festive Atmosphere at Our School!",
-    },
-    summary: {
-      uz: "O'quvchilar tomonidan tayyorlangan maxsus bayram dasturi ajoyib o'tdi. To'liq tafsilotlar va rasmlar galereyasi sahifada e'lon qilindi.",
-      ru: "Специальная праздничная программа, подготовленная учащимися, прошла на высшем уровне. Подробности и фотогалерея опубликованы на сайте.",
-      en: "A special celebratory event organized by our students was a great success. Full details and photo gallery are available on our website.",
-    },
-    tag: {
-      uz: "TADBIRLAR",
-      ru: "МЕРОПРИЯТИ",
-      en: "EVENTS",
-    },
-    img: "/rasmlar/2026-10-02 17.59.48.jpg",
-    date: "2026-10-02",
-    social: "instagram",
-  },
-  {
-    id: "news-2",
-    title: {
-      uz: "National AI Hackathon | Qarshi g'oliblari",
-      ru: "National AI Hackathon | Победители в Карши",
-      en: "National AI Hackathon | Karshi Winners",
-    },
-    summary: {
-      uz: "Qarshi shahrida bo'lib o'tgan sun'iy intellekt xakatonida bizning jamoa g'olib bo'ldi. Ular o'z loyihalari bilan hakamlarni lol qoldirdilar.",
-      ru: "Наша команда одержала победу на хакатоне по искусственному интеллекту в Карши, впечатлив судей инновационным проектом.",
-      en: "Our student team triumphed at the artificial intelligence hackathon in Karshi, impressing the jury with their cutting-edge solutions.",
-    },
-    tag: {
-      uz: "YUTUQLAR",
-      ru: "ДОСТИЖЕНИЯ",
-      en: "ACHIEVEMENTS",
-    },
-    img: "/rasmlar/2026-10-02 17.59.54.jpg",
-    date: "2026-09-04",
-    social: "youtube",
-  },
-  {
-    id: "news-3",
-    title: {
-      uz: "🔴 Diqqat! Hurmatli ota-onalar!",
-      ru: "🔴 Внимание! Уважаемые родители!",
-      en: "🔴 Attention! Dear Parents!",
-    },
-    summary: {
-      uz: "Yangi o'quv yili uchun qabul jarayonlari boshlandi. Barcha kerakli hujjatlar ro'yxati saytimizda e'lon qilindi. Shoshiling, o'rinlar soni cheklangan.",
-      ru: "Стартовал приём документов на новый учебный год. Перечень документов опубликован на сайте. Спешите, количество мест ограничено.",
-      en: "Admissions for the new academic year have officially begun. The required document checklist is published on our website. Hurry, spots are limited.",
-    },
-    tag: {
-      uz: "QABUL 2026",
-      ru: "ПРИЁМ 2026",
-      en: "ADMISSION 2026",
-    },
-    img: "/rasmlar/2026-10-02 18.00.24.jpg",
-    date: "2026-09-04",
-    social: "instagram",
-  },
-  {
-    id: "news-4",
-    title: {
-      uz: "DOLZARB 90 KUNNING 9-DARSI",
-      ru: "АКТУАЛЬНЫЕ 90 ДНЕЙ: 9-Й УРОК",
-      en: "URGENT 90 DAYS: LESSON 9",
-    },
-    summary: {
-      uz: "ZIYO-ZUKKO tizimidagi natijalar va o'qituvchilar uchun maxsus seminar trening bo'lib o'tdi. Tajriba almashish va yangi metodikalarni o'rganish.",
-      ru: "Для учителей системы ZIYO-ZUKKO прошёл интерактивный семинар-тренинг: обмен передовым опытом и освоение современных методик преподавания.",
-      en: "A professional development seminar-workshop was held for teachers of ZIYO-ZUKKO: exchanging best practices and mastering modern teaching methodologies.",
-    },
-    tag: {
-      uz: "SEMINAR",
-      ru: "СЕМИНАР",
-      en: "WORKSHOP",
-    },
-    img: "/rasmlar/2026-10-02 18.01.23.jpg",
-    date: "2026-09-04",
-    social: "both",
-  },
-];
+
 
 interface RawNewsItem {
   id: string | number;
@@ -178,7 +93,7 @@ export default function NewsSection() {
                 tag_uz: data.tag_uz,
                 tag_ru: data.tag_ru,
                 tag_en: data.tag_en,
-                img: data.imageUrl || data.image || "/rasmlar/2026-10-02 17.59.48.jpg",
+                img: data.imageUrl || data.image || "/data/maktab_binosi.png",
                 date: data.date || new Date().toISOString().split("T")[0],
                 social: "both",
               };
@@ -207,7 +122,7 @@ export default function NewsSection() {
                   tag_uz: data.tag_uz,
                   tag_ru: data.tag_ru,
                   tag_en: data.tag_en,
-                  img: data.imageUrl || data.image || "/rasmlar/2026-10-02 17.59.48.jpg",
+                  img: data.imageUrl || data.image || "/data/maktab_binosi.png",
                   date: data.date || new Date().toISOString().split("T")[0],
                   social: "both",
                 };
@@ -251,28 +166,16 @@ export default function NewsSection() {
   };
 
   // Build display news items according to current language
-  const displayNewsItems = [
-    ...rawDbNews.map((n) => ({
-      id: n.id,
-      title: getLocalizedField(n, "title", lang) || "Yangilik",
-      summary: getLocalizedField(n, "summary", lang) || "",
-      tag: getLocalizedField(n, "tag", lang) || (lang === "ru" ? "НОВОСТИ" : lang === "en" ? "NEWS" : "YANGILIKLAR"),
-      img: n.img || "/rasmlar/2026-10-02 17.59.48.jpg",
-      date: n.date,
-      social: n.social || "both",
-      embedUrl: n.embedUrl,
-    })),
-    ...fallbackMultilingualNews.map((fn) => ({
-      id: fn.id,
-      title: fn.title[lang],
-      summary: fn.summary[lang],
-      tag: fn.tag[lang],
-      img: fn.img,
-      date: fn.date,
-      social: fn.social,
-      embedUrl: fn.embedUrl,
-    })),
-  ].slice(0, 4);
+  const displayNewsItems = rawDbNews.map((n) => ({
+    id: n.id,
+    title: getLocalizedField(n, "title", lang) || "Yangilik",
+    summary: getLocalizedField(n, "summary", lang) || "",
+    tag: getLocalizedField(n, "tag", lang) || (lang === "ru" ? "НОВОСТИ" : lang === "en" ? "NEWS" : "YANGILIKLAR"),
+    img: n.img || "/data/maktab_binosi.png",
+    date: n.date,
+    social: n.social || "both",
+    embedUrl: n.embedUrl,
+  })).slice(0, 4);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -287,16 +190,7 @@ export default function NewsSection() {
     show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  const defaultInstagramPosts = [
-    { id: "insta-1", img: "/rasmlar/2026-10-02 17.56.31.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/DcdjzZyIn4U/embed/" },
-    { id: "insta-2", img: "/rasmlar/2026-10-02 17.57.37.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/DdRVaynILqp/embed/" },
-    { id: "insta-3", img: "/rasmlar/2026-10-02 17.57.45.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/DcacjDUou03/embed/" },
-    { id: "insta-4", img: "/rasmlar/2026-10-02 17.58.25.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/Dd8zNhfohUj/embed/" },
-    { id: "insta-5", img: "/rasmlar/2026-10-02 17.58.36.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/Dd731klCfdu/embed/" },
-    { id: "insta-6", img: "/rasmlar/2026-10-02 17.58.46.jpg", caption: "Ziyo-Zukko", embedUrl: "https://www.instagram.com/reel/Dd7y1wgoFbG/embed/" },
-  ];
-
-  const [instagramPosts, setInstagramPosts] = useState<any[]>(defaultInstagramPosts);
+  const [instagramPosts, setInstagramPosts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!db) return;
@@ -310,7 +204,7 @@ export default function NewsSection() {
               const data = doc.data();
               return {
                 id: doc.id,
-                img: data.thumbnail || "/rasmlar/2026-10-02 17.56.31.jpg",
+                img: data.thumbnail || "/data/maktab_binosi.png",
                 caption: data.title || "Ziyo-Zukko",
                 embedUrl: data.embedUrl || (data.url?.includes("instagram.com") ? `${data.url.split("?")[0].replace(/\/embed\/?$/, "").replace(/\/$/, "")}/embed/` : undefined),
                 platform: data.platform,
@@ -318,9 +212,9 @@ export default function NewsSection() {
             })
             .filter((v) => v.platform === "instagram" && v.embedUrl);
 
-          if (instaVids.length > 0) {
-            setInstagramPosts([...instaVids, ...defaultInstagramPosts].slice(0, 8));
-          }
+          setInstagramPosts(instaVids.slice(0, 8));
+        } else {
+          setInstagramPosts([]);
         }
       });
 
@@ -339,6 +233,10 @@ export default function NewsSection() {
     const index = allReels.indexOf(embedUrl);
     if (index !== -1) setActiveReelIndex(index);
   };
+
+  if (displayNewsItems.length === 0 && instagramPosts.length === 0) {
+    return null;
+  }
 
   return (
     <section id="news" className="pt-12 pb-8 bg-[#f8fafc] text-[#0b1b36] flex flex-col min-h-[90vh] justify-center">
@@ -380,9 +278,15 @@ export default function NewsSection() {
             </h3>
             
             <div className="w-full h-full flex items-center justify-center">
-              <FeatureCarousel 
-                items={instagramPosts.slice(0, 6)} 
-              />
+              {instagramPosts.length > 0 ? (
+                <FeatureCarousel 
+                  items={instagramPosts.slice(0, 6)} 
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-400 font-medium">
+                  Hozircha videolar kiritilmagan
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -399,57 +303,63 @@ export default function NewsSection() {
             </h3>
             
             <div className="flex flex-col gap-1.5 md:gap-2 h-full justify-between">
-              {displayNewsItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className="block h-full"
-                  onClick={() => item.embedUrl ? openReel(item.embedUrl) : null}
-                >
-                  <Link href={`/news/${item.id}`} className="block h-full">
-                    <motion.div variants={itemVariants} className="bg-white rounded-2xl p-2 md:p-3 h-full shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-4 items-center group cursor-pointer border border-gray-100">
-                      {/* News Image */}
-                    <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
-                      {item.embedUrl ? (
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-                          <iframe 
-                            src={`${item.embedUrl}?hidecaption=1`} 
-                            className="absolute w-[120%] left-[-10%] border-none" 
-                            style={{ height: '160%', top: '-30%' }}
-                            scrolling="no" 
-                            tabIndex={-1}
-                          />
-                        </div>
-                      ) : (
-                        <Image src={item.img} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 unoptimized" unoptimized />
-                      )}
-                    </div>
-                    
-                    {/* News Content */}
-                    <div className="flex flex-col flex-1 h-full py-0.5">
-                      <h3 className="font-bold text-sm md:text-[15px] text-[#0b1b36] mb-1 leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-2">{item.title}</h3>
-                      <p className="text-[9px] md:text-[11px] text-[#8c1c3f] font-semibold mb-1">{item.tag}</p>
-                      <p className="text-[11px] md:text-[12px] text-[#0b1b36]/60 mb-1.5 line-clamp-1 sm:line-clamp-2 hidden sm:block">{item.summary}</p>
-                      
-                      <div className="mt-auto flex items-center gap-2">
-                        <div className="bg-[#8c1c3f] text-white text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-lg">
-                          {item.date}
-                        </div>
-                        {(item.social === 'youtube' || item.social === 'both') && (
-                          <div className="text-[#FF0000]">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
+              {displayNewsItems.length > 0 ? (
+                displayNewsItems.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="block h-full"
+                    onClick={() => item.embedUrl ? openReel(item.embedUrl) : null}
+                  >
+                    <Link href={`/news/${item.id}`} className="block h-full">
+                      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-2 md:p-3 h-full shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-4 items-center group cursor-pointer border border-gray-100">
+                        {/* News Image */}
+                      <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                        {item.embedUrl ? (
+                          <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+                            <iframe 
+                              src={`${item.embedUrl}?hidecaption=1`} 
+                              className="absolute w-[120%] left-[-10%] border-none" 
+                              style={{ height: '160%', top: '-30%' }}
+                              scrolling="no" 
+                              tabIndex={-1}
+                            />
                           </div>
-                        )}
-                        {(item.social === 'instagram' || item.social === 'both') && (
-                          <div className="text-[#E1306C]">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
-                          </div>
+                        ) : (
+                          <Image src={item.img} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 unoptimized" unoptimized />
                         )}
                       </div>
-                    </div>
-                  </motion.div>
-                  </Link>
+                      
+                      {/* News Content */}
+                      <div className="flex flex-col flex-1 h-full py-0.5">
+                        <h3 className="font-bold text-sm md:text-[15px] text-[#0b1b36] mb-1 leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-2">{item.title}</h3>
+                        <p className="text-[9px] md:text-[11px] text-[#8c1c3f] font-semibold mb-1">{item.tag}</p>
+                        <p className="text-[11px] md:text-[12px] text-[#0b1b36]/60 mb-1.5 line-clamp-1 sm:line-clamp-2 hidden sm:block">{item.summary}</p>
+                        
+                        <div className="mt-auto flex items-center gap-2">
+                          <div className="bg-[#8c1c3f] text-white text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-lg">
+                            {item.date}
+                          </div>
+                          {(item.social === 'youtube' || item.social === 'both') && (
+                            <div className="text-[#FF0000]">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
+                            </div>
+                          )}
+                          {(item.social === 'instagram' || item.social === 'both') && (
+                            <div className="text-[#E1306C]">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <div className="w-full h-full min-h-[200px] flex items-center justify-center p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-400 font-medium">
+                  Hozircha yangiliklar kiritilmagan
                 </div>
-              ))}
+              )}
             </div>
             
           </motion.div>

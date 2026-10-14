@@ -19,77 +19,17 @@ interface OlympiadItem {
   stats?: string[];
 }
 
-const fallbackOlympiadsMap: Record<string, OlympiadItem> = {
-  "yutuq-1": {
-    id: "yutuq-1",
-    title: "Maktabdagi ta’lim katta natijalarga yo‘l! Bunyodbek — Matematika olimpiadasi g'olibi",
-    text: `Maktabdagi ta’lim katta natijalarga yo‘l!
-
-🎓 Bunyodbek Ziyo Zukko maktabining o‘quvchisi. U 🇲🇾 Malayziyada o‘tkazilgan matematika olimpiadasida 🥇 1-o‘rin, mental arifmetika yo‘nalishida esa 🥉 3-o‘rinni egalladi.
-
-📚 Bunyodbek to‘qqiz yildan buyon Ziyo Zukko maktabida tahsil oladi! Ustozlarning mehnati besamar ketmadi.
-
-Bunyodbekning buvilari o‘z fikrlarida maktabdagi ta’lim sifati, ustozlarning pedagogik mahorati va bolalarda bilimga bo‘lgan qiziqishni shakllantirishdagi yondashuvni alohida ta’kidladilar.
-
-🌟 Bugun esa bu mehnatning natijasi xalqaro olimpiadadagi g‘olibliklar, 🏅 medallar va 📜 sertifikatlarda namoyon bo‘lmoqda.
-
-💡 Ziyo Zukko bilim, qiziqish va mehnat natijaga aylanishi uchun yaratilgan muhit.
-
-📢 Ziyo Zukko maktabida yangi o‘quv yili uchun qabul davom etmoqda!
-📞 Bog‘lanish uchun:
-▫️ +998 97 199-35-81
-▫️ +998 71 244-35-82
-▫️ +998 99 875-08-64`,
-    image: "/rasmlar/yutuqlar/bunyodbek.jpg",
-    badge: "🥇 1-o'rin (Malayziya)",
-    stats: ["Malayziya Matematika Olimpiadasi 1-o'rin", "Mental arifmetika 3-o'rin"]
-  },
-  "yutuq-2": {
-    id: "yutuq-2",
-    title: "🏅 11-sinf bitiruvchisi Abdullayeva Lobar oltin medal bilan taqdirlandi!",
-    text: `🏅 11-sinf bitiruvchisi oltin medal bilan taqdirlandi!
-#bizning_faxrimiz
-
-“Ziyo-zukko umumta’lim maktabi” NTMning 11-“A” sinf bitiruvchisi Abdullayeva Lobar Nigmatullayevna a’lo baholari, bilimga bo‘lgan yuksak intilishi, namunali xulqi hamda ta’lim davomida erishgan yuksak yutuqlari uchun O‘zbekiston Respublikasi Maktabgacha va maktab ta’limi vazirligi tomonidan oltin medal bilan taqdirlandi.
-
-Lobarni ushbu yuksak e’tirof bilan samimiy muborakbod etamiz! Kelgusidagi ta’lim va hayot yo‘lida yanada ulkan zafarlar, omad va muvaffaqiyatlar tilaymiz!
-
-“Ziyo-zukko umumta’lim maktabi” NTM - farzandingiz uchun munosibini tanlang !
-
-📞 Bog’lanish uchun:
-+998712443582
-+998971993581
-
-@ziyo_zukko 📚`,
-    image: "/rasmlar/yutuqlar/lobar.jpg",
-    badge: "🏅 Oltin medal",
-    stats: ["Maktabgacha va maktab ta'limi vazirligi Oltin Medali", "11-'A' sinf bitiruvchisi"]
-  },
-  "yutuq-3": {
-    id: "yutuq-3",
-    title: "Tulkinjonova Osiyo — Cambridge English Young Learners Flyers darajasi!",
-    text: `“Ziyo-zukko umumta’lim maktabi” NTMning 4-“E” sinf o‘quvchisi Tulkinjonova Osiyo xalqaro “Cambridge English Young Learners” imtihonida muvaffaqiyatli ishtirok etib, “Flyers” darajasini qo‘lga kiritdi.`,
-    image: "/rasmlar/yutuqlar/osiyo.jpg",
-    badge: "📜 Cambridge Flyers",
-    stats: ["Cambridge English Young Learners", "Flyers darajasi", "4-'E' sinf o'quvchisi"]
-  }
-};
-
 export default function OlympiadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const olympiadId = resolvedParams.id;
 
-  const [olympiad, setOlympiad] = useState<OlympiadItem | null>(fallbackOlympiadsMap[olympiadId] || fallbackOlympiadsMap["yutuq-1"]);
-  const [loading, setLoading] = useState(false);
+  const [olympiad, setOlympiad] = useState<OlympiadItem | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     async function fetchOlympiad() {
-      if (fallbackOlympiadsMap[olympiadId]) {
-        setOlympiad(fallbackOlympiadsMap[olympiadId]);
-        setLoading(false);
-        return;
-      }
+
 
       if (!db) {
         setLoading(false);
@@ -105,17 +45,17 @@ export default function OlympiadDetailPage({ params }: { params: Promise<{ id: s
             id: docSnap.id,
             title: data.name ? `${data.name} — ${data.subject || "Fan"}` : data.title || "Olimpiada g'olibi",
             text: data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
-            image: data.imageUrl || data.image || "/rasmlar/yutuqlar/bunyodbek.jpg",
+            image: data.imageUrl || data.image || "/data/maktab_binosi.png",
             images: data.images,
             badge: data.result || data.badge || "G'olib",
             stats: data.stats || (data.result ? [data.result, data.subject].filter(Boolean) : undefined),
           } as OlympiadItem);
         } else {
-          setOlympiad(fallbackOlympiadsMap["yutuq-1"]);
+          setOlympiad(null);
         }
       } catch (err) {
         console.error("Error fetching single olympiad:", err);
-        setOlympiad(fallbackOlympiadsMap["yutuq-1"]);
+        setOlympiad(null);
       } finally {
         setLoading(false);
       }
@@ -124,9 +64,11 @@ export default function OlympiadDetailPage({ params }: { params: Promise<{ id: s
     fetchOlympiad();
   }, [olympiadId]);
 
-  const imagesList = olympiad?.images && olympiad.images.length > 0 ? olympiad.images : olympiad?.image ? [olympiad.image] : ["/rasmlar/yutuqlar/bunyodbek.jpg"];
+  const imagesList = olympiad?.images && olympiad.images.length > 0 ? olympiad.images : olympiad?.image ? [olympiad.image] : ["/data/maktab_binosi.png"];
 
-  return (
+
+
+return (
     <div className="min-h-screen bg-[#f8fafc] text-[#071a33] flex flex-col font-sans">
       <Navbar solidAtTop={true} />
 

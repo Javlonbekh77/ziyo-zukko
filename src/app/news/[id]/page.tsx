@@ -25,91 +25,17 @@ interface NewsDetailItem {
   images?: string[];
 }
 
-const fallbackNewsMap: Record<string, NewsDetailItem> = {
-  "news-1": {
-    id: "news-1",
-    date: "2026-09-04",
-    title: {
-      uz: "🏆 IMC 2026: Yana bir faxrli yutuq!",
-      ru: "🏆 IMC 2026: Еще одно почетное достижение!",
-      en: "🏆 IMC 2026: Another Proud Triumph!",
-    },
-    summary: {
-      uz: "Xalqaro matematika olimpiadasida o'quvchilarimiz navbatdagi rekord natijani qayd etishdi.",
-      ru: "Наши ученики установили очередной рекорд на Международной олимпиаде по математике.",
-      en: "Our students achieved a record-breaking result at the International Mathematics Competition.",
-    },
-    text: {
-      uz: `#FAOLIYATIMIZ
-🏛️ ZIYO-ZUKKO umumta'lim maktabi
-🏆 IMC 2026: Yana bir faxrli yutuq!
-
-🌍 22-27-iyul kunlari bo'lib o'tgan, 32 ta davlatdan 600 dan ortiq iqtidorli o'quvchilar qatnashgan Xalqaro matematika musobaqasi (IMC 2026)da O'zbekiston terma jamoasi tarkibida maktabimiz o'quvchilari ham munosib ishtirok etishdi.
-
-O'quvchilarimiz 1 ta Bronza medali hamda faxriy yorliqlarni qo'lga kiritib, yurtimiz sharafini munosib himoya qilishdi.`,
-      ru: `#ДЕЯТЕЛЬНОСТЬ
-🏛️ Общеобразовательная школа ZIYO-ZUKKO
-🏆 IMC 2026: Очередная гордая победа!
-
-🌍 В Международном математическом соревновании (IMC 2026), где приняли участие более 600 талантливых школьников из 32 стран, учащиеся нашей школы в составе сборной Узбекистана показали блестящие результаты.
-
-Наши ученики завоевали бронзовую медаль и почетные грамоты, достойно представив честь нашей страны.`,
-      en: `#OUR_ACTIVITIES
-🏛️ ZIYO-ZUKKO School
-🏆 IMC 2026: Another Remarkable Achievement!
-
-🌍 At the International Mathematics Competition (IMC 2026), featuring over 600 gifted students from 32 countries, our students competed as part of Uzbekistan's national team with distinction.
-
-Our students earned a Bronze medal and honorary diplomas, representing our country with distinction.`,
-    },
-    image: "/rasmlar/2026-10-02 17.59.48.jpg",
-  },
-  "news-2": {
-    id: "news-2",
-    date: "2026-08-19",
-    title: {
-      uz: "🤝 British Council hamda Sarbon Universiteti hamkorligi",
-      ru: "🤝 Сотрудничество с British Council и Университетом Сарбон",
-      en: "🤝 Strategic Partnership with the British Council & Sarbon University",
-    },
-    summary: {
-      uz: "Xalqaro ta'lim va IELTS markazlari bo'yicha muhim kelishuv imzolandi.",
-      ru: "Подписано ключевое соглашение в сфере международного образования и центров IELTS.",
-      en: "Key agreement signed regarding international education and official IELTS examination centers.",
-    },
-    text: {
-      uz: `#HAMKORLIK
-🇬🇧 British Council bilan hamkorlikda xalqaro Cambridge va IELTS test markazi yo'lga qo'yilmoqda.
-
-Ushbu loyiha doirasida o'quvchilar bepul Mock IELTS sinovlaridan o'tishlari va xalqaro sertifikat olish uchun to'g'ridan-to'g'ri maktabda tayyorgarlik ko'rishlari mumkin.`,
-      ru: `#СОТРУДНИЧЕСТВО
-🇬🇧 В сотрудничестве с British Council открывается международный центр тестирования Cambridge и IELTS.
-
-В рамках проекта школьники смогут сдавать бесплатные пробные тесты Mock IELTS и готовиться к получению сертификатов мирового уровня.`,
-      en: `#PARTNERSHIP
-🇬🇧 In collaboration with the British Council, an official Cambridge and IELTS testing hub is being established.
-
-As part of this initiative, students can take complimentary Mock IELTS assessments and prepare for world-class certificates.`,
-    },
-    image: "/rasmlar/2026-10-02 17.59.54.jpg",
-  }
-};
-
 export default function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { lang, t } = useLanguage();
   const resolvedParams = use(params);
   const newsId = resolvedParams.id;
 
-  const [news, setNews] = useState<NewsDetailItem | null>(fallbackNewsMap[newsId] || fallbackNewsMap["news-1"]);
-  const [loading, setLoading] = useState(false);
+  const [news, setNews] = useState<NewsDetailItem | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchNews() {
-      if (fallbackNewsMap[newsId]) {
-        setNews(fallbackNewsMap[newsId]);
-        setLoading(false);
-        return;
-      }
+
 
       if (!db) {
         setLoading(false);
@@ -128,7 +54,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
             text: data.text || data.content || data.summary || "",
             date: data.date || "",
             tag: data.tag || "YANGILIK",
-            image: data.imageUrl || data.image || "/rasmlar/2026-10-02 17.59.48.jpg",
+            image: data.imageUrl || data.image || "/data/maktab_binosi.png",
             images: data.images,
           } as NewsDetailItem);
         }
@@ -150,12 +76,34 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
     return val;
   };
 
-  const displayNews = news || fallbackNewsMap["news-1"];
-  const imageSrc = (displayNews.images && displayNews.images[0]) || displayNews.image || "/rasmlar/2026-10-02 17.59.48.jpg";
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
+        <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-[#ff6b00] rounded-full animate-spin mb-4" />
+        <p className="text-gray-500 font-semibold">Yuklanmoqda...</p>
+      </div>
+    );
+  }
+
+  if (!news) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
+        <div className="bg-white rounded-3xl p-10 text-center max-w-md shadow-xl border border-gray-100">
+          <h2 className="text-2xl font-bold text-[#071a33] mb-4">Yangilik topilmadi</h2>
+          <Link href="/news" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#ff6b00] text-white font-bold text-sm">
+            <ArrowLeft className="w-4 h-4" /> Barcha yangiliklar
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const displayNews = news;
+  const imageSrc = (displayNews.images && displayNews.images[0]) || displayNews.image || "/data/maktab_binosi.png";
   const titleStr = getText(displayNews.title);
   const textStr = getText(displayNews.text || displayNews.summary);
 
-  return (
+return (
     <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-10 px-4 flex flex-col items-center font-sans">
       {/* Top Pill Back Button */}
       <div className="w-full max-w-[900px] mb-8 flex justify-center sm:justify-start">

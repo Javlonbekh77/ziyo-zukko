@@ -28,163 +28,10 @@ interface NewsItem {
   images?: string[];
 }
 
-const fallbackNews: NewsItem[] = [
-  {
-    id: "news-1",
-    date: "24.08.2026",
-    title: {
-      uz: "Woosong Universiteti huzuridagi iDegree rahbariyati bilan rasmiy uchrashuv bo'lib o'tdi",
-      ru: "Официальная встреча с руководством iDegree при Университете Вусонг",
-      en: "Official meeting with the leadership of iDegree at Woosong University",
-    },
-    summary: {
-      uz: "Xalqaro qo'shma ta'lim dasturlari bo'yicha muhokamalar o'tkazilib, bitiruvchilarga 2 ta diplom olish imkoniyati yaratilishi kelishib olindi.",
-      ru: "Обсуждены совместные международные образовательные программы и возможность получения двойного диплома для выпускников.",
-      en: "Discussions were held on joint international academic programs and dual-degree opportunities for graduates.",
-    },
-    text: {
-      uz: "Uchrashuv davomida qo'shma ta'lim dasturlari, talabalar almashinuvi hamda xalqaro grant dasturlari bo'yicha muhim bitimlar imzolandi. ZIYO-ZUKKO maktabi bitiruvchilari uchun Janubiy Koreyaning nufuzli oliygohlariga to'g'ridan-to'g'ri qabul qilinish imkoniyati taklif etildi.",
-      ru: "В ходе встречи были подписаны важные соглашения о совместных программах обучения, обмене студентами и международных грантах. Выпускникам ZIYO-ZUKKO предложен прямой приём в престижные вузы Южной Кореи.",
-      en: "During the meeting, key agreements were signed on joint curricula, student exchanges, and international scholarship grants. Direct admission to prestigious universities in South Korea was offered to ZIYO-ZUKKO graduates.",
-    },
-    tag: {
-      uz: "XALQARO HAMKORLIK",
-      ru: "МЕЖДУНАРОДНОЕ СОТРУДНИЧЕСТВО",
-      en: "GLOBAL PARTNERSHIP",
-    },
-    image: "/rasmlar/2026-10-02 17.59.48.jpg",
-  },
-  {
-    id: "news-2",
-    date: "19.08.2026",
-    title: {
-      uz: "Sarbon Universiteti va British Council hamkorligi kengaymoqda",
-      ru: "Расширение сотрудничества с Университетом Сарбон и British Council",
-      en: "Expanding cooperation with Sarbon University and the British Council",
-    },
-    summary: {
-      uz: "Xalqaro standartlarga mos ingliz tili darslarini tashkil qilish hamda IELTS imtihon markazi ochish bo'yicha bitim tuzildi.",
-      ru: "Подписано соглашение об организации уроков английского по международным стандартам и открытии центра тестирования IELTS.",
-      en: "An agreement was reached on organizing English classes to international standards and establishing an IELTS testing center.",
-    },
-    text: {
-      uz: "Xalqaro standartlarga mos ingliz tili darslarini tashkil qilish to'g'risida kelishib olindi. Kelishuvga muvofiq maktabimizda doimiy ravishda mock IELTS testlari o'tkazib boriladi.",
-      ru: "Достигнута договоренность об организации уроков английского языка по мировым стандартам. В нашей школе будут регулярно проводиться пробные тесты IELTS.",
-      en: "Agreement was reached on implementing high-standard English curricula. In accordance with the partnership, mock IELTS tests will be conducted regularly at our school.",
-    },
-    tag: {
-      uz: "TA'LIM",
-      ru: "ОБРАЗОВАНИЕ",
-      en: "EDUCATION",
-    },
-    image: "/rasmlar/2026-10-02 17.59.54.jpg",
-  },
-  {
-    id: "news-3",
-    date: "04.09.2026",
-    title: {
-      uz: "National AI Hackathon | Qarshi bosqichi g'oliblari aniqlandi",
-      ru: "National AI Hackathon | Определены победители этапа в Карши",
-      en: "National AI Hackathon | Karshi Winners Announced",
-    },
-    summary: {
-      uz: "Qarshi shahrida bo'lib o'tgan sun'iy intellekt xakatonida bizning jamoa faxrli 1-o'rinni egalladi.",
-      ru: "Наша команда заняла почетное 1-е место на хакатоне по искусственному интеллекту в Карши.",
-      en: "Our team took 1st place at the artificial intelligence hackathon held in Karshi.",
-    },
-    text: {
-      uz: "Qarshi shahrida bo'lib o'tgan sun'iy intellekt xakatonida ZIYO-ZUKKO o'quvchilari o'zlarining innovatsion AI loyihalari bilan hakamlar va ekspertlarni hayratda qoldirishdi.",
-      ru: "Ученики ZIYO-ZUKKO поразили судей и экспертов своими инновационными проектами искусственного интеллекта на хакатоне в Карши.",
-      en: "At the AI hackathon in Karshi, ZIYO-ZUKKO students astonished judges and industry experts with their cutting-edge AI project.",
-    },
-    tag: {
-      uz: "YUTUQLAR",
-      ru: "ДОСТИЖЕНИЯ",
-      en: "ACHIEVEMENTS",
-    },
-    image: "/rasmlar/2026-10-02 18.00.24.jpg",
-  },
-  {
-    id: "news-4",
-    date: "15.07.2026",
-    title: {
-      uz: "Yangi o'quv yili uchun qabul jarayonlari va Sarbon University vakansiyalari",
-      ru: "Приём документов на новый учебный год и вакансии",
-      en: "Admissions for the new academic year & career vacancies",
-    },
-    summary: {
-      uz: "Ziyo-Zukko tizimi jamoasiga qo'shilishni istaysizmi? Qabul tartibi va vakant o'rinlar e'lon qilindi.",
-      ru: "Хотите присоединиться к коллективу Ziyo-Zukko? Опубликован порядок приёма и список вакансий.",
-      en: "Interested in joining the Ziyo-Zukko academic community? Admission guidelines and open positions announced.",
-    },
-    text: {
-      uz: "Yangi 2026-2027 o'quv yili uchun sinov imtihonlari hamda hujjatlar topshirish tartibi e'lon qilindi. Shuningdek, iqtidorli pedagoglar va metodistlar uchun bo'sh ish o'rinlari mavjud.",
-      ru: "Опубликованы правила вступительных экзаменов и подачи документов на 2026-2027 учебный год, а также открыты вакансии для талантливых педагогов.",
-      en: "Examination schedules and document submission procedures for the 2026-2027 academic year have been published, alongside openings for educators.",
-    },
-    tag: {
-      uz: "QABUL 2026",
-      ru: "ПРИЁМ 2026",
-      en: "ADMISSIONS 2026",
-    },
-    image: "/rasmlar/2026-10-02 18.01.23.jpg",
-  },
-  {
-    id: "news-5",
-    date: "06.07.2026",
-    title: {
-      uz: "Maktabimizda sog'lom turmush tarzi va yoshlar profilaktikasi tadbiri",
-      ru: "Мероприятие по здоровому образу жизни и молодежной профилактике",
-      en: "Healthy Lifestyle & Youth Wellness Event at Our School",
-    },
-    summary: {
-      uz: "O'quvchilar o'rtasida huquqiy savodxonlik va sog'lom turmush tarzini targ'ib qilishga bag'ishlangan uchrashuv.",
-      ru: "Встреча, посвященная повышению правовой грамотности и здоровому образу жизни учащихся.",
-      en: "An inspiring forum dedicated to healthy living, wellness, and youth development.",
-    },
-    text: {
-      uz: "Ichki ishlar organlari vakillari va tibbiyot mutaxassislari ishtirokida davra suhbati o'tkazildi. O'quvchilar o'zlarini qiziqtirgan savollarga javob olishdi.",
-      ru: "Состоялся открытый круглый стол с участием медицинских специалистов. Учащиеся получили ответы на актуальные вопросы.",
-      en: "A roundtable discussion was held with healthcare experts, providing students with meaningful answers and guidance.",
-    },
-    tag: {
-      uz: "TADBIRLAR",
-      ru: "МЕРОПРИЯТИ",
-      en: "EVENTS",
-    },
-    image: "/rasmlar/2026-10-02 17.58.25.jpg",
-  },
-  {
-    id: "news-6",
-    date: "01.07.2026",
-    title: {
-      uz: "DOLZARB 90 KUN: Pedagoglar uchun mahorat darsi o'tkazildi",
-      ru: "АКТУАЛЬНЫЕ 90 ДНЕЙ: Мастер-класс для педагогов",
-      en: "URGENT 90 DAYS: Masterclass for Educators",
-    },
-    summary: {
-      uz: "ZIYO-ZUKKO tizimidagi natijalar va o'qituvchilar uchun maxsus interaktiv seminar-trening.",
-      ru: "Интерактивный обучающий семинар-тренинг для преподавателей системы ZIYO-ZUKKO.",
-      en: "Interactive professional development seminar for teachers across the ZIYO-ZUKKO network.",
-    },
-    text: {
-      uz: "O'qituvchilarning kasbiy mahoratini oshirish, zamonaviy interaktiv metodikalarni ta'lim jarayoniga joriy etish masalalari ko'rib chiqildi.",
-      ru: "Рассмотрены вопросы повышения квалификации учителей и интеграции передовых интерактивных методов в учебный процесс.",
-      en: "Key strategies for instructional excellence and integrating innovative methods into classroom teaching were explored.",
-    },
-    tag: {
-      uz: "SEMINAR",
-      ru: "СЕМИНАР",
-      en: "WORKSHOP",
-    },
-    image: "/rasmlar/2026-10-02 17.58.36.jpg",
-  }
-];
-
 export default function NewsPage() {
   const { lang, t } = useLanguage();
-  const [newsList, setNewsList] = useState<NewsItem[]>(fallbackNews);
-  const [loading, setLoading] = useState(false);
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
 
@@ -209,16 +56,19 @@ export default function NewsPage() {
                 text: data.text || data.content || "",
                 date: data.date || new Date().toISOString().split("T")[0],
                 tag: data.tag || "YANGILIK",
-                image: data.imageUrl || data.image || "/rasmlar/2026-10-02 17.59.48.jpg",
+                image: data.imageUrl || data.image || "/data/maktab_binosi.png",
                 images: data.images,
               };
             }) as NewsItem[];
-            setNewsList([...fetched, ...fallbackNews]);
+            setNewsList(fetched);
+          } else {
+            setNewsList([]);
           }
           setLoading(false);
         },
         (err) => {
           console.error("Firestore news fetch error:", err);
+          setNewsList([]);
           setLoading(false);
         }
       );
@@ -381,7 +231,7 @@ export default function NewsPage() {
                   {/* Image Container */}
                   <div className="relative w-full h-52 bg-slate-100 overflow-hidden">
                     <Image
-                      src={news.image || (news.images && news.images[0]) || "/rasmlar/2026-10-02 17.59.48.jpg"}
+                      src={news.image || (news.images && news.images[0]) || "/data/maktab_binosi.png"}
                       alt={newsTitle}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"

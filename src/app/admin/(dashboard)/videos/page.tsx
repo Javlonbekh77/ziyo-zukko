@@ -144,7 +144,7 @@ export default function AdminVideosPage() {
     } else {
       calculatedEmbedUrl = formatInstagramEmbed(url);
       if (!finalThumbnail) {
-        finalThumbnail = "/rasmlar/2026-10-02 17.56.31.jpg";
+        finalThumbnail = "/data/maktab_binosi.png";
       }
     }
 

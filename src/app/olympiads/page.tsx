@@ -21,52 +21,10 @@ interface OlympiadItem {
   stats?: string[];
 }
 
-const fallbackOlympiads: OlympiadItem[] = [
-  {
-    id: "yutuq-1",
-    title: "Maktabdagi ta’lim katta natijalarga yo‘l! Bunyodbek — Matematika olimpiadasi g'olibi",
-    text: `Maktabdagi ta’lim katta natijalarga yo‘l!
-
-🎓 Bunyodbek Ziyo Zukko maktabining o‘quvchisi. U 🇲🇾 Malayziyada o‘tkazilgan matematika olimpiadasida 🥇 1-o‘rin, mental arifmetika yo‘nalishida esa 🥉 3-o‘rinni egalladi.
-
-📚 Bunyodbek to‘qqiz yildan buyon Ziyo Zukko maktabida tahsil oladi! Ustozlarning mehnati besamar ketmadi.
-
-Bunyodbekning buvilari o‘z fikrlarida maktabdagi ta’lim sifati, ustozlarning pedagogik mahorati va bolalarda bilimga bo‘lgan qiziqishni shakllantirishdagi yondashuvni alohida ta’kidladilar.
-
-🌟 Bugun esa bu mehnatning natijasi xalqaro olimpiadadagi g‘olibliklar, 🏅 medallar va 📜 sertifikatlarda namoyon bo‘lmoqda.
-
-💡 Ziyo Zukko bilim, qiziqish va mehnat natijaga aylanishi uchun yaratilgan muhit.`,
-    image: "/rasmlar/yutuqlar/bunyodbek.jpg",
-    badge: "🥇 1-o'rin (Malayziya)",
-    stats: ["Malayziya Matematika Olimpiadasi 1-o'rin", "Mental arifmetika 3-o'rin"]
-  },
-  {
-    id: "yutuq-2",
-    title: "🏅 11-sinf bitiruvchisi Abdullayeva Lobar oltin medal bilan taqdirlandi!",
-    text: `🏅 11-sinf bitiruvchisi oltin medal bilan taqdirlandi!
-#bizning_faxrimiz
-
-“Ziyo-zukko umumta’lim maktabi” NTMning 11-“A” sinf bitiruvchisi Abdullayeva Lobar Nigmatullayevna a’lo baholari, bilimga bo‘lgan yuksak intilishi, namunali xulqi hamda ta’lim davomida erishgan yuksak yutuqlari uchun O‘zbekiston Respublikasi Maktabgacha va maktab ta’limi vazirligi tomonidan oltin medal bilan taqdirlandi.
-
-Lobarni ushbu yuksak e’tirof bilan samimiy muborakbod etamiz! Kelgusidagi ta’lim va hayot yo‘lida yanada ulkan zafarlar, omad va muvaffaqiyatlar tilaymiz!`,
-    image: "/rasmlar/yutuqlar/lobar.jpg",
-    badge: "🏅 Oltin medal",
-    stats: ["Maktabgacha va maktab ta'limi vazirligi Oltin Medali", "11-'A' sinf bitiruvchisi"]
-  },
-  {
-    id: "yutuq-3",
-    title: "Tulkinjonova Osiyo — Cambridge English Young Learners Flyers darajasi!",
-    text: `“Ziyo-zukko umumta’lim maktabi” NTMning 4-“E” sinf o‘quvchisi Tulkinjonova Osiyo xalqaro “Cambridge English Young Learners” imtihonida muvaffaqiyatli ishtirok etib, “Flyers” darajasini qo‘lga kiritdi.`,
-    image: "/rasmlar/yutuqlar/osiyo.jpg",
-    badge: "📜 Cambridge Flyers",
-    stats: ["Cambridge English Young Learners", "Flyers darajasi", "4-'E' sinf o'quvchisi"]
-  }
-];
-
 export default function OlympiadsPage() {
   const { t } = useLanguage();
-  const [olympiadList, setOlympiadList] = useState<OlympiadItem[]>(fallbackOlympiads);
-  const [loading, setLoading] = useState(false);
+  const [olympiadList, setOlympiadList] = useState<OlympiadItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -87,7 +45,7 @@ export default function OlympiadsPage() {
                   id: doc.id,
                   title: data.name ? `${data.name} — ${data.subject || "Fan"}` : data.title || "Olimpiada g'olibi",
                   text: data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
-                  image: data.imageUrl || data.image || "/rasmlar/yutuqlar/bunyodbek.jpg",
+                  image: data.imageUrl || data.image || "/data/maktab_binosi.png",
                   images: data.images,
                   badge: data.result || data.badge || "G'olib",
                   stats: data.stats || (data.result ? [data.result, data.subject].filter(Boolean) : undefined),
@@ -102,9 +60,9 @@ export default function OlympiadsPage() {
                   !titleStr.toLowerCase().includes("hasanov")
                 );
               }) as OlympiadItem[];
-            setOlympiadList(fetched.length > 0 ? fetched : fallbackOlympiads);
+            setOlympiadList(fetched);
           } else {
-            setOlympiadList(fallbackOlympiads);
+            setOlympiadList([]);
           }
           setLoading(false);
         },

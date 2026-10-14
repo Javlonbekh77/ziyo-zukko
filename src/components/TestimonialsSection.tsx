@@ -1,97 +1,103 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Play } from "lucide-react";
+import { X, Play } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 interface TestimonialItem {
-  id: string | number;
-  title: { uz: string; ru: string; en: string };
-  quote: { uz: string; ru: string; en: string };
+  id: string;
+  title: string;
+  quote: string;
   platform: "youtube" | "instagram";
   url: string;
   embedUrl: string;
   thumbnail: string;
 }
 
-// 4 ta qat'iy o'zgarmas asosiy fikrlar (Home page uchun)
-const fixedTestimonials: TestimonialItem[] = [
-  {
-    id: 1,
-    title: {
-      uz: "Ota-onalar fikri",
-      ru: "Отзывы родителей",
-      en: "Parent Testimonials",
-    },
-    quote: {
-      uz: "Farzandlarimiz quvonchi va ta'lim sifati haqida ota-onalar fikri",
-      ru: "Отзывы родителей о радости детей и высоком качестве образования",
-      en: "Parents' feedback on students' happiness and academic quality",
-    },
-    platform: "youtube",
-    url: "https://www.youtube.com/shorts/asuL_CFqh0E",
-    embedUrl: "https://www.youtube.com/embed/asuL_CFqh0E?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/asuL_CFqh0E/hqdefault.jpg"
-  },
-  {
-    id: 2,
-    title: {
-      uz: "Ota-onalar fikri",
-      ru: "Отзывы родителей",
-      en: "Parent Testimonials",
-    },
-    quote: {
-      uz: "ZIYO-ZUKKO maktabi muhiti va erishilgan natijalar",
-      ru: "Школьная атмосфера ZIYO-ZUKKO и достигнутые результаты",
-      en: "The inspiring atmosphere of ZIYO-ZUKKO and student results",
-    },
-    platform: "youtube",
-    url: "https://www.youtube.com/shorts/JCv6fvrnKpw",
-    embedUrl: "https://www.youtube.com/embed/JCv6fvrnKpw?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/JCv6fvrnKpw/hqdefault.jpg"
-  },
-  {
-    id: 3,
-    title: {
-      uz: "Ota-onalar fikri",
-      ru: "Отзывы родителей",
-      en: "Parent Testimonials",
-    },
-    quote: {
-      uz: "Farzandlarimiz kelajagi va ta'lim maskani haqida samimiy so'zlar",
-      ru: "Искренние слова о будущем наших детей и образовательной среде",
-      en: "Heartfelt feedback regarding our children's future and education",
-    },
-    platform: "instagram",
-    url: "https://www.instagram.com/p/DdtLw6zoPVQ/",
-    embedUrl: "https://www.instagram.com/p/DdtLw6zoPVQ/embed",
-    thumbnail: "/rasmlar/2026-10-02 17.58.36.jpg"
-  },
-  {
-    id: 4,
-    title: {
-      uz: "Ota-onalar fikri",
-      ru: "Отзывы родителей",
-      en: "Parent Testimonials",
-    },
-    quote: {
-      uz: "Ota-onalarning samimiy tavsiyalari va taassurotlari",
-      ru: "Искренние рекомендации и впечатления родителей",
-      en: "Honest recommendations and impressions from parents",
-    },
-    platform: "instagram",
-    url: "https://www.instagram.com/p/DddWx2Boiex/",
-    embedUrl: "https://www.instagram.com/p/DddWx2Boiex/embed",
-    thumbnail: "/rasmlar/2026-10-02 17.58.46.jpg"
-  }
-];
-
 export default function TestimonialsSection() {
   const { lang, t } = useLanguage();
   const [activeVideo, setActiveVideo] = useState<TestimonialItem | null>(null);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
+
+  useEffect(() => {
+    if (!db) return;
+
+    let unsub: (() => void) | undefined;
+    try {
+      const colRef = collection(db, "videos");
+      const q = query(colRef, orderBy("createdAt", "desc"));
+      unsub = onSnapshot(
+        q,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const fetched: TestimonialItem[] = snapshot.docs
+              .map((doc) => {
+                const data = doc.data();
+                return {
+                  id: doc.id,
+                  title: data.title || "Ota-onalar fikri",
+                  quote: data.description || data.quote || "",
+                  platform: (data.platform === "instagram" ? "instagram" : "youtube") as "youtube" | "instagram",
+                  url: data.url || "",
+                  embedUrl: data.embedUrl || "",
+                  thumbnail: data.thumbnail || "/data/maktab_binosi.png",
+                  section: data.section || "both",
+                };
+              })
+              .filter((v: any) => v.section === "testimonials" || v.section === "both" || !v.section)
+              .slice(0, 4);
+
+            setTestimonials(fetched);
+          } else {
+            setTestimonials([]);
+          }
+        },
+        (error) => {
+          console.warn("Videos ordered listener fallback:", error);
+          const simpleUnsub = onSnapshot(colRef, (simpleSnap) => {
+            if (!simpleSnap.empty) {
+              const fetched: TestimonialItem[] = simpleSnap.docs
+                .map((doc) => {
+                  const data = doc.data();
+                  return {
+                    id: doc.id,
+                    title: data.title || "Ota-onalar fikri",
+                    quote: data.description || data.quote || "",
+                    platform: (data.platform === "instagram" ? "instagram" : "youtube") as "youtube" | "instagram",
+                    url: data.url || "",
+                    embedUrl: data.embedUrl || "",
+                    thumbnail: data.thumbnail || "/data/maktab_binosi.png",
+                    section: data.section || "both",
+                  };
+                })
+                .filter((v: any) => v.section === "testimonials" || v.section === "both" || !v.section)
+                .slice(0, 4);
+
+              setTestimonials(fetched);
+            } else {
+              setTestimonials([]);
+            }
+          });
+          unsub = simpleUnsub;
+        }
+      );
+    } catch (e) {
+      console.error("Error setting up testimonials listener:", e);
+    }
+
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
+
+  if (testimonials.length === 0) {
+    return null;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -105,8 +111,6 @@ export default function TestimonialsSection() {
     hidden: { opacity: 0, y: 30 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
-
-  const watchBtnText = lang === "ru" ? "Смотреть" : lang === "en" ? "Watch video" : "Tomosha qilish";
 
   return (
     <section id="testimonials" className="py-24 bg-white text-[#0b1b36] relative">
@@ -140,7 +144,7 @@ export default function TestimonialsSection() {
           </Link>
         </div>
 
-        {/* Fixed 4 Video Cards Grid on Home Page */}
+        {/* Database Video Cards Grid on Home Page */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -148,7 +152,7 @@ export default function TestimonialsSection() {
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"
         >
-          {fixedTestimonials.map((item) => (
+          {testimonials.map((item) => (
             <motion.div
               key={item.id}
               variants={itemVariants}
@@ -157,7 +161,7 @@ export default function TestimonialsSection() {
             >
               <Image
                 src={item.thumbnail}
-                alt={item.title[lang]}
+                alt={item.title}
                 fill
                 className="object-cover brightness-110 contrast-105 transition-transform duration-700 group-hover:scale-105"
                 unoptimized
@@ -206,7 +210,7 @@ export default function TestimonialsSection() {
 
               <iframe
                 src={activeVideo.embedUrl}
-                title={activeVideo.title[lang]}
+                title={activeVideo.title}
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

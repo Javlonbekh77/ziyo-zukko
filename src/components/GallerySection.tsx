@@ -8,26 +8,9 @@ import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { getLocalCache, setLocalCache } from "@/lib/cache";
 import { useLanguage } from "@/context/LanguageContext";
 
-const defaultImages = [
-  "/rasmlar/2026-10-02 17.56.31.jpg",
-  "/rasmlar/2026-10-02 17.57.37.jpg",
-  "/rasmlar/2026-10-02 17.57.45.jpg",
-  "/rasmlar/2026-10-02 17.58.25.jpg",
-  "/rasmlar/2026-10-02 17.58.36.jpg",
-  "/rasmlar/2026-10-02 17.58.46.jpg",
-  "/rasmlar/2026-10-02 17.59.06.jpg",
-  "/rasmlar/2026-10-02 17.59.16.jpg",
-  "/rasmlar/2026-10-02 17.59.21.jpg",
-  "/rasmlar/2026-10-02 17.59.48.jpg",
-  "/rasmlar/2026-10-02 17.59.54.jpg",
-  "/rasmlar/2026-10-02 18.00.24.jpg",
-  "/rasmlar/2026-10-02 18.01.23.jpg",
-  "/rasmlar/2026-10-02 18.01.32.jpg"
-];
-
 export default function GallerySection() {
   const { t } = useLanguage();
-  const [images, setImages] = useState<string[]>(defaultImages);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     // Read cache upon client mount
@@ -49,11 +32,10 @@ export default function GallerySection() {
             const fetched = snapshot.docs
               .map((doc) => doc.data().imageUrl as string)
               .filter(Boolean);
-            if (fetched.length > 0) {
-              const combined = Array.from(new Set([...fetched, ...defaultImages]));
-              setImages(combined);
-              setLocalCache("gallery_home_cache", combined);
-            }
+            setImages(fetched);
+            setLocalCache("gallery_home_cache", fetched);
+          } else {
+            setImages([]);
           }
         },
         (error) => {
@@ -63,11 +45,10 @@ export default function GallerySection() {
               const fetched = simpleSnap.docs
                 .map((doc) => doc.data().imageUrl as string)
                 .filter(Boolean);
-              if (fetched.length > 0) {
-                const combined = Array.from(new Set([...fetched, ...defaultImages]));
-                setImages(combined);
-                setLocalCache("gallery_home_cache", combined);
-              }
+              setImages(fetched);
+              setLocalCache("gallery_home_cache", fetched);
+            } else {
+              setImages([]);
             }
           });
           unsub = simpleUnsub;
@@ -81,6 +62,10 @@ export default function GallerySection() {
       if (unsub) unsub();
     };
   }, []);
+
+  if (images.length === 0) {
+    return null;
+  }
 
   return (
     <section id="galereya" className="py-24 bg-[#f8fafc] text-[#071a33] overflow-hidden">

@@ -9,31 +9,9 @@ import { useLanguage } from "@/context/LanguageContext";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
-const defaultUniversities = [
-  "Harvard University",
-  "NYU Abu Dhabi",
-  "University of Chicago",
-  "University of Hong Kong",
-  "Kyoto University",
-  "Carnegie Mellon University",
-  "University of Toronto",
-  "Westminster International University in Tashkent (WIUT)",
-  "Webster University Tashkent",
-  "Central Asian University",
-  "Drexel University",
-  "Amity University Tashkent",
-  "Jahon Iqtisodiyoti va Diplomatiya Universiteti (JIDU)",
-  "Toshkent Davlat Iqtisodiyot Universiteti (TDIU)",
-  "Toshkent Axborot Texnologiyalari Universiteti (TATU)",
-  "O'zbekiston Milliy Universiteti (O'zMU)",
-  "Jahon Tillari Universiteti",
-  "Inha Universiteti Tashkent",
-  "Toshkent Tibbiyot Akademiyasi"
-];
-
 export default function UniversitiesPage() {
   const { t } = useLanguage();
-  const [unis, setUnis] = useState<string[]>(defaultUniversities);
+  const [unis, setUnis] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -45,14 +23,14 @@ export default function UniversitiesPage() {
       const unsubscribeUnis = onSnapshot(colRef, (snapshot) => {
         if (!snapshot.empty) {
           const fetchedNames = snapshot.docs.map((doc) => doc.data().name as string).filter(Boolean);
-          setUnis((prev) => Array.from(new Set([...fetchedNames, ...prev])));
+          setUnis((prev) => Array.from(new Set([...prev, ...fetchedNames])));
         }
       });
 
       const unsubscribeGrads = onSnapshot(gradRef, (snapshot) => {
         if (!snapshot.empty) {
           const fetchedUnis = snapshot.docs.map((doc) => doc.data().university as string).filter(Boolean);
-          setUnis((prev) => Array.from(new Set([...fetchedUnis, ...prev])));
+          setUnis((prev) => Array.from(new Set([...prev, ...fetchedUnis])));
         }
       });
 
@@ -108,21 +86,29 @@ export default function UniversitiesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredUnis.map((uni, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex items-center gap-4 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-amber-50 text-[#ff6b00] flex items-center justify-center shrink-0 font-bold group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-6 h-6" />
+        {filteredUnis.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-lg mx-auto my-8">
+            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-[#071a33] mb-2">Universitetlar topilmadi</h3>
+            <p className="text-gray-500 text-sm">Hozircha ma'lumotlar bazasida universitetlar mavjud emas.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredUnis.map((uni, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex items-center gap-4 group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-[#ff6b00] flex items-center justify-center shrink-0 font-bold group-hover:scale-110 transition-transform">
+                  <GraduationCap className="w-6 h-6" />
+                </div>
+                <p className="font-bold text-sm text-[#071a33] leading-snug group-hover:text-[#ff6b00] transition-colors">
+                  {uni}
+                </p>
               </div>
-              <p className="font-bold text-sm text-[#071a33] leading-snug group-hover:text-[#ff6b00] transition-colors">
-                {uni}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
       <Footer />
