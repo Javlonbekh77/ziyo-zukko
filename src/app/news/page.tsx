@@ -26,6 +26,9 @@ interface NewsItem {
   tag?: LocalizedText | string;
   image?: string;
   images?: string[];
+  instagramUrl?: string;
+  embedUrl?: string;
+  social?: string;
 }
 
 export default function NewsPage() {
@@ -58,6 +61,9 @@ export default function NewsPage() {
                 tag: data.tag || "YANGILIK",
                 image: data.imageUrl || data.image || "/data/maktab_binosi.png",
                 images: data.images,
+                instagramUrl: data.instagramUrl || data.url,
+                embedUrl: data.embedUrl,
+                social: data.social,
               };
             }) as NewsItem[];
             setNewsList(fetched);
@@ -240,6 +246,11 @@ export default function NewsPage() {
                     {newsTag && (
                       <div className="absolute top-4 left-4 bg-[#071a33]/80 backdrop-blur-md text-white text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                         {newsTag}
+                      </div>
+                    )}
+                    {(news.instagramUrl || news.social === "instagram") && (
+                      <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                        Instagram
                       </div>
                     )}
                   </div>

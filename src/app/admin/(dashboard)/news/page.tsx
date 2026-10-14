@@ -7,6 +7,8 @@ import { deleteFileFromR2 } from "@/lib/r2-client";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 
+import { formatInstagramEmbed } from "@/app/api/instagram-thumb/route";
+
 interface NewsItem {
   id: string;
   title: string;
@@ -14,6 +16,10 @@ interface NewsItem {
   date: string;
   imageUrl: string;
   r2Key?: string;
+  instagramUrl?: string;
+  url?: string;
+  embedUrl?: string;
+  social?: string;
 }
 
 export default function NewsPage() {
@@ -32,6 +38,8 @@ export default function NewsPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [imageUrl, setImageUrl] = useState("");
   const [r2Key, setR2Key] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [publishToVideos, setPublishToVideos] = useState(false);
 
   useEffect(() => {
     fetchNews();
@@ -63,6 +71,20 @@ export default function NewsPage() {
     n.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleInstagramUrlChange = (newUrl: string) => {
+    setInstagramUrl(newUrl);
+    if (newUrl.includes("instagram.com")) {
+      const cleanUrl = newUrl.split("?")[0].replace(/\/$/, "");
+      const match = cleanUrl.match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i);
+      if (match && match[1]) {
+        const shortcode = match[1];
+        // Auto-fetch rendered first image from Instagram
+        const autoThumb = `https://image.thum.io/get/width/720/crop/850/https://www.instagram.com/p/${shortcode}/embed/`;
+        setImageUrl(autoThumb);
+      }
+    }
+  };
+
   const handleOpenEdit = (news: NewsItem) => {
     setEditingId(news.id);
     setTitle(news.title);
@@ -70,13 +92,15 @@ export default function NewsPage() {
     setDate(news.date);
     setImageUrl(news.imageUrl);
     setR2Key(news.r2Key || "");
+    setInstagramUrl(news.instagramUrl || news.url || "");
+    setPublishToVideos(false);
     setIsModalOpen(true);
   };
 
   const handleAddOrEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content || !imageUrl) {
-      alert("Iltimos, barcha maydonlarni to'ldiring!");
+      alert("Iltimos, sarlavha, matn va muqova rasmini to'ldiring!");
       return;
     }
 
@@ -84,7 +108,12 @@ export default function NewsPage() {
     try {
       if (!db) throw new Error("Firebase db not initialized");
 
-      const newsData = {
+      let calculatedEmbedUrl = "";
+      if (instagramUrl && instagramUrl.includes("instagram.com")) {
+        calculatedEmbedUrl = formatInstagramEmbed(instagramUrl);
+      }
+
+      const newsData: any = {
         title,
         content,
         date: date || new Date().toISOString().split("T")[0],
@@ -92,6 +121,13 @@ export default function NewsPage() {
         r2Key: r2Key || "",
         updatedAt: new Date().toISOString(),
       };
+
+      if (instagramUrl) {
+        newsData.instagramUrl = instagramUrl;
+        newsData.url = instagramUrl;
+        newsData.embedUrl = calculatedEmbedUrl;
+        newsData.social = "instagram";
+      }
 
       if (editingId) {
         const docRef = doc(db, "news", editingId);
@@ -101,6 +137,25 @@ export default function NewsPage() {
         const newNewsData = { ...newsData, createdAt: new Date().toISOString() };
         const docRef = await addDoc(collection(db, "news"), newNewsData);
         setNewsList([{ id: docRef.id, ...newNewsData }, ...newsList]);
+
+        // Agar Videolar (Media) bo'limiga ham qo'shish tanlangan bo'lsa
+        if (publishToVideos && instagramUrl) {
+          try {
+            await addDoc(collection(db, "videos"), {
+              title,
+              url: instagramUrl,
+              platform: "instagram",
+              embedUrl: calculatedEmbedUrl,
+              thumbnail: imageUrl,
+              description: content,
+              section: "both",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          } catch (vidErr) {
+            console.error("Error auto-publishing to videos:", vidErr);
+          }
+        }
       }
 
       setIsModalOpen(false);
@@ -141,6 +196,8 @@ export default function NewsPage() {
     setDate(new Date().toISOString().split("T")[0]);
     setImageUrl("");
     setR2Key("");
+    setInstagramUrl("");
+    setPublishToVideos(false);
   };
 
   return (
@@ -199,7 +256,14 @@ export default function NewsPage() {
                       </div>
                     </td>
                     <td className="p-4 font-medium text-slate-900">
-                      {news.title}
+                      <div className="flex items-center gap-2">
+                        <span>{news.title}</span>
+                        {(news.instagramUrl || news.social === "instagram") && (
+                          <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Instagram
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-slate-500 mt-1 line-clamp-1 font-normal">{news.content}</div>
                     </td>
                     <td className="p-4 text-slate-600">{news.date}</td>
@@ -249,8 +313,47 @@ export default function NewsPage() {
             </div>
             
             <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 space-y-4">
+              {/* Instagram URL input with Auto-thumbnail */}
+              <div className="p-4 bg-gradient-to-r from-pink-50/70 via-purple-50/50 to-indigo-50/70 rounded-2xl border border-pink-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800">
+                    Instagram / Reels havolasi (Ixtiyoriy)
+                  </label>
+                  {instagramUrl.includes("instagram.com") && (
+                    <span className="text-[11px] text-pink-600 font-bold flex items-center gap-1 bg-pink-100/70 px-2.5 py-0.5 rounded-full">
+                      ✨ Rasm avtomatik olindi
+                    </span>
+                  )}
+                </div>
+                <input 
+                  type="url" 
+                  value={instagramUrl}
+                  onChange={(e) => handleInstagramUrlChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none shadow-sm" 
+                  placeholder="https://www.instagram.com/reel/... yoki https://www.instagram.com/p/..." 
+                />
+                <p className="text-[11px] text-slate-500">
+                  Instagram havolasini kiritganingizda, birinchi muqova rasmi avtomatik tarzda olinadi.
+                </p>
+
+                {instagramUrl.includes("instagram.com") && !editingId && (
+                  <div className="pt-2 flex items-center justify-between border-t border-pink-200/60 mt-2">
+                    <span className="text-xs font-semibold text-slate-700">
+                      Videolar (Media) bo'limiga ham qo'shilsinmi?
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={publishToVideos}
+                      onChange={(e) => setPublishToVideos(e.target.checked)}
+                      className="w-4 h-4 accent-pink-600 rounded cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Cover Image */}
               <ImageUploader
-                label="Yangilik rasmi (Cloudflare R2 storage)"
+                label="Yangilik muqova rasmi (Yoki yuqoridagi Instagram orqali olinadi)"
                 folder="news"
                 value={imageUrl}
                 aspectRatio={16 / 9}
@@ -261,7 +364,7 @@ export default function NewsPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sarlavha</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Sarlavha *</label>
                 <input 
                   type="text" 
                   required
@@ -273,7 +376,7 @@ export default function NewsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Batafsil matn</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Batafsil matn *</label>
                 <textarea 
                   required
                   rows={5}
@@ -298,14 +401,14 @@ export default function NewsPage() {
                 <button 
                   type="button"
                   onClick={() => { setIsModalOpen(false); resetForm(); }} 
-                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors ${
+                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors cursor-pointer ${
                     isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >

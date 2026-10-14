@@ -45,6 +45,7 @@ next-env.d.ts
 /public/rasmlar/
 /public/sertifikatlar/
 /public/talaba_rasm.png
+/public/uploads/
 
 # temporary files
 crop_frames.js

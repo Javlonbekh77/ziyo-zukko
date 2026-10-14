@@ -55,6 +55,7 @@ export default function AdminVideosPage() {
   const [r2Key, setR2Key] = useState("");
   const [description, setDescription] = useState("");
   const [section, setSection] = useState<"testimonials" | "reels" | "both">("both");
+  const [publishToNews, setPublishToNews] = useState(true);
 
   useEffect(() => {
     fetchVideos();
@@ -93,6 +94,13 @@ export default function AdminVideosPage() {
     }
   };
 
+  // Helper to extract Instagram shortcode
+  const getInstagramShortcode = (igUrl: string): string | null => {
+    const cleanUrl = igUrl.split("?")[0].replace(/\/$/, "");
+    const match = cleanUrl.match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i);
+    return match ? match[1] : null;
+  };
+
   // Auto-detect platform and generate thumbnail preview when URL changes
   const handleUrlChange = (newUrl: string) => {
     setUrl(newUrl);
@@ -100,11 +108,17 @@ export default function AdminVideosPage() {
     if (newUrl.includes("youtube.com") || newUrl.includes("youtu.be")) {
       setPlatform("youtube");
       const ytId = extractYouTubeId(newUrl);
-      if (ytId && !thumbnail) {
+      if (ytId) {
         setThumbnail(`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`);
       }
     } else if (newUrl.includes("instagram.com")) {
       setPlatform("instagram");
+      const shortcode = getInstagramShortcode(newUrl);
+      if (shortcode) {
+        // Auto-fetch rendered first image from Instagram
+        const autoThumb = `https://image.thum.io/get/width/720/crop/850/https://www.instagram.com/p/${shortcode}/embed/`;
+        setThumbnail(autoThumb);
+      }
     }
   };
 
@@ -117,6 +131,7 @@ export default function AdminVideosPage() {
     setR2Key(vid.r2Key || "");
     setDescription(vid.description || "");
     setSection(vid.section || "both");
+    setPublishToNews(false);
     setIsModalOpen(true);
   };
 
@@ -144,7 +159,12 @@ export default function AdminVideosPage() {
     } else {
       calculatedEmbedUrl = formatInstagramEmbed(url);
       if (!finalThumbnail) {
-        finalThumbnail = "/data/maktab_binosi.png";
+        const shortcode = getInstagramShortcode(url);
+        if (shortcode) {
+          finalThumbnail = `https://image.thum.io/get/width/720/crop/850/https://www.instagram.com/p/${shortcode}/embed/`;
+        } else {
+          finalThumbnail = "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=80";
+        }
       }
     }
 
@@ -172,6 +192,28 @@ export default function AdminVideosPage() {
         const newVideoData = { ...videoData, createdAt: new Date().toISOString() };
         const docRef = await addDoc(collection(db, "videos"), newVideoData);
         setVideos([{ id: docRef.id, ...newVideoData }, ...videos]);
+
+        // Agar Yangiliklar bo'limiga ham qo'shish tanlangan bo'lsa
+        if (publishToNews) {
+          try {
+            const newsData = {
+              title,
+              content: description || title,
+              date: new Date().toISOString().split("T")[0],
+              imageUrl: finalThumbnail,
+              r2Key: r2Key || "",
+              url: url,
+              instagramUrl: platform === "instagram" ? url : undefined,
+              embedUrl: calculatedEmbedUrl,
+              social: platform === "instagram" ? "instagram" : "both",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+            await addDoc(collection(db, "news"), newsData);
+          } catch (newsErr) {
+            console.error("Error auto-publishing to news:", newsErr);
+          }
+        }
       }
 
       setIsModalOpen(false);
@@ -552,17 +594,40 @@ export default function AdminVideosPage() {
                 </select>
               </div>
 
+              {/* Publish to News Toggle */}
+              <div className="p-3.5 bg-gradient-to-r from-pink-50 to-indigo-50 rounded-2xl border border-pink-200/70 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-pink-600" />
+                    Yangiliklar bo'limiga ham qo'shilsin
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Ushbu video/post avtomatik tarzda asosiy "Yangiliklar" sahifasida ham xabar sifatida chop etiladi.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={publishToNews}
+                  onChange={(e) => setPublishToNews(e.target.checked)}
+                  className="w-5 h-5 accent-pink-600 rounded-lg cursor-pointer shrink-0"
+                />
+              </div>
+
               {/* Custom Thumbnail (Optional) */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
                     Muqova rasmi (Thumbnail)
                   </label>
-                  {platform === "youtube" && (
+                  {platform === "youtube" ? (
                     <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
                       <Sparkles className="w-3 h-3" /> YouTube'dan avtomatik olinadi
                     </span>
-                  )}
+                  ) : platform === "instagram" ? (
+                    <span className="text-[11px] text-pink-600 font-semibold flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Instagram'dan avtomatik olinadi
+                    </span>
+                  ) : null}
                 </div>
                 <ImageUploader
                   folder="videos"

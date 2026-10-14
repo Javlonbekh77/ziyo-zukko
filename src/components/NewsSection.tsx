@@ -124,7 +124,9 @@ export default function NewsSection() {
                   tag_en: data.tag_en,
                   img: data.imageUrl || data.image || "/data/maktab_binosi.png",
                   date: data.date || new Date().toISOString().split("T")[0],
-                  social: "both",
+                  social: data.social || (data.instagramUrl ? "instagram" : "both"),
+                  instagramUrl: data.instagramUrl,
+                  embedUrl: data.embedUrl || (data.instagramUrl ? `${data.instagramUrl.split("?")[0].replace(/\/embed\/?$/, "").replace(/\/$/, "")}/embed/` : undefined),
                 };
               });
               setRawDbNews(fetched);
@@ -173,7 +175,8 @@ export default function NewsSection() {
     tag: getLocalizedField(n, "tag", lang) || (lang === "ru" ? "НОВОСТИ" : lang === "en" ? "NEWS" : "YANGILIKLAR"),
     img: n.img || "/data/maktab_binosi.png",
     date: n.date,
-    social: n.social || "both",
+    social: n.social || (n.instagramUrl ? "instagram" : "both"),
+    instagramUrl: n.instagramUrl,
     embedUrl: n.embedUrl,
   })).slice(0, 4);
 

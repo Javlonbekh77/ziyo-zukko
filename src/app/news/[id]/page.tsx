@@ -56,7 +56,9 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
             tag: data.tag || "YANGILIK",
             image: data.imageUrl || data.image || "/data/maktab_binosi.png",
             images: data.images,
-          } as NewsDetailItem);
+            instagramUrl: data.instagramUrl || data.url,
+            embedUrl: data.embedUrl,
+          } as any);
         }
       } catch (err) {
         console.error("Error fetching single news:", err);
@@ -98,12 +100,12 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
     );
   }
 
-  const displayNews = news;
+  const displayNews = news as any;
   const imageSrc = (displayNews.images && displayNews.images[0]) || displayNews.image || "/data/maktab_binosi.png";
   const titleStr = getText(displayNews.title);
   const textStr = getText(displayNews.text || displayNews.summary);
 
-return (
+  return (
     <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-10 px-4 flex flex-col items-center font-sans">
       {/* Top Pill Back Button */}
       <div className="w-full max-w-[900px] mb-8 flex justify-center sm:justify-start">
@@ -120,26 +122,51 @@ return (
       <article className="w-full max-w-[900px] bg-white rounded-3xl p-6 sm:p-10 md:p-12 shadow-xl border border-gray-100 space-y-8">
         {/* Title & Date */}
         <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-3.5 py-1.5 rounded-lg w-max">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <span>{displayNews.date}</span>
+            </div>
+            {displayNews.instagramUrl && (
+              <a
+                href={displayNews.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white text-xs font-bold shadow hover:opacity-90 transition"
+              >
+                Instagram&apos;da ochish ↗
+              </a>
+            )}
+          </div>
+
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#071a33] leading-snug tracking-tight">
             {titleStr}
           </h1>
+        </div>
 
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-3.5 py-1.5 rounded-lg w-max">
-            <Calendar className="w-4 h-4 text-gray-400" />
-            <span>{displayNews.date}</span>
+        {/* Featured Image or Instagram Embed */}
+        {displayNews.embedUrl ? (
+          <div className="space-y-4">
+            <div className="relative w-full max-w-[500px] mx-auto aspect-[9/16] max-h-[620px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-black">
+              <iframe
+                src={displayNews.embedUrl}
+                className="w-full h-full border-none"
+                allow="encrypted-media; autoplay"
+                scrolling="no"
+              />
+            </div>
           </div>
-        </div>
-
-        {/* Featured Image */}
-        <div className="relative w-full h-[280px] sm:h-[400px] md:h-[480px] bg-slate-100 rounded-2xl overflow-hidden border border-gray-100 shadow-md">
-          <Image
-            src={imageSrc}
-            alt={titleStr}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-        </div>
+        ) : (
+          <div className="relative w-full h-[280px] sm:h-[400px] md:h-[480px] bg-slate-100 rounded-2xl overflow-hidden border border-gray-100 shadow-md">
+            <Image
+              src={imageSrc}
+              alt={titleStr}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        )}
 
         {/* Article Text Content */}
         <div className="text-gray-700 font-medium text-base sm:text-lg leading-relaxed whitespace-pre-line space-y-4">
