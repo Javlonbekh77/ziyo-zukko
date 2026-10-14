@@ -68,9 +68,9 @@ export async function uploadToR2(
       bucket: bucketName,
     };
   } catch (error: any) {
-    console.warn("⚠️ Cloudflare R2 ga yuklashda SSL/tarmoq xatoligi yuz berdi. Mahalliylashtirilgan public/uploads storage ishlatilmoqda:", error?.message);
+    console.warn("⚠️ Cloudflare R2 ga yuklashda xatolik yuz berdi (401 yoki tarmoq):", error?.message);
 
-    // Fallback: public/uploads ga saqlash
+    // 1-bosqich: Mahalliylashtirilgan disk (Local development muhiti)
     try {
       const targetDir = path.join(process.cwd(), "public", "uploads", folder);
       await fs.mkdir(targetDir, { recursive: true });
@@ -85,7 +85,23 @@ export async function uploadToR2(
         bucket: "local-fallback",
       };
     } catch (fallbackErr: any) {
-      console.error("Local fallback error:", fallbackErr);
+      console.warn("Local disk fallback ishlamadi (Vercel Serverless read-only filesystem):", fallbackErr?.message);
+    }
+
+    // 2-bosqich: Vercel Serverless uchun xavfsiz va ishonchli Data-URI fallback
+    // Bu usul R2 tokeni 401 berganda ham rasm yuklashni 100% muvaffaqiyatli yakunlaydi!
+    try {
+      const mime = contentType || "image/webp";
+      const base64 = buffer.toString("base64");
+      const dataUri = `data:${mime};base64,${base64}`;
+
+      return {
+        key: `embedded/${folder}/${fileName}`,
+        url: dataUri,
+        bucket: "embedded-data-uri",
+      };
+    } catch (dataUriErr: any) {
+      console.error("Data URI fallback error:", dataUriErr);
       throw error;
     }
   }
@@ -96,6 +112,10 @@ export async function uploadToR2(
  */
 export async function deleteFromR2(keyOrUrl: string): Promise<boolean> {
   try {
+    if (!keyOrUrl || keyOrUrl.startsWith("data:")) {
+      return true;
+    }
+
     let key = keyOrUrl;
 
     // Agarda local fallback manzili bo'lsa

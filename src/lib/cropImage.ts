@@ -48,6 +48,21 @@ export default async function getCroppedImg(
   // draw rotated image
   ctx.drawImage(image, 0, 0);
 
+  // Limit maximum dimension to 1200px for optimal loading speed and lightweight storage
+  const MAX_DIMENSION = 1200;
+  let targetWidth = pixelCrop.width;
+  let targetHeight = pixelCrop.height;
+
+  if (targetWidth > MAX_DIMENSION || targetHeight > MAX_DIMENSION) {
+    if (targetWidth > targetHeight) {
+      targetHeight = Math.round((targetHeight * MAX_DIMENSION) / targetWidth);
+      targetWidth = MAX_DIMENSION;
+    } else {
+      targetWidth = Math.round((targetWidth * MAX_DIMENSION) / targetHeight);
+      targetHeight = MAX_DIMENSION;
+    }
+  }
+
   const croppedCanvas = document.createElement("canvas");
   const croppedCtx = croppedCanvas.getContext("2d");
 
@@ -56,8 +71,8 @@ export default async function getCroppedImg(
   }
 
   // Set the size of the cropped canvas
-  croppedCanvas.width = pixelCrop.width;
-  croppedCanvas.height = pixelCrop.height;
+  croppedCanvas.width = targetWidth;
+  croppedCanvas.height = targetHeight;
 
   // Draw the cropped image onto the new canvas
   croppedCtx.drawImage(
@@ -68,8 +83,8 @@ export default async function getCroppedImg(
     pixelCrop.height,
     0,
     0,
-    pixelCrop.width,
-    pixelCrop.height
+    targetWidth,
+    targetHeight
   );
 
   // As a blob
@@ -80,6 +95,6 @@ export default async function getCroppedImg(
       } else {
         resolve(null);
       }
-    }, "image/webp", 0.9);
+    }, "image/webp", 0.85);
   });
 }
