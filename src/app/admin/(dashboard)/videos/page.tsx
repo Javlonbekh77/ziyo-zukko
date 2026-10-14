@@ -475,12 +475,13 @@ export default function AdminVideosPage() {
 
       {/* Add / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
               <div className="flex items-center gap-2">
                 <VideoIcon className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   {editingId ? "Videoni tahrirlash" : "Yangi video qo'shish"}
                 </h2>
               </div>
@@ -495,158 +496,162 @@ export default function AdminVideosPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              {/* Platform Selector */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Platforma
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPlatform("youtube")}
-                    className={`py-2.5 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-                      platform === "youtube"
-                        ? "border-red-500 bg-red-50 text-red-600 shadow-sm"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    YouTube (Video / Shorts)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPlatform("instagram")}
-                    className={`py-2.5 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-                      platform === "instagram"
-                        ? "border-pink-500 bg-pink-50 text-pink-600 shadow-sm"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    Instagram (Reels / Post)
-                  </button>
-                </div>
-              </div>
-
-              {/* Video URL */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Video havolasi (URL) *
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder={
-                    platform === "youtube"
-                      ? "https://www.youtube.com/shorts/... yoki https://youtu.be/..."
-                      : "https://www.instagram.com/reel/... yoki https://www.instagram.com/p/..."
-                  }
-                  value={url}
-                  onChange={(e) => handleUrlChange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  YouTube Shorts yoki Instagram Reels havolasini to'g'ridan-to'g'ri joylang.
-                </p>
-              </div>
-
-              {/* Video Title */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Sarlavha (Nomi) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Masalan: Ota-onalar fikri, Maktab bayrami, Olimpiada..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Izoh yoki fikr (Quote)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Video haqida qisqacha tavsif yoki ota-onaning fikri..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                />
-              </div>
-
-              {/* Section Display */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Saytning qaysi bo'limida ko'rsatilsin?
-                </label>
-                <select
-                  value={section}
-                  onChange={(e: any) => setSection(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="both">Har ikkala bo'limda (Fikrlar & Yangiliklar)</option>
-                  <option value="testimonials">Faqat Ota-onalar fikri (Testimonials bo'limi)</option>
-                  <option value="reels">Faqat Instagram Reels (Yangiliklar bo'limi)</option>
-                </select>
-              </div>
-
-              {/* Publish to News Toggle */}
-              <div className="p-3.5 bg-gradient-to-r from-pink-50 to-indigo-50 rounded-2xl border border-pink-200/70 flex items-center justify-between gap-3">
+            {/* Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                {/* Platform Selector */}
                 <div>
-                  <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-pink-600" />
-                    Yangiliklar bo'limiga ham qo'shilsin
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Ushbu video/post avtomatik tarzda asosiy "Yangiliklar" sahifasida ham xabar sifatida chop etiladi.
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={publishToNews}
-                  onChange={(e) => setPublishToNews(e.target.checked)}
-                  className="w-5 h-5 accent-pink-600 rounded-lg cursor-pointer shrink-0"
-                />
-              </div>
-
-              {/* Custom Thumbnail (Optional) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Muqova rasmi (Thumbnail)
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Platforma
                   </label>
-                  {platform === "youtube" ? (
-                    <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> YouTube'dan avtomatik olinadi
-                    </span>
-                  ) : platform === "instagram" ? (
-                    <span className="text-[11px] text-pink-600 font-semibold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Instagram'dan avtomatik olinadi
-                    </span>
-                  ) : null}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPlatform("youtube")}
+                      className={`py-2.5 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                        platform === "youtube"
+                          ? "border-red-500 bg-red-50 text-red-600 shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      YouTube (Video / Shorts)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPlatform("instagram")}
+                      className={`py-2.5 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                        platform === "instagram"
+                          ? "border-pink-500 bg-pink-50 text-pink-600 shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      Instagram (Reels / Post)
+                    </button>
+                  </div>
                 </div>
-                <ImageUploader
-                  folder="videos"
-                  value={thumbnail}
-                  onChange={(imgUrl, key) => {
-                    setThumbnail(imgUrl);
-                    if (key) setR2Key(key);
-                  }}
-                  onRemove={() => {
-                    setThumbnail("");
-                    setR2Key("");
-                  }}
-                  aspectRatio={16 / 9}
-                  label=""
-                />
+
+                {/* Video URL */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Video havolasi (URL) *
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder={
+                      platform === "youtube"
+                        ? "https://www.youtube.com/shorts/... yoki https://youtu.be/..."
+                        : "https://www.instagram.com/reel/... yoki https://www.instagram.com/p/..."
+                    }
+                    value={url}
+                    onChange={(e) => handleUrlChange(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    YouTube Shorts yoki Instagram Reels havolasini to'g'ridan-to'g'ri joylang.
+                  </p>
+                </div>
+
+                {/* Video Title */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Sarlavha (Nomi) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan: Ota-onalar fikri, Maktab bayrami, Olimpiada..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Izoh yoki fikr (Quote)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Video haqida qisqacha tavsif yoki ota-onaning fikri..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  />
+                </div>
+
+                {/* Section Display */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Saytning qaysi bo'limida ko'rsatilsin?
+                  </label>
+                  <select
+                    value={section}
+                    onChange={(e: any) => setSection(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="both">Har ikkala bo'limda (Fikrlar & Yangiliklar)</option>
+                    <option value="testimonials">Faqat Ota-onalar fikri (Testimonials bo'limi)</option>
+                    <option value="reels">Faqat Instagram Reels (Yangiliklar bo'limi)</option>
+                  </select>
+                </div>
+
+                {/* Publish to News Toggle */}
+                <div className="p-3.5 bg-gradient-to-r from-pink-50 to-indigo-50 rounded-2xl border border-pink-200/70 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-pink-600" />
+                      Yangiliklar bo'limiga ham qo'shilsin
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Ushbu video/post avtomatik tarzda asosiy "Yangiliklar" sahifasida ham xabar sifatida chop etiladi.
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={publishToNews}
+                    onChange={(e) => setPublishToNews(e.target.checked)}
+                    className="w-5 h-5 accent-pink-600 rounded-lg cursor-pointer shrink-0"
+                  />
+                </div>
+
+                {/* Custom Thumbnail (Optional) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Muqova rasmi (Thumbnail)
+                    </label>
+                    {platform === "youtube" ? (
+                      <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> YouTube'dan avtomatik olinadi
+                      </span>
+                    ) : platform === "instagram" ? (
+                      <span className="text-[11px] text-pink-600 font-semibold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> Instagram'dan avtomatik olinadi
+                      </span>
+                    ) : null}
+                  </div>
+                  <ImageUploader
+                    folder="videos"
+                    value={thumbnail}
+                    onChange={(imgUrl, key) => {
+                      setThumbnail(imgUrl);
+                      if (key) setR2Key(key);
+                    }}
+                    onRemove={() => {
+                      setThumbnail("");
+                      setR2Key("");
+                    }}
+                    aspectRatio={16 / 9}
+                    label=""
+                  />
+                </div>
               </div>
 
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {

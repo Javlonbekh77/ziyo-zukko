@@ -242,10 +242,11 @@ export default function CertificatesPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-              <h2 className="text-xl font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {editingId ? "Sertifikatni tahrirlash" : "Yangi sertifikat qo'shish"}
               </h2>
               <button 
@@ -256,65 +257,70 @@ export default function CertificatesPage() {
               </button>
             </div>
             
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              <ImageUploader
-                label="Sertifikat rasmi (Cloudflare R2 storage)"
-                folder="certificates"
-                value={imageUrl}
-                aspectRatio={4 / 3} // Sertifikat formati uchun ko'proq to'g'ri keladi
-                onChange={(url, key) => {
-                  setImageUrl(url);
-                  if (key) setR2Key(key);
-                }}
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sertifikat Nomi</label>
-                <input 
-                  type="text" 
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: IELTS 7.5 yoki Oltin medal" 
+            {/* Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                <ImageUploader
+                  label="Sertifikat rasmi (Cloudflare R2 storage)"
+                  folder="certificates"
+                  value={imageUrl}
+                  aspectRatio={4 / 3}
+                  onChange={(url, key) => {
+                    setImageUrl(url);
+                    if (key) setR2Key(key);
+                  }}
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sertifikat Nomi</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: IELTS 7.5 yoki Oltin medal" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Qaysi fan/kategoriya bo'yicha?</label>
+                  <select 
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-white"
+                  >
+                    {SUBJECTS.map(subj => (
+                      <option key={subj} value={subj}>{subj}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Berilgan Sana</label>
+                  <input 
+                    type="date" 
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Qaysi fan/kategoriya bo'yicha?</label>
-                <select 
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-white"
-                >
-                  {SUBJECTS.map(subj => (
-                    <option key={subj} value={subj}>{subj}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Berilgan Sana</label>
-                <input 
-                  type="date" 
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button 
                   type="button"
                   onClick={() => { setIsModalOpen(false); resetForm(); }} 
-                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors ${
+                  className={`px-5 py-2.5 text-white font-bold rounded-lg shadow-md transition-colors cursor-pointer ${
                     isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >

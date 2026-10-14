@@ -244,10 +244,11 @@ export default function GraduatesPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-              <h2 className="text-xl font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {editingId ? "Bitiruvchini tahrirlash" : "Yangi bitiruvchi qo'shish"}
               </h2>
               <button 
@@ -258,78 +259,83 @@ export default function GraduatesPage() {
               </button>
             </div>
             
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              <ImageUploader
-                label="Bitiruvchi rasmi (Cloudflare R2 storage)"
-                folder="graduates"
-                value={imageUrl}
-                cropShape="round"
-                aspectRatio={1}
-                onChange={(url, key) => {
-                  setImageUrl(url);
-                  if (key) setR2Key(key);
-                }}
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
-                <input 
-                  type="text" 
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: Aliyev Vali" 
+            {/* Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                <ImageUploader
+                  label="Bitiruvchi rasmi (Cloudflare R2 storage)"
+                  folder="graduates"
+                  value={imageUrl}
+                  cropShape="round"
+                  aspectRatio={1}
+                  onChange={(url, key) => {
+                    setImageUrl(url);
+                    if (key) setR2Key(key);
+                  }}
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: Aliyev Vali" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Oliygoh nomi (OTM)</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: TATU" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">O'qishga kirgan yili</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: 2024" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Qo'shimcha izoh (ixtiyoriy)</label>
+                  <textarea 
+                    rows={3} 
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none" 
+                    placeholder="Bitiruvchi haqida qisqacha..."
+                  ></textarea>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Oliygoh nomi (OTM)</label>
-                <input 
-                  type="text" 
-                  required
-                  value={university}
-                  onChange={(e) => setUniversity(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: TATU" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">O'qishga kirgan yili</label>
-                <input 
-                  type="text" 
-                  required
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: 2024" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Qo'shimcha izoh (ixtiyoriy)</label>
-                <textarea 
-                  rows={3} 
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none" 
-                  placeholder="Bitiruvchi haqida qisqacha..."
-                ></textarea>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button 
                   type="button"
                   onClick={() => { setIsModalOpen(false); resetForm(); }} 
-                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors ${
+                  className={`px-5 py-2.5 text-white font-bold rounded-lg shadow-md transition-colors cursor-pointer ${
                     isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >

@@ -510,13 +510,13 @@ const defaultSeedStaff: Omit<TeacherItem, "id">[] = [
 
       {/* Add / Edit Modal with Guaranteed Smooth Scrolling */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50">
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-teal-600" />
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   {editingId ? "Ustoz ma'lumotlarini tahrirlash" : "Yangi ustoz qo'shish"}
                 </h2>
               </div>
@@ -531,110 +531,113 @@ const defaultSeedStaff: Omit<TeacherItem, "id">[] = [
               </button>
             </div>
 
-            {/* Modal Form with Scrollable Content */}
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              {/* Teacher Image */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Ustoz rasmi *
-                </label>
-                <ImageUploader
-                  folder="teachers"
-                  value={imageUrl}
-                  onChange={(url, key) => {
-                    setImageUrl(url);
-                    if (key) setR2Key(key);
-                  }}
-                  onRemove={() => {
-                    setImageUrl("");
-                    setR2Key("");
-                  }}
-                  aspectRatio={4 / 5}
-                  label="Ustoz fotosuratini yuklang (Cloudflare R2)"
-                />
+            {/* Modal Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                {/* Teacher Image */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Ustoz rasmi *
+                  </label>
+                  <ImageUploader
+                    folder="teachers"
+                    value={imageUrl}
+                    onChange={(url, key) => {
+                      setImageUrl(url);
+                      if (key) setR2Key(key);
+                    }}
+                    onRemove={() => {
+                      setImageUrl("");
+                      setR2Key("");
+                    }}
+                    aspectRatio={4 / 5}
+                    label="Ustoz fotosuratini yuklang (Cloudflare R2)"
+                  />
+                </div>
+
+                {/* Full Name */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Ism va Familiya *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan: Otajonova Yaqutxon"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                {/* Role / Subject */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Fani yoki Lavozimi *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan: Maktab direktori, O'quv ishlari mudiri, Matematika o'qituvchisi..."
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Yo'nalish / Toifasi *
+                  </label>
+                  <select
+                    value={category}
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Highlight badge */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Asosiy tajriba yoki unvoni (Badge)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Masalan: 33 yillik pedagog, CELTA sertifikati, Olimpiada murabbiysi..."
+                    value={highlight}
+                    onChange={(e) => setHighlight(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                {/* Achievements / Bullets */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Yutuqlari va ma'lumotlari (Har bir qatorda bitta fakt)
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder={`Toshkent davlat pedagogika universiteti bitiruvchisi\nOliy toifali ustoz va metodist\nPrezident maktabiga o'quvchilari kirgan`}
+                    value={bulletsText}
+                    onChange={(e) => setBulletsText(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none font-sans"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Har bir qatorga alohida bitta yutuq yoki ma'lumot yozing.
+                  </p>
+                </div>
               </div>
 
-              {/* Full Name */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Ism va Familiya *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Masalan: Otajonova Yaqutxon"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              {/* Role / Subject */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Fani yoki Lavozimi *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Masalan: Maktab direktori, O'quv ishlari mudiri, Matematika o'qituvchisi..."
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Yo'nalish / Toifasi *
-                </label>
-                <select
-                  value={category}
-                  onChange={(e: any) => setCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Highlight badge */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Asosiy tajriba yoki unvoni (Badge)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Masalan: 33 yillik pedagog, CELTA sertifikati, Olimpiada murabbiysi..."
-                  value={highlight}
-                  onChange={(e) => setHighlight(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              {/* Achievements / Bullets */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Yutuqlari va ma'lumotlari (Har bir qatorda bitta fakt)
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder={`Toshkent davlat pedagogika universiteti bitiruvchisi\nOliy toifali ustoz va metodist\nPrezident maktabiga o'quvchilari kirgan`}
-                  value={bulletsText}
-                  onChange={(e) => setBulletsText(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none font-sans"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Har bir qatorga alohida bitta yutuq yoki ma'lumot yozing.
-                </p>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {

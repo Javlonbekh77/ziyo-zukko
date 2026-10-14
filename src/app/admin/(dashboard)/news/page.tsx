@@ -298,10 +298,11 @@ export default function NewsPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50">
-              <h2 className="text-xl font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                 {editingId ? "Yangilikni tahrirlash" : "Yangi xabar qo'shish"}
               </h2>
               <button 
@@ -312,92 +313,97 @@ export default function NewsPage() {
               </button>
             </div>
             
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 space-y-4">
-              {/* Instagram URL input with Auto-thumbnail */}
-              <div className="p-4 bg-gradient-to-r from-pink-50/70 via-purple-50/50 to-indigo-50/70 rounded-2xl border border-pink-200/80 space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800">
-                    Instagram / Reels havolasi (Ixtiyoriy)
-                  </label>
-                  {instagramUrl.includes("instagram.com") && (
-                    <span className="text-[11px] text-pink-600 font-bold flex items-center gap-1 bg-pink-100/70 px-2.5 py-0.5 rounded-full">
-                      ✨ Rasm avtomatik olindi
-                    </span>
+            {/* Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                {/* Instagram URL input with Auto-thumbnail */}
+                <div className="p-4 bg-gradient-to-r from-pink-50/70 via-purple-50/50 to-indigo-50/70 rounded-2xl border border-pink-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-800">
+                      Instagram / Reels havolasi (Ixtiyoriy)
+                    </label>
+                    {instagramUrl.includes("instagram.com") && (
+                      <span className="text-[11px] text-pink-600 font-bold flex items-center gap-1 bg-pink-100/70 px-2.5 py-0.5 rounded-full">
+                        ✨ Rasm avtomatik olindi
+                      </span>
+                    )}
+                  </div>
+                  <input 
+                    type="url" 
+                    value={instagramUrl}
+                    onChange={(e) => handleInstagramUrlChange(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none shadow-sm" 
+                    placeholder="https://www.instagram.com/reel/... yoki https://www.instagram.com/p/..." 
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Instagram havolasini kiritganingizda, birinchi muqova rasmi avtomatik tarzda olinadi.
+                  </p>
+
+                  {instagramUrl.includes("instagram.com") && !editingId && (
+                    <div className="pt-2 flex items-center justify-between border-t border-pink-200/60 mt-2">
+                      <span className="text-xs font-semibold text-slate-700">
+                        Videolar (Media) bo'limiga ham qo'shilsinmi?
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={publishToVideos}
+                        onChange={(e) => setPublishToVideos(e.target.checked)}
+                        className="w-4 h-4 accent-pink-600 rounded cursor-pointer"
+                      />
+                    </div>
                   )}
                 </div>
-                <input 
-                  type="url" 
-                  value={instagramUrl}
-                  onChange={(e) => handleInstagramUrlChange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none shadow-sm" 
-                  placeholder="https://www.instagram.com/reel/... yoki https://www.instagram.com/p/..." 
-                />
-                <p className="text-[11px] text-slate-500">
-                  Instagram havolasini kiritganingizda, birinchi muqova rasmi avtomatik tarzda olinadi.
-                </p>
 
-                {instagramUrl.includes("instagram.com") && !editingId && (
-                  <div className="pt-2 flex items-center justify-between border-t border-pink-200/60 mt-2">
-                    <span className="text-xs font-semibold text-slate-700">
-                      Videolar (Media) bo'limiga ham qo'shilsinmi?
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={publishToVideos}
-                      onChange={(e) => setPublishToVideos(e.target.checked)}
-                      className="w-4 h-4 accent-pink-600 rounded cursor-pointer"
-                    />
-                  </div>
-                )}
+                {/* Cover Image */}
+                <ImageUploader
+                  label="Yangilik muqova rasmi (Yoki yuqoridagi Instagram orqali olinadi)"
+                  folder="news"
+                  value={imageUrl}
+                  aspectRatio={16 / 9}
+                  onChange={(url, key) => {
+                    setImageUrl(url);
+                    if (key) setR2Key(key);
+                  }}
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sarlavha *</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: Maktabimizda ochiq eshiklar kuni bo'lib o'tdi" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Batafsil matn *</label>
+                  <textarea 
+                    required
+                    rows={5}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none" 
+                    placeholder="Yangilik haqida batafsil..." 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sana</label>
+                  <input 
+                    type="date" 
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                  />
+                </div>
               </div>
 
-              {/* Cover Image */}
-              <ImageUploader
-                label="Yangilik muqova rasmi (Yoki yuqoridagi Instagram orqali olinadi)"
-                folder="news"
-                value={imageUrl}
-                aspectRatio={16 / 9}
-                onChange={(url, key) => {
-                  setImageUrl(url);
-                  if (key) setR2Key(key);
-                }}
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sarlavha *</label>
-                <input 
-                  type="text" 
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: Maktabimizda ochiq eshiklar kuni bo'lib o'tdi" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Batafsil matn *</label>
-                <textarea 
-                  required
-                  rows={5}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none" 
-                  placeholder="Yangilik haqida batafsil..." 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sana</label>
-                <input 
-                  type="date" 
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button 
                   type="button"
                   onClick={() => { setIsModalOpen(false); resetForm(); }} 
@@ -408,7 +414,7 @@ export default function NewsPage() {
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors cursor-pointer ${
+                  className={`px-5 py-2.5 text-white font-bold rounded-lg shadow-md transition-colors cursor-pointer ${
                     isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >

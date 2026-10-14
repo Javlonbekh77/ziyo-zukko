@@ -284,10 +284,11 @@ export default function AdminStatsPage() {
 
       {/* Edit / Add Modal with smoothly scrollable body */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-              <h2 className="text-lg font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {editingId ? "Ko'rsatkichni tahrirlash" : "Yangi ko'rsatkich qo'shish"}
               </h2>
               <button
@@ -298,76 +299,81 @@ export default function AdminStatsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Son qiymati (Raqam)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={value}
-                    onChange={(e) => setValue(Number(e.target.value))}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-bold text-lg"
-                    placeholder="Masalan: 120"
-                  />
+            {/* Form */}
+            <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      Son qiymati (Raqam)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={value}
+                      onChange={(e) => setValue(Number(e.target.value))}
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-bold text-lg"
+                      placeholder="Masalan: 120"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      Belgisi (Suffix)
+                    </label>
+                    <input
+                      type="text"
+                      value={suffix}
+                      onChange={(e) => setSuffix(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-bold text-lg"
+                      placeholder="Masalan: +, % yoki ta"
+                    />
+                  </div>
                 </div>
+
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Belgisi (Suffix)
+                    Sarlavha (Nomi)
                   </label>
                   <input
                     type="text"
-                    value={suffix}
-                    onChange={(e) => setSuffix(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-bold text-lg"
-                    placeholder="Masalan: +, % yoki ta"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-semibold text-sm"
+                    placeholder="Masalan: Sertifikat olgan o'quvchilar"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Izoh (Kichik matn)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={subtitle}
+                    onChange={(e) => setSubtitle(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none text-sm resize-none"
+                    placeholder="Masalan: IELTS, SAT va fan sertifikatlari"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Tartib raqami (Ketma-ketlik)
+                  </label>
+                  <input
+                    type="number"
+                    value={order}
+                    onChange={(e) => setOrder(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none text-sm"
+                    placeholder="1, 2, 3..."
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Sarlavha (Nomi)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none font-semibold text-sm"
-                  placeholder="Masalan: Sertifikat olgan o'quvchilar"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Izoh (Kichik matn)
-                </label>
-                <textarea
-                  rows={2}
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none text-sm resize-none"
-                  placeholder="Masalan: IELTS, SAT va fan sertifikatlari"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Tartib raqami (Ketma-ketlik)
-                </label>
-                <input
-                  type="number"
-                  value={order}
-                  onChange={(e) => setOrder(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#ff6b00] outline-none text-sm"
-                  placeholder="1, 2, 3..."
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

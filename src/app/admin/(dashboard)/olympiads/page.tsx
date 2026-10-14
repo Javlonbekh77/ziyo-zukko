@@ -267,10 +267,11 @@ export default function OlympiadsPage() {
 
       {/* Smoothly Scrollable Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-start sm:items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[88vh] my-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-              <h2 className="text-xl font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {editingId ? "Olimpiadachini tahrirlash" : "Yangi olimpiadachi qo'shish"}
               </h2>
               <button 
@@ -281,74 +282,79 @@ export default function OlympiadsPage() {
               </button>
             </div>
             
-            <form onSubmit={handleAddOrEdit} className="p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
-              <ImageUploader
-                label="O'quvchi rasmi (Cloudflare R2 storage)"
-                folder="olympiads"
-                value={imageUrl}
-                cropShape="round"
-                aspectRatio={1}
-                onChange={(url, key) => {
-                  setImageUrl(url);
-                  if (key) setR2Key(key);
-                }}
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
-                <input 
-                  type="text" 
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: Toshmatov Eshmat" 
+            {/* Form */}
+            <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+                <ImageUploader
+                  label="O'quvchi rasmi (Cloudflare R2 storage)"
+                  folder="olympiads"
+                  value={imageUrl}
+                  cropShape="round"
+                  aspectRatio={1}
+                  onChange={(url, key) => {
+                    setImageUrl(url);
+                    if (key) setR2Key(key);
+                  }}
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: Toshmatov Eshmat" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fan</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: Matematika" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Natija (O'rin)</label>
+                  <input 
+                    type="text" 
+                    value={result}
+                    onChange={(e) => setResult(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
+                    placeholder="Masalan: Viloyat bosqichi 1-o'rin" 
+                  />
+                </div>
+
+                {/* Home page visibility toggle */}
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <input 
+                    type="checkbox"
+                    id="showOnHomeCheckbox"
+                    checked={showOnHome}
+                    onChange={(e) => setShowOnHome(e.target.checked)}
+                    className="w-5 h-5 mt-0.5 accent-emerald-600 rounded cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="showOnHomeCheckbox" className="text-sm cursor-pointer select-none">
+                    <span className="font-bold text-slate-900 block">
+                      Asosiy sahifada ko'rinsinmi?
+                    </span>
+                    <span className="text-slate-600 text-xs block mt-0.5">
+                      Agar belgilansa, bosh sahifada (maksimum 3 ta tanlangan) ko'rinadi. Belgilanmasa — faqat "Barchasini ko'rish" sahifasida turadi.
+                    </span>
+                  </label>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fan</label>
-                <input 
-                  type="text" 
-                  required
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: Matematika" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Natija (O'rin)</label>
-                <input 
-                  type="text" 
-                  value={result}
-                  onChange={(e) => setResult(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                  placeholder="Masalan: Viloyat bosqichi 1-o'rin" 
-                />
-              </div>
-
-              {/* Home page visibility toggle */}
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
-                <input 
-                  type="checkbox"
-                  id="showOnHomeCheckbox"
-                  checked={showOnHome}
-                  onChange={(e) => setShowOnHome(e.target.checked)}
-                  className="w-5 h-5 mt-0.5 accent-emerald-600 rounded cursor-pointer shrink-0"
-                />
-                <label htmlFor="showOnHomeCheckbox" className="text-sm cursor-pointer select-none">
-                  <span className="font-bold text-slate-900 block">
-                    Asosiy sahifada ko'rinsinmi?
-                  </span>
-                  <span className="text-slate-600 text-xs block mt-0.5">
-                    Agar belgilansa, bosh sahifada (maksimum 3 ta tanlangan) ko'rinadi. Belgilanmasa — faqat "Barchasini ko'rish" sahifasida turadi.
-                  </span>
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Pinned Footer with Action Buttons - Always Visible */}
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-sm flex justify-end items-center gap-3 shrink-0">
                 <button 
                   type="button"
                   onClick={() => { setIsModalOpen(false); resetForm(); }} 
@@ -359,7 +365,7 @@ export default function OlympiadsPage() {
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 text-white font-medium rounded-lg transition-colors cursor-pointer ${
+                  className={`px-5 py-2.5 text-white font-bold rounded-lg shadow-md transition-colors cursor-pointer ${
                     isSaving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >
