@@ -72,7 +72,7 @@ export default function OlympiadsSection() {
                 fetched.push({
                   id: doc.id,
                   title: data.title || (data.name ? `${data.name} — ${data.subject || "Fan"}` : "Yutuq"),
-                  text: data.text || data.description || "",
+                  text: data.description || data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
                   image: data.imageUrl || "/data/maktab_binosi.png",
                   badge: data.badge || data.result || "Yutuq",
                   showOnHome: true,
@@ -104,7 +104,7 @@ export default function OlympiadsSection() {
                   fetched.push({
                     id: doc.id,
                     title: data.title || (data.name ? `${data.name} — ${data.subject || "Fan"}` : "Yutuq"),
-                    text: data.text || data.description || "",
+                    text: data.description || data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
                     image: data.imageUrl || "/data/maktab_binosi.png",
                     badge: data.badge || data.result || "Yutuq",
                     showOnHome: true,
@@ -247,14 +247,17 @@ export default function OlympiadsSection() {
                       <h3 className="text-xl font-bold text-white mb-3 leading-snug group-hover:text-[#ff6b00] transition-colors">
                         {itemTitle}
                       </h3>
-                      <p className="text-white/65 text-sm leading-relaxed mb-6 line-clamp-3">
+                      <p className="text-white/70 text-sm leading-relaxed mb-6 line-clamp-3 overflow-hidden text-ellipsis">
                         {itemText}
                       </p>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="pt-2 flex items-center justify-between">
                       <span className="inline-block bg-[#ff6b00] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md shadow-orange-500/20">
                         {itemBadge}
+                      </span>
+                      <span className="text-xs font-bold text-[#ff6b00] group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                        Batafsil &rarr;
                       </span>
                     </div>
                   </div>

@@ -418,7 +418,7 @@ export default function AdminUniversitiesPage() {
       {/* Add / Edit Modal with Pinned Footer */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[88vh]">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
               <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export default function AdminUniversitiesPage() {
             {/* Form */}
             <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
-              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-4">
                 {/* Institution Name */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">

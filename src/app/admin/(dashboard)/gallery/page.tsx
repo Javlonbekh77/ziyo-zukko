@@ -189,8 +189,8 @@ export default function GalleryPage() {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[88vh] my-auto flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
               <h2 className="text-base sm:text-lg font-bold text-slate-900">
@@ -207,7 +207,7 @@ export default function GalleryPage() {
             {/* Form */}
             <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
-              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-4">
                 <ImageUploader
                   label="Rasm fayli (Cloudflare R2 ga yuklanadi)"
                   folder="gallery"

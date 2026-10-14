@@ -44,7 +44,7 @@ export default function OlympiadsPage() {
                 return {
                   id: doc.id,
                   title: data.name ? `${data.name} — ${data.subject || "Fan"}` : data.title || "Olimpiada g'olibi",
-                  text: data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
+                  text: data.description || data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
                   image: data.imageUrl || data.image || "/data/maktab_binosi.png",
                   images: data.images,
                   badge: data.result || data.badge || "G'olib",

@@ -212,45 +212,50 @@ export default function CertificatesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
+                className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:border-orange-200 transition-all duration-300 flex flex-col group p-4 sm:p-5"
               >
-                {/* Image Container with Hover Overlay */}
+                {/* Enlarged Portrait Image Container with Hover Overlay */}
                 <div
                   onClick={() => setActiveModalImage(cert.image)}
-                  className="relative w-full h-64 bg-slate-100 overflow-hidden cursor-pointer"
+                  className="relative w-full aspect-[3/4] bg-gradient-to-b from-amber-50/25 via-slate-50/50 to-white rounded-2xl overflow-hidden border border-slate-200/80 p-2.5 flex items-center justify-center cursor-pointer shadow-inner mb-4"
                 >
                   <Image
                     src={cert.image}
                     alt={cert.name}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-contain p-1 group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-[#071a33]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm">
-                    <Eye className="w-5 h-5" />
+                  <div className="absolute inset-0 bg-[#071a33]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[1px] rounded-2xl">
+                    <Eye className="w-5 h-5 text-[#ff6b00]" />
                     Kattalashtirib ko'rish
                   </div>
 
-                  <span className="absolute top-4 left-4 bg-[#ff6b00] text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-md">
+                  <span className="absolute top-3 right-3 bg-[#ff6b00] text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
                     {cert.score}
                   </span>
                 </div>
 
                 {/* Info Footer */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#071a33] mb-1">{cert.name}</h3>
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="text-center">
+                    <h3 className="text-lg font-black text-[#071a33] mb-1 line-clamp-1 group-hover:text-[#ff6b00] transition-colors">{cert.name}</h3>
                     {cert.holder && (
-                      <p className="text-xs font-semibold text-gray-500 mb-2">Egalik qiluvchi: <span className="text-[#071a33] font-bold">{cert.holder}</span></p>
+                      <p className="text-xs font-semibold text-gray-500 mb-1">
+                        Egalik qiluvchi: <span className="text-[#071a33] font-bold">{cert.holder}</span>
+                      </p>
                     )}
+                    <div className="text-center mt-1">
+                      <span className="font-black text-2xl text-[#ff6b00] tracking-tight">{cert.score}</span>
+                    </div>
                   </div>
-                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{cert.subject}</span>
+                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between mt-3">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded-lg">{cert.subject}</span>
                     <button
                       onClick={() => setActiveModalImage(cert.image)}
-                      className="text-xs font-bold text-[#ff6b00] hover:underline cursor-pointer"
+                      className="text-xs font-bold text-[#ff6b00] hover:underline cursor-pointer flex items-center gap-1"
                     >
-                      Ko'rish &rarr;
+                      Batafsil ko'rish &rarr;
                     </button>
                   </div>
                 </div>

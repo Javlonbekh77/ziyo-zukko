@@ -44,7 +44,7 @@ export default function OlympiadDetailPage({ params }: { params: Promise<{ id: s
           setOlympiad({
             id: docSnap.id,
             title: data.name ? `${data.name} — ${data.subject || "Fan"}` : data.title || "Olimpiada g'olibi",
-            text: data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
+            text: data.description || data.text || `${data.name || "O'quvchimiz"} ${data.subject ? `${data.subject} fanidan` : ""} ${data.result ? `"${data.result}" natijasini qo'lga kiritdi.` : ""}`,
             image: data.imageUrl || data.image || "/data/maktab_binosi.png",
             images: data.images,
             badge: data.result || data.badge || "G'olib",
@@ -154,14 +154,8 @@ return (
             </div>
 
             {/* Content text */}
-            <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm leading-relaxed text-gray-700 font-medium text-base md:text-lg space-y-6">
-              {olympiad.text ? (
-                olympiad.text.split("\n\n").map((para, idx) => (
-                  <p key={idx}>{para}</p>
-                ))
-              ) : (
-                <p>Ushbu olimpiada natijalari bo'yicha batafsil axborot tez orada to'ldiriladi.</p>
-              )}
+            <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm leading-relaxed text-gray-700 font-medium text-base md:text-lg whitespace-pre-line">
+              {olympiad.text || "Ushbu olimpiada natijalari bo'yicha batafsil axborot tez orada to'ldiriladi."}
             </div>
           </article>
         )}

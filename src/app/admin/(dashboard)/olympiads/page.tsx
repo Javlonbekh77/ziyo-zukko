@@ -15,6 +15,7 @@ interface OlympiadWinner {
   result: string;
   imageUrl: string;
   r2Key?: string;
+  description?: string;
   showOnHome?: boolean;
 }
 
@@ -34,6 +35,7 @@ export default function OlympiadsPage() {
   const [result, setResult] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [r2Key, setR2Key] = useState("");
+  const [description, setDescription] = useState("");
   const [showOnHome, setShowOnHome] = useState(true);
 
   useEffect(() => {
@@ -74,6 +76,7 @@ export default function OlympiadsPage() {
     setResult(winner.result);
     setImageUrl(winner.imageUrl);
     setR2Key(winner.r2Key || "");
+    setDescription(winner.description || "");
     setShowOnHome(winner.showOnHome !== false);
     setIsModalOpen(true);
   };
@@ -95,6 +98,7 @@ export default function OlympiadsPage() {
         result: result || "Ishtirokchi",
         imageUrl,
         r2Key: r2Key || "",
+        description: description.trim(),
         showOnHome: Boolean(showOnHome),
         updatedAt: new Date().toISOString(),
       };
@@ -155,6 +159,7 @@ export default function OlympiadsPage() {
     setResult("");
     setImageUrl("");
     setR2Key("");
+    setDescription("");
     setShowOnHome(true);
   };
 
@@ -267,8 +272,8 @@ export default function OlympiadsPage() {
 
       {/* Smoothly Scrollable Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[88vh] my-auto flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
               <h2 className="text-base sm:text-lg font-bold text-slate-900">
@@ -285,7 +290,7 @@ export default function OlympiadsPage() {
             {/* Form */}
             <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
-              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 space-y-4">
+              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-4">
                 <ImageUploader
                   label="O'quvchi rasmi (Cloudflare R2 storage)"
                   folder="olympiads"
@@ -299,7 +304,7 @@ export default function OlympiadsPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Ism va Familiya *</label>
                   <input 
                     type="text" 
                     required
@@ -311,7 +316,7 @@ export default function OlympiadsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Fan</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fan *</label>
                   <input 
                     type="text" 
                     required
@@ -331,6 +336,22 @@ export default function OlympiadsPage() {
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
                     placeholder="Masalan: Viloyat bosqichi 1-o'rin" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Yutuq haqida izoh / tavsif (Ixtiyoriy)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none font-sans"
+                    placeholder="Olimpiada bosqichi, erishilgan natija va o'quvchining yutug'i haqida batafsil ma'lumot..."
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Asosiy sahifada uzun izohlar qisqartirilib ko'rsatiladi, yutuqning ichki postida to'liq aks etadi.
+                  </p>
                 </div>
 
                 {/* Home page visibility toggle */}
