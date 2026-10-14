@@ -42,7 +42,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
     { id: "about", href: "/about" },
     { id: "news", href: "/news" },
     { id: "testimonials", href: "/#testimonials" },
-    { id: "olympiads", href: "/#yutuqlar" },
+    { id: "olympiads", href: "/olympiads" },
     { id: "gallery", href: "/#galereya" },
     { id: "contact", href: "/#contact" },
   ];

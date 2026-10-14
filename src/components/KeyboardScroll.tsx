@@ -271,11 +271,11 @@ export default function KeyboardScroll() {
     };
   }, [phase]);
 
-  // Auto-play videosi (oldinga va orqaga) - tez va chaqqon 100 fps
+  // Auto-play videosi (oldinga va orqaga) oldingi original 84 fps tezlikda
   useEffect(() => {
     if (phase === "playing-forward" || phase === "playing-backward") {
       let lastTime = performance.now();
-      const fps = 100; // Tezlashtirilgan video tezligi
+      const fps = 84; // Oldingi original video tezligi
       const interval = 1000 / fps;
       let animationFrameId: number;
 
@@ -291,16 +291,15 @@ export default function KeyboardScroll() {
 
         const deltaTime = currentTime - lastTime;
         if (deltaTime >= interval) {
-          const step = Math.max(1, Math.min(3, Math.floor(deltaTime / interval)));
           if (phase === "playing-forward") {
             currentFrameRef.current = Math.min(
               interactiveStartFrame,
-              currentFrameRef.current + step
+              currentFrameRef.current + 1
             );
           } else {
             currentFrameRef.current = Math.max(
               0,
-              currentFrameRef.current - step
+              currentFrameRef.current - 1
             );
           }
           renderFrame(currentFrameRef.current);
@@ -379,7 +378,7 @@ export default function KeyboardScroll() {
     <div
       ref={containerRef}
       data-lenis-prevent={phase !== "interactive" ? "" : undefined}
-      className="h-[160vh] md:h-[190vh] relative bg-black"
+      className="h-[250vh] relative bg-black"
     >
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         {!loaded && (

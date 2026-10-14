@@ -82,9 +82,25 @@ return (
         </Link>
 
         {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-[#ff6b00] rounded-full animate-spin mb-4" />
-            <p className="text-gray-500 font-semibold">Yutuq ma'lumotlari yuklanmoqda...</p>
+          <div className="space-y-8 animate-pulse">
+            <div>
+              <div className="w-32 h-6 bg-slate-200 rounded-full mb-4" />
+              <div className="h-10 bg-slate-200 rounded-xl w-3/4 mb-4" />
+              <div className="flex gap-2">
+                <div className="w-20 h-6 bg-slate-200 rounded-full" />
+                <div className="w-24 h-6 bg-slate-200 rounded-full" />
+              </div>
+            </div>
+            {/* Image Box Qolip */}
+            <div className="w-full h-[350px] md:h-[480px] bg-slate-200 rounded-3xl flex items-center justify-center">
+              <Trophy className="w-16 h-16 text-slate-300" />
+            </div>
+            {/* Text Box Qolip */}
+            <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 space-y-4">
+              <div className="h-4 bg-slate-100 rounded w-full" />
+              <div className="h-4 bg-slate-100 rounded w-5/6" />
+              <div className="h-4 bg-slate-100 rounded w-4/6" />
+            </div>
           </div>
         ) : !olympiad ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-gray-200">
@@ -127,11 +143,14 @@ return (
             {/* Gallery Image Slider */}
             <div className="space-y-4">
               <div className="relative w-full h-[350px] md:h-[480px] bg-slate-900 rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+                <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                  <Trophy className="w-16 h-16 text-slate-700 animate-pulse" />
+                </div>
                 <Image
                   src={imagesList[activeImageIndex]}
                   alt={olympiad.title}
                   fill
-                  className="object-cover"
+                  className="object-cover z-10"
                   unoptimized
                 />
               </div>

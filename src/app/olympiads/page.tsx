@@ -126,9 +126,31 @@ export default function OlympiadsPage() {
 
         {/* Olympiad Cards Grid */}
         {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-[#ff6b00] rounded-full animate-spin mb-4" />
-            <p className="text-gray-500 font-semibold">Yutuqlar yuklanmoqda...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div
+                key={n}
+                className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm flex flex-col animate-pulse"
+              >
+                {/* Qolip: Rasm o'rni */}
+                <div className="relative w-full h-56 bg-slate-200 flex items-center justify-center">
+                  <Trophy className="w-10 h-10 text-slate-300" />
+                  <div className="absolute top-4 left-4 w-20 h-6 bg-slate-300 rounded-full" />
+                </div>
+                {/* Qolip: Matn o'rni */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="h-5 bg-slate-200 rounded-lg w-3/4" />
+                    <div className="h-3.5 bg-slate-100 rounded-lg w-full" />
+                    <div className="h-3.5 bg-slate-100 rounded-lg w-5/6" />
+                  </div>
+                  <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <div className="h-4 bg-slate-200 rounded w-24" />
+                    <div className="h-4 w-4 bg-slate-200 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredOlympiads.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-gray-200 my-8">
@@ -154,17 +176,20 @@ export default function OlympiadsPage() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
               >
-                {/* Image */}
+                {/* Image Box with Skeleton Qolip */}
                 <div className="relative w-full h-56 bg-slate-900 overflow-hidden">
+                  <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                    <Trophy className="w-10 h-10 text-slate-700 animate-pulse" />
+                  </div>
                   <Image
                     src={(item.images && item.images[0]) || item.image || "https://picsum.photos/seed/oly11/600/400"}
                     alt={item.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 z-10"
                     unoptimized
                   />
                   {item.badge && (
-                    <div className="absolute top-4 left-4 bg-[#ff6b00] text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg border border-white/20">
+                    <div className="absolute top-4 left-4 z-20 bg-[#ff6b00] text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg border border-white/20">
                       {item.badge}
                     </div>
                   )}

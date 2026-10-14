@@ -42,9 +42,10 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  // Har safar sahifa marshruti (pathname) o'zgarganda lenis.start() bajarilishini kafolatlash
+  // Har safar sahifa marshruti (pathname) o'zgarganda lenis.start() va scroll 0 ga qaytishi
   useEffect(() => {
     if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
       lenisRef.current.start();
     }
   }, [pathname]);

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useMotionValue, useTransform, animate, useInView, AnimatePresence } from "framer-motion";
-import { X, ZoomIn } from "lucide-react";
+import { X, ZoomIn, FileCheck } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { getLocalCache, setLocalCache } from "@/lib/cache";
@@ -363,14 +363,17 @@ export default function ResultsSection() {
                   <div className="flex flex-col h-full">
                     {/* Enlarged Certificate Image Box (Aspect 3/4 Portrait) */}
                     <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-b from-amber-50/30 via-slate-50/50 to-white mb-3.5 border border-slate-100 flex items-center justify-center p-2 group-hover:border-orange-200 transition-colors shadow-inner">
+                      <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                        <FileCheck className="w-10 h-10 text-slate-300 animate-pulse" />
+                      </div>
                       <Image
                         src={cert.image}
                         alt={cert.name}
                         fill
                         unoptimized
-                        className="object-contain p-1 group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
+                        className="object-contain p-1 group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm z-10"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-bold text-xs backdrop-blur-[1px] rounded-2xl">
+                      <div className="absolute inset-0 z-20 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-bold text-xs backdrop-blur-[1px] rounded-2xl">
                         <ZoomIn className="w-4 h-4 text-[#ff6b00]" />
                         <span>Kattalashtirish</span>
                       </div>

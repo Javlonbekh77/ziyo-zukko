@@ -310,13 +310,14 @@ export default function NewsSection() {
                       variants={itemVariants} 
                       className="bg-white rounded-2xl p-2.5 sm:p-3 md:p-3.5 shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-3.5 items-center cursor-pointer border border-gray-100 hover:border-gray-200 h-[110px] sm:h-[118px] md:h-[126px] overflow-hidden"
                     >
-                      {/* News Image - Fixed dimensions */}
-                      <div className="relative w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                      {/* News Image - Fixed dimensions with skeleton placeholder */}
+                      <div className="relative w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22 shrink-0 rounded-xl overflow-hidden bg-slate-100 shadow-inner flex items-center justify-center">
+                        <div className="absolute inset-0 bg-slate-200 animate-pulse" />
                         <Image 
                           src={item.img} 
                           alt={item.title} 
                           fill 
-                          className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                          className="object-cover transition-transform duration-700 group-hover:scale-105 z-10" 
                           unoptimized 
                         />
                         {(item.social === 'youtube' || item.social === 'instagram' || item.embedUrl) && (

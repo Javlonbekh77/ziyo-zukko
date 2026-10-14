@@ -114,16 +114,17 @@ export default function GallerySection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="relative aspect-[4/3] sm:aspect-[16/11] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 border border-black/5 group"
+                className="relative aspect-[4/3] sm:aspect-[16/11] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 border border-black/5 group bg-slate-100"
               >
+                <div className="absolute inset-0 bg-slate-200 animate-pulse" />
                 <Image 
                   src={img} 
                   alt={`${t("galleryTitle")} ${idx + 1}`} 
                   fill 
-                  className="object-cover group-hover:scale-105 transition-transform duration-700" 
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 z-10" 
                   unoptimized
                 />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                <div className="absolute inset-0 z-20 bg-black/10 group-hover:bg-transparent transition-colors"></div>
               </motion.div>
             ))}
           </div>
@@ -142,16 +143,17 @@ export default function GallerySection() {
             {[...uniqueImages, ...uniqueImages].map((img, idx) => (
               <div 
                 key={`marquee-${idx}`} 
-                className="relative w-[280px] sm:w-[380px] md:w-[480px] lg:w-[560px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl md:rounded-3xl overflow-hidden shadow-xl shadow-black/5 shrink-0 border border-black/5 group"
+                className="relative w-[280px] sm:w-[380px] md:w-[480px] lg:w-[560px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl md:rounded-3xl overflow-hidden shadow-xl shadow-black/5 shrink-0 border border-black/5 group bg-slate-100"
               >
+                <div className="absolute inset-0 bg-slate-200 animate-pulse" />
                 <Image 
                   src={img} 
                   alt={`${t("galleryTitle")} ${idx + 1}`} 
                   fill 
-                  className="object-cover group-hover:scale-105 transition-transform duration-700" 
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 z-10" 
                   unoptimized
                 />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                <div className="absolute inset-0 z-20 bg-black/10 group-hover:bg-transparent transition-colors"></div>
               </div>
             ))}
           </motion.div>

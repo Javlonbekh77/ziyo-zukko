@@ -241,19 +241,22 @@ export default function CertificatesPage() {
                   onClick={() => setActiveModalImage(cert.image)}
                   className="relative w-full aspect-[3/4] bg-gradient-to-b from-amber-50/25 via-slate-50/50 to-white rounded-2xl overflow-hidden border border-slate-200/80 p-2.5 flex items-center justify-center cursor-pointer shadow-inner mb-4"
                 >
+                  <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                    <FileCheck className="w-10 h-10 text-slate-300 animate-pulse" />
+                  </div>
                   <Image
                     src={cert.image}
                     alt={cert.name}
                     fill
-                    className="object-contain p-1 group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
+                    className="object-contain p-1 group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm z-10"
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-[#071a33]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[1px] rounded-2xl">
+                  <div className="absolute inset-0 z-20 bg-[#071a33]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[1px] rounded-2xl">
                     <Eye className="w-5 h-5 text-[#ff6b00]" />
                     Kattalashtirib ko'rish
                   </div>
 
-                  <span className="absolute top-3 right-3 bg-[#ff6b00] text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
+                  <span className="absolute top-3 right-3 z-30 bg-[#ff6b00] text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
                     {cert.score}
                   </span>
                 </div>

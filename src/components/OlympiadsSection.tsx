@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Trophy } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { getLocalCache, setLocalCache } from "@/lib/cache";
@@ -214,30 +215,18 @@ export default function OlympiadsSection() {
               >
                 <motion.div
                   variants={itemVariants}
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left - rect.width / 2;
-                    const y = e.clientY - rect.top - rect.height / 2;
-                    const angle = Math.atan2(y, x);
-                    e.currentTarget.style.setProperty("--rotation", `${angle}rad`);
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.setProperty("--rotation", "0deg");
-                  }}
-                  style={{
-                    border: "3px solid transparent",
-                    backgroundOrigin: "border-box",
-                    backgroundClip: "padding-box, border-box",
-                  }}
-                  className="relative rounded-3xl overflow-hidden bg-[#0a254a] border border-white/10 hover:border-[#ff6b00] transition-all duration-300 shadow-xl flex flex-col h-full"
+                  className="relative rounded-3xl overflow-hidden bg-[#0a254a] border border-white/10 hover:border-[#ff6b00] transition-all duration-300 shadow-xl flex flex-col h-full group"
                 >
-                  {/* Photo frame */}
+                  {/* Photo frame with skeleton placeholder */}
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-slate-800">
+                    <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                      <Trophy className="w-12 h-12 text-slate-700 animate-pulse" />
+                    </div>
                     <Image
                       src={item.image}
                       alt={itemTitle}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500 z-10"
                       unoptimized
                     />
                   </div>

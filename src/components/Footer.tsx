@@ -37,6 +37,7 @@ export default function Footer() {
             <nav className="flex flex-col gap-2.5 text-sm text-white/70">
               <Link href="/" className="hover:text-[#ff6b00] transition-colors">{t("home")}</Link>
               <Link href="/about" className="hover:text-[#ff6b00] transition-colors">{t("about")}</Link>
+              <Link href="/olympiads" className="hover:text-[#ff6b00] transition-colors">{t("olympiads")}</Link>
               <Link href="/certificates" className="hover:text-[#ff6b00] transition-colors">{t("certificates")}</Link>
               <Link href="/#galereya" className="hover:text-[#ff6b00] transition-colors">{galleryLinkText}</Link>
             </nav>
