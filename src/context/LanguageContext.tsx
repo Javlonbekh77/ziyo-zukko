@@ -85,7 +85,7 @@ const translations: Record<string, Record<Language, string>> = {
   // ── Universities / Graduates Section ──
   graduatesBadge: { uz: "BIZNING BITIRUVCHILAR", ru: "НАШИ ВЫПУСКНИКИ", en: "OUR GRADUATES" },
   graduatesTitle1: { uz: "ULAR ALLAQACHON", ru: "ОНИ УЖЕ УЧАТСЯ В", en: "THEY ARE ALREADY AT" },
-  graduatesTitle2: { uz: "NUFUZLI TA'LIM MUASSASALARIDA", ru: "ПРЕСТИЖНЫХ УНИВЕРСИТЕТАХ", en: "PRESTIGIOUS UNIVERSITIES" },
+  graduatesTitle2: { uz: "NUFUZLI TA'LIM MUASSASALARIDA", ru: "ВЕДУЩИХ УЧЕБНЫХ ЗАВЕДЕНИЯХ", en: "PRESTIGIOUS INSTITUTIONS" },
 
   // ── Results & Certificates Section ──
   resultsTitle: { uz: "Natijalar o'zlari gapiradi", ru: "Результаты говорят сами за себя", en: "Results speak for themselves" },

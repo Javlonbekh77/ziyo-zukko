@@ -6,6 +6,9 @@ import { useLanguage } from "@/context/LanguageContext";
 
 type Phase = "start" | "playing-forward" | "interactive" | "playing-backward";
 
+// Global memory cache for instant zero-latency hero animation rendering across navigations
+const globalFrameCache = new Map<string, HTMLImageElement[]>();
+
 export default function KeyboardScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,12 +86,27 @@ export default function KeyboardScroll() {
 
   useEffect(() => {
     let isMounted = true;
-    const loadedImgs: HTMLImageElement[] = new Array(totalFrames);
-
     const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768;
     const basePath = isMobileDevice ? "/frames_mobile" : "/frames";
 
-    // 1. Load initial frame immediately
+    // 0. Agar global xotirada kesh mavjud bo'lsa - DARHOL 0ms da yuklash
+    if (globalFrameCache.has(basePath)) {
+      const cached = globalFrameCache.get(basePath)!;
+      imagesRef.current = cached;
+      setLoaded(true);
+      if (window.scrollY > 10) {
+        setPhase("interactive");
+        currentFrameRef.current = Math.round(scrollFrameIndex.get());
+        renderFrame(currentFrameRef.current);
+      } else {
+        renderFrame(0);
+      }
+      return;
+    }
+
+    const loadedImgs: HTMLImageElement[] = new Array(totalFrames);
+
+    // 1-bosqich: Dastlabki kadr (Frame 1) darhol ko'rsatiladi
     const firstImg = new Image();
     firstImg.src = `${basePath}/frame_001.jpg`;
     firstImg.onload = () => {
@@ -99,28 +117,29 @@ export default function KeyboardScroll() {
       setLoaded(true);
     };
 
-    // 2. Load all other frames in parallel
-    const promises = [];
-    for (let i = 1; i <= totalFrames; i++) {
-      const p = new Promise((resolve) => {
-        const img = new Image();
-        const frameNum = String(i).padStart(3, "0");
-        img.src = `${basePath}/frame_${frameNum}.jpg`;
-        img.onload = () => {
-          loadedImgs[i - 1] = img;
-          resolve(null);
-        };
-        img.onerror = () => {
-          resolve(null);
-        };
-      });
-      promises.push(p);
+    // 2-bosqich: Dastlabki intro animatsiyasi uchun zarur kadrlar (1..interactiveStartFrame)
+    // Yuqori ustuvorlikda yuklanadi va animatsiya darhol boshlanadi
+    const priorityPromises = [];
+    for (let i = 1; i <= interactiveStartFrame; i++) {
+      priorityPromises.push(
+        new Promise((resolve) => {
+          const img = new Image();
+          const frameNum = String(i).padStart(3, "0");
+          img.src = `${basePath}/frame_${frameNum}.jpg`;
+          img.onload = () => {
+            loadedImgs[i - 1] = img;
+            resolve(null);
+          };
+          img.onerror = () => resolve(null);
+        })
+      );
     }
 
-    Promise.all(promises).then(() => {
+    Promise.all(priorityPromises).then(() => {
       if (!isMounted) return;
       imagesRef.current = loadedImgs;
       setLoaded(true);
+
       // Agar foydalanuvchi sahifani yangilagan bo'lsa va pastda bo'lsa
       if (window.scrollY > 10) {
         setPhase("interactive");
@@ -129,12 +148,35 @@ export default function KeyboardScroll() {
       } else {
         renderFrame(0);
       }
+
+      // 3-bosqich: Qolgan kadrlar (interactiveStartFrame+1 .. totalFrames) fonda parallel yuklanadi
+      const secondaryPromises = [];
+      for (let i = interactiveStartFrame + 1; i <= totalFrames; i++) {
+        secondaryPromises.push(
+          new Promise((resolve) => {
+            const img = new Image();
+            const frameNum = String(i).padStart(3, "0");
+            img.src = `${basePath}/frame_${frameNum}.jpg`;
+            img.onload = () => {
+              loadedImgs[i - 1] = img;
+              resolve(null);
+            };
+            img.onerror = () => resolve(null);
+          })
+        );
+      }
+
+      Promise.all(secondaryPromises).then(() => {
+        if (!isMounted) return;
+        imagesRef.current = loadedImgs;
+        globalFrameCache.set(basePath, loadedImgs);
+      });
     });
 
     return () => {
       isMounted = false;
     };
-  }, [renderFrame, scrollFrameIndex]);
+  }, [renderFrame, scrollFrameIndex, interactiveStartFrame, totalFrames]);
 
   // Scrollni qulflash va Auto-playni boshqarish (oldinga va orqaga)
   useEffect(() => {

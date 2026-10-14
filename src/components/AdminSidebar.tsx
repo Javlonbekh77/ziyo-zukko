@@ -12,6 +12,7 @@ import {
   Newspaper,
   Video,
   GraduationCap,
+  Building2,
   LogOut
 } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions";
@@ -21,6 +22,7 @@ const navItems = [
   { name: "Statistika (Natijalar)", href: "/admin/stats", icon: Award },
   { name: "Ustozlar", href: "/admin/teachers", icon: GraduationCap },
   { name: "Bitiruvchilar", href: "/admin/graduates", icon: Users },
+  { name: "Ta'lim Muassasalari", href: "/admin/universities", icon: Building2 },
   { name: "Sertifikatlar", href: "/admin/certificates", icon: Award },
   { name: "Yangiliklar", href: "/admin/news", icon: Newspaper },
   { name: "Maktab Hayoti", href: "/admin/gallery", icon: ImageIcon },

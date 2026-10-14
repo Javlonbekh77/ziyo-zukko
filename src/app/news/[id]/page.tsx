@@ -54,9 +54,12 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
             text: data.text || data.content || data.summary || "",
             date: data.date || "",
             tag: data.tag || "YANGILIK",
-            image: data.imageUrl || data.image || "/data/maktab_binosi.png",
+            image: data.imageUrl || data.image || data.thumbnail || "/data/maktab_binosi.png",
             images: data.images,
-            instagramUrl: data.instagramUrl || data.url,
+            instagramUrl: data.instagramUrl || (data.platform === "instagram" ? data.url : undefined),
+            youtubeUrl: data.youtubeUrl || (data.platform === "youtube" ? data.url : undefined),
+            platform: data.platform,
+            url: data.url,
             embedUrl: data.embedUrl,
           } as any);
         }
@@ -104,6 +107,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
   const imageSrc = (displayNews.images && displayNews.images[0]) || displayNews.image || "/data/maktab_binosi.png";
   const titleStr = getText(displayNews.title);
   const textStr = getText(displayNews.text || displayNews.summary);
+  const isYouTube = displayNews.platform === "youtube" || (displayNews.embedUrl && displayNews.embedUrl.includes("youtube")) || (displayNews.url && displayNews.url.includes("youtube"));
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-10 px-4 flex flex-col items-center font-sans">
@@ -127,16 +131,25 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
               <Calendar className="w-4 h-4 text-gray-400" />
               <span>{displayNews.date}</span>
             </div>
-            {displayNews.instagramUrl && (
+            {isYouTube && (displayNews.youtubeUrl || displayNews.url) ? (
               <a
-                href={displayNews.instagramUrl}
+                href={displayNews.youtubeUrl || displayNews.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-600 text-white text-xs font-bold shadow hover:bg-red-700 transition"
+              >
+                YouTube&apos;da ko&apos;rish ↗
+              </a>
+            ) : displayNews.instagramUrl || (displayNews.url && displayNews.url.includes("instagram")) ? (
+              <a
+                href={displayNews.instagramUrl || displayNews.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white text-xs font-bold shadow hover:opacity-90 transition"
               >
                 Instagram&apos;da ochish ↗
               </a>
-            )}
+            ) : null}
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#071a33] leading-snug tracking-tight">
@@ -144,17 +157,28 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
           </h1>
         </div>
 
-        {/* Featured Image or Instagram Embed */}
+        {/* Featured Media: YouTube (16:9) or Instagram (9:16) or Image */}
         {displayNews.embedUrl ? (
           <div className="space-y-4">
-            <div className="relative w-full max-w-[500px] mx-auto aspect-[9/16] max-h-[620px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-black">
-              <iframe
-                src={displayNews.embedUrl}
-                className="w-full h-full border-none"
-                allow="encrypted-media; autoplay"
-                scrolling="no"
-              />
-            </div>
+            {isYouTube ? (
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-black">
+                <iframe
+                  src={displayNews.embedUrl}
+                  className="w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <div className="relative w-full max-w-[480px] mx-auto aspect-[9/16] max-h-[620px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-black">
+                <iframe
+                  src={displayNews.embedUrl}
+                  className="w-full h-full border-none"
+                  allow="encrypted-media; autoplay"
+                  scrolling="no"
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="relative w-full h-[280px] sm:h-[400px] md:h-[480px] bg-slate-100 rounded-2xl overflow-hidden border border-gray-100 shadow-md">

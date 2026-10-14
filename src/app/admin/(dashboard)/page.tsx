@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Award, Image as ImageIcon, Trophy, MessageSquare, Newspaper, Video, GraduationCap, BarChart3 } from "lucide-react";
+import { Users, Award, Image as ImageIcon, Trophy, MessageSquare, Newspaper, Video, GraduationCap, BarChart3, Building2 } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -11,6 +11,7 @@ export default function DashboardPage() {
     stats: 0,
     teachers: 0,
     graduates: 0,
+    universities: 0,
     certificates: 0,
     gallery: 0,
     olympiads: 0,
@@ -28,6 +29,7 @@ export default function DashboardPage() {
       { key: "stats", col: "stats" },
       { key: "teachers", col: "teachers" },
       { key: "graduates", col: "graduates" },
+      { key: "universities", col: "universities" },
       { key: "certificates", col: "certificates" },
       { key: "gallery", col: "gallery" },
       { key: "olympiads", col: "olympiads" },
@@ -56,6 +58,7 @@ export default function DashboardPage() {
     { name: "Natijalar (Statistika)", href: "/admin/stats", icon: BarChart3, count: counts.stats.toString(), color: "bg-orange-500" },
     { name: "Ustozlar", href: "/admin/teachers", icon: GraduationCap, count: counts.teachers.toString(), color: "bg-teal-500" },
     { name: "Bitiruvchilar", href: "/admin/graduates", icon: Users, count: counts.graduates.toString(), color: "bg-blue-500" },
+    { name: "Ta'lim Muassasalari", href: "/admin/universities", icon: Building2, count: counts.universities.toString(), color: "bg-cyan-600" },
     { name: "Sertifikatlar", href: "/admin/certificates", icon: Award, count: counts.certificates.toString(), color: "bg-purple-500" },
     { name: "Yangiliklar", href: "/admin/news", icon: Newspaper, count: counts.news.toString(), color: "bg-rose-500" },
     { name: "Maktab Hayoti", href: "/admin/gallery", icon: ImageIcon, count: counts.gallery.toString(), color: "bg-pink-500" },

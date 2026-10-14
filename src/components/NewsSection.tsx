@@ -69,6 +69,34 @@ export default function NewsSection() {
 
     if (!db) return;
 
+    const mapNewsDoc = (docSnap: any): RawNewsItem => {
+      const data = docSnap.data();
+      const rawSocial = data.social || (data.platform === "youtube" || data.youtubeUrl || data.url?.includes("youtube") ? "youtube" : data.platform === "instagram" || data.instagramUrl || data.url?.includes("instagram") ? "instagram" : "both");
+      return {
+        id: docSnap.id,
+        title: data.title,
+        title_uz: data.title_uz,
+        title_ru: data.title_ru,
+        title_en: data.title_en,
+        summary: data.summary || data.content,
+        summary_uz: data.summary_uz || data.content_uz,
+        summary_ru: data.summary_ru || data.content_ru,
+        summary_en: data.summary_en || data.content_en,
+        tag: data.tag || (rawSocial === "youtube" ? "YOUTUBE" : rawSocial === "instagram" ? "INSTAGRAM" : "YANGILIK"),
+        tag_uz: data.tag_uz,
+        tag_ru: data.tag_ru,
+        tag_en: data.tag_en,
+        img: data.imageUrl || data.image || data.thumbnail || "/data/maktab_binosi.png",
+        date: data.date || (data.createdAt ? data.createdAt.split("T")[0] : new Date().toISOString().split("T")[0]),
+        social: rawSocial,
+        platform: data.platform || (rawSocial === "youtube" ? "youtube" : rawSocial === "instagram" ? "instagram" : undefined),
+        url: data.url,
+        instagramUrl: data.instagramUrl,
+        youtubeUrl: data.youtubeUrl || (data.platform === "youtube" ? data.url : undefined),
+        embedUrl: data.embedUrl,
+      };
+    };
+
     let unsub: (() => void) | undefined;
     try {
       const colRef = collection(db, "news");
@@ -77,60 +105,25 @@ export default function NewsSection() {
         q,
         (snapshot) => {
           if (!snapshot.empty) {
-            const fetched: RawNewsItem[] = snapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                title: data.title,
-                title_uz: data.title_uz,
-                title_ru: data.title_ru,
-                title_en: data.title_en,
-                summary: data.summary || data.content,
-                summary_uz: data.summary_uz || data.content_uz,
-                summary_ru: data.summary_ru || data.content_ru,
-                summary_en: data.summary_en || data.content_en,
-                tag: data.tag || "YANGILIK",
-                tag_uz: data.tag_uz,
-                tag_ru: data.tag_ru,
-                tag_en: data.tag_en,
-                img: data.imageUrl || data.image || "/data/maktab_binosi.png",
-                date: data.date || new Date().toISOString().split("T")[0],
-                social: "both",
-              };
-            });
+            const fetched: RawNewsItem[] = snapshot.docs.map(mapNewsDoc);
             setRawDbNews(fetched);
             setLocalCache("news_home_cache", fetched);
+          } else {
+            setRawDbNews([]);
+            setLocalCache("news_home_cache", []);
           }
         },
         (error) => {
           console.warn("News ordered query fallback:", error);
           const simpleUnsub = onSnapshot(colRef, (simpleSnap) => {
             if (!simpleSnap.empty) {
-              const fetched: RawNewsItem[] = simpleSnap.docs.map((doc) => {
-                const data = doc.data();
-                return {
-                  id: doc.id,
-                  title: data.title,
-                  title_uz: data.title_uz,
-                  title_ru: data.title_ru,
-                  title_en: data.title_en,
-                  summary: data.summary || data.content,
-                  summary_uz: data.summary_uz || data.content_uz,
-                  summary_ru: data.summary_ru || data.content_ru,
-                  summary_en: data.summary_en || data.content_en,
-                  tag: data.tag || "YANGILIK",
-                  tag_uz: data.tag_uz,
-                  tag_ru: data.tag_ru,
-                  tag_en: data.tag_en,
-                  img: data.imageUrl || data.image || "/data/maktab_binosi.png",
-                  date: data.date || new Date().toISOString().split("T")[0],
-                  social: data.social || (data.instagramUrl ? "instagram" : "both"),
-                  instagramUrl: data.instagramUrl,
-                  embedUrl: data.embedUrl || (data.instagramUrl ? `${data.instagramUrl.split("?")[0].replace(/\/embed\/?$/, "").replace(/\/$/, "")}/embed/` : undefined),
-                };
-              });
+              const fetched: RawNewsItem[] = simpleSnap.docs.map(mapNewsDoc);
+              fetched.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
               setRawDbNews(fetched);
               setLocalCache("news_home_cache", fetched);
+            } else {
+              setRawDbNews([]);
+              setLocalCache("news_home_cache", []);
             }
           });
           unsub = simpleUnsub;
@@ -175,8 +168,9 @@ export default function NewsSection() {
     tag: getLocalizedField(n, "tag", lang) || (lang === "ru" ? "НОВОСТИ" : lang === "en" ? "NEWS" : "YANGILIKLAR"),
     img: n.img || "/data/maktab_binosi.png",
     date: n.date,
-    social: n.social || (n.instagramUrl ? "instagram" : "both"),
+    social: n.social || (n.instagramUrl ? "instagram" : n.youtubeUrl ? "youtube" : "both"),
     instagramUrl: n.instagramUrl,
+    youtubeUrl: n.youtubeUrl,
     embedUrl: n.embedUrl,
   })).slice(0, 4);
 
@@ -229,7 +223,6 @@ export default function NewsSection() {
 
   const allReels = [
     ...instagramPosts.filter((p) => p.embedUrl).map((p) => p.embedUrl!),
-    ...displayNewsItems.filter((n) => n.embedUrl).map((n) => n.embedUrl!),
   ];
 
   const openReel = (embedUrl: string) => {
@@ -305,35 +298,38 @@ export default function NewsSection() {
               {t("newsSubTitle")}<span className="text-[#8c1c3f]">{t("newsSubTitleAccent")}</span>
             </h3>
             
-            <div className="flex flex-col gap-1.5 md:gap-2 h-full justify-between">
+            <div className="flex flex-col gap-2.5 h-full justify-between">
               {displayNewsItems.length > 0 ? (
                 displayNewsItems.map((item) => (
-                  <div 
+                  <Link 
                     key={item.id} 
-                    className="block h-full"
-                    onClick={() => item.embedUrl ? openReel(item.embedUrl) : null}
+                    href={`/news/${item.id}`} 
+                    className="block group"
                   >
-                    <Link href={`/news/${item.id}`} className="block h-full">
-                      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-2 md:p-3 h-full shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-4 items-center group cursor-pointer border border-gray-100">
-                        {/* News Image */}
+                    <motion.div 
+                      variants={itemVariants} 
+                      className="bg-white rounded-2xl p-2.5 md:p-3 shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-4 items-center cursor-pointer border border-gray-100 hover:border-gray-200"
+                    >
+                      {/* News Image */}
                       <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
-                        {item.embedUrl ? (
-                          <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-                            <iframe 
-                              src={`${item.embedUrl}?hidecaption=1`} 
-                              className="absolute w-[120%] left-[-10%] border-none" 
-                              style={{ height: '160%', top: '-30%' }}
-                              scrolling="no" 
-                              tabIndex={-1}
-                            />
+                        <Image 
+                          src={item.img} 
+                          alt={item.title} 
+                          fill 
+                          className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                          unoptimized 
+                        />
+                        {(item.social === 'youtube' || item.social === 'instagram' || item.embedUrl) && (
+                          <div className="absolute inset-0 bg-black/25 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                            <div className="w-6 h-6 rounded-full bg-white/95 text-slate-900 flex items-center justify-center shadow-md">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            </div>
                           </div>
-                        ) : (
-                          <Image src={item.img} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 unoptimized" unoptimized />
                         )}
                       </div>
                       
                       {/* News Content */}
-                      <div className="flex flex-col flex-1 h-full py-0.5">
+                      <div className="flex flex-col flex-1 h-full py-0.5 min-w-0">
                         <h3 className="font-bold text-sm md:text-[15px] text-[#0b1b36] mb-1 leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-2">{item.title}</h3>
                         <p className="text-[9px] md:text-[11px] text-[#8c1c3f] font-semibold mb-1">{item.tag}</p>
                         <p className="text-[11px] md:text-[12px] text-[#0b1b36]/60 mb-1.5 line-clamp-1 sm:line-clamp-2 hidden sm:block">{item.summary}</p>
@@ -355,8 +351,7 @@ export default function NewsSection() {
                         </div>
                       </div>
                     </motion.div>
-                    </Link>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <div className="w-full h-full min-h-[200px] flex items-center justify-center p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-400 font-medium">

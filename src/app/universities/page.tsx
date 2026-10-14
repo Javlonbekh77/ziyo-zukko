@@ -63,13 +63,13 @@ export default function UniversitiesPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-bold uppercase tracking-wider mb-3">
                 <Building2 className="w-4 h-4" />
-                Oliy ta'lim maskanlari
+                Ta&apos;lim muassasalari
               </div>
               <h1 className="text-3xl md:text-5xl font-black tracking-tight text-[#071a33]">
-                Bitiruvchilarimiz <span className="text-[#ff6b00]">Universitetlari</span>
+                O&apos;quvchilarimiz kirgan <span className="text-[#ff6b00]">Ta&apos;lim muassasalari</span>
               </h1>
               <p className="text-gray-600 text-sm md:text-base mt-2 max-w-2xl font-medium">
-                ZIYO-ZUKKO maktabi o'quvchilari va bitiruvchilari qabul qilingan barcha mahalliy va xalqaro universitetlar ro'yxati.
+                ZIYO-ZUKKO maktabi o&apos;quvchilari va bitiruvchilari qabul qilingan barcha nufuzli oliy ta&apos;lim dargohlari va muassasalari ro&apos;yxati.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export default function UniversitiesPage() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Universitet nomi..."
+                placeholder="Ta'lim muassasasi nomi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-[#071a33] focus:outline-none focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/20 transition-all shadow-sm"
@@ -89,8 +89,8 @@ export default function UniversitiesPage() {
         {filteredUnis.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-lg mx-auto my-8">
             <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-[#071a33] mb-2">Universitetlar topilmadi</h3>
-            <p className="text-gray-500 text-sm">Hozircha ma'lumotlar bazasida universitetlar mavjud emas.</p>
+            <h3 className="text-xl font-bold text-[#071a33] mb-2">Ta&apos;lim muassasalari topilmadi</h3>
+            <p className="text-gray-500 text-sm">Hozircha ma&apos;lumotlar bazasida ta&apos;lim muassasalari mavjud emas.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

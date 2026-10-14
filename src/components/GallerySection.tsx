@@ -63,9 +63,14 @@ export default function GallerySection() {
     };
   }, []);
 
-  if (images.length === 0) {
+  const uniqueImages = Array.from(new Set(images));
+
+  if (uniqueImages.length === 0) {
     return null;
   }
+
+  // 1 dan 4 tagacha bo'lsa - har bir rasm bittadan aniq ko'rsatiladigan chiroyli Grid
+  const isSmallGallery = uniqueImages.length <= 4;
 
   return (
     <section id="galereya" className="py-24 bg-[#f8fafc] text-[#071a33] overflow-hidden">
@@ -90,33 +95,68 @@ export default function GallerySection() {
         </div>
       </div>
 
-      {/* Marquee Row */}
-      <div className="relative w-full overflow-hidden py-4">
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#f8fafc] to-transparent z-10"></div>
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#f8fafc] to-transparent z-10"></div>
+      {isSmallGallery ? (
+        // Grid display: Hech qachon 2 tadan bo'lib takrorlanmaydi!
+        <div className="max-w-7xl mx-auto px-6">
+          <div className={`grid gap-6 ${
+            uniqueImages.length === 1 
+              ? "max-w-2xl mx-auto grid-cols-1" 
+              : uniqueImages.length === 2 
+                ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto" 
+                : uniqueImages.length === 3 
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3" 
+                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          }`}>
+            {uniqueImages.map((img, idx) => (
+              <motion.div 
+                key={`${img}-${idx}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className="relative aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 border border-black/5 group"
+              >
+                <Image 
+                  src={img} 
+                  alt={`${t("galleryTitle")} ${idx + 1}`} 
+                  fill 
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        // Marquee Row: 5 tadan ko'p bo'lganda silliq harakatlanuvchi lenta
+        <div className="relative w-full overflow-hidden py-4">
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
 
-        <motion.div 
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ repeat: Infinity, duration: 35, ease: "linear" }}
-          className="flex gap-6 w-max"
-        >
-          {[...images, ...images].map((img, idx) => (
-            <div 
-              key={idx} 
-              className="relative w-[180px] sm:w-[260px] md:w-[420px] aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 shrink-0 border border-black/5 group"
-            >
-              <Image 
-                src={img} 
-                alt={`${t("galleryTitle")} ${idx + 1}`} 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-                unoptimized
-              />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-            </div>
-          ))}
-        </motion.div>
-      </div>
+          <motion.div 
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+            className="flex gap-6 w-max hover:[animation-play-state:paused]"
+          >
+            {[...uniqueImages, ...uniqueImages].map((img, idx) => (
+              <div 
+                key={`marquee-${idx}`} 
+                className="relative w-[180px] sm:w-[260px] md:w-[420px] aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg shadow-black/5 shrink-0 border border-black/5 group"
+              >
+                <Image 
+                  src={img} 
+                  alt={`${t("galleryTitle")} ${idx + 1}`} 
+                  fill 
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }

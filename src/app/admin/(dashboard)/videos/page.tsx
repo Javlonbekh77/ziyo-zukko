@@ -5,7 +5,7 @@ import { Plus, Trash2, Search, X, Edit2, Play, ExternalLink, Video as VideoIcon,
 import { ImageUploader } from "@/components/ImageUploader";
 import { deleteFileFromR2 } from "@/lib/r2-client";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc } from "firebase/firestore";
 
 export interface VideoItem {
   id: string;
@@ -122,7 +122,7 @@ export default function AdminVideosPage() {
     }
   };
 
-  const handleOpenEdit = (vid: VideoItem) => {
+  const handleOpenEdit = async (vid: VideoItem) => {
     setEditingId(vid.id);
     setTitle(vid.title);
     setUrl(vid.url);
@@ -131,7 +131,19 @@ export default function AdminVideosPage() {
     setR2Key(vid.r2Key || "");
     setDescription(vid.description || "");
     setSection(vid.section || "both");
-    setPublishToNews(false);
+    
+    // Check if this video is already published in news collection
+    try {
+      if (db) {
+        const newsSnap = await getDoc(doc(db, "news", `video_${vid.id}`));
+        setPublishToNews(newsSnap.exists());
+      } else {
+        setPublishToNews(false);
+      }
+    } catch {
+      setPublishToNews(false);
+    }
+
     setIsModalOpen(true);
   };
 
@@ -184,6 +196,8 @@ export default function AdminVideosPage() {
         updatedAt: new Date().toISOString(),
       };
 
+      let savedId = editingId;
+
       if (editingId) {
         const docRef = doc(db, "videos", editingId);
         await updateDoc(docRef, videoData);
@@ -191,27 +205,45 @@ export default function AdminVideosPage() {
       } else {
         const newVideoData = { ...videoData, createdAt: new Date().toISOString() };
         const docRef = await addDoc(collection(db, "videos"), newVideoData);
+        savedId = docRef.id;
         setVideos([{ id: docRef.id, ...newVideoData }, ...videos]);
+      }
 
-        // Agar Yangiliklar bo'limiga ham qo'shish tanlangan bo'lsa
+      // Yangiliklar bo'limiga ham qo'shish / yangilash / o'chirish
+      if (savedId) {
+        const newsDocRef = doc(db, "news", `video_${savedId}`);
         if (publishToNews) {
           try {
             const newsData = {
               title,
               content: description || title,
+              summary: description || title,
               date: new Date().toISOString().split("T")[0],
               imageUrl: finalThumbnail,
               r2Key: r2Key || "",
               url: url,
               instagramUrl: platform === "instagram" ? url : undefined,
+              youtubeUrl: platform === "youtube" ? url : undefined,
               embedUrl: calculatedEmbedUrl,
-              social: platform === "instagram" ? "instagram" : "both",
+              platform: platform,
+              social: platform === "instagram" ? "instagram" : "youtube",
+              tag: platform === "instagram" ? "INSTAGRAM" : "YOUTUBE",
+              tag_uz: platform === "instagram" ? "INSTAGRAM" : "YOUTUBE",
+              tag_ru: platform === "instagram" ? "ИНСТАГРАМ" : "ЮТУБ",
+              tag_en: platform === "instagram" ? "INSTAGRAM" : "YOUTUBE",
+              sourceVideoId: savedId,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
-            await addDoc(collection(db, "news"), newsData);
+            await setDoc(newsDocRef, newsData, { merge: true });
           } catch (newsErr) {
             console.error("Error auto-publishing to news:", newsErr);
+          }
+        } else if (editingId) {
+          try {
+            await deleteDoc(newsDocRef);
+          } catch {
+            // agar avval mavjud bo'lmagan bo'lsa xato qilmaydi
           }
         }
       }
@@ -240,6 +272,7 @@ export default function AdminVideosPage() {
     try {
       if (!db) throw new Error("Firebase db not initialized");
       await deleteDoc(doc(db, "videos", vid.id));
+      await deleteDoc(doc(db, "news", `video_${vid.id}`)).catch(() => {});
       setVideos(videos.filter((v) => v.id !== vid.id));
     } catch (error) {
       console.error("Error deleting video:", error);

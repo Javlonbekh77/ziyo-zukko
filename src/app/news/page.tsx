@@ -43,29 +43,36 @@ export default function NewsPage() {
       setLoading(false);
       return;
     }
+
+    const mapNewsItem = (docSnap: any): NewsItem => {
+      const data = docSnap.data();
+      const rawSocial = data.social || (data.platform === "youtube" || data.youtubeUrl || data.url?.includes("youtube") ? "youtube" : data.platform === "instagram" || data.instagramUrl || data.url?.includes("instagram") ? "instagram" : undefined);
+      return {
+        id: docSnap.id,
+        title: data.title || "Yangilik",
+        summary: data.summary || data.content || "",
+        text: data.text || data.content || "",
+        date: data.date || (data.createdAt ? data.createdAt.split("T")[0] : new Date().toISOString().split("T")[0]),
+        tag: data.tag || (rawSocial === "youtube" ? "YOUTUBE" : rawSocial === "instagram" ? "INSTAGRAM" : "YANGILIK"),
+        image: data.imageUrl || data.image || data.thumbnail || "/data/maktab_binosi.png",
+        images: data.images,
+        instagramUrl: data.instagramUrl || (data.platform === "instagram" ? data.url : undefined),
+        youtubeUrl: data.youtubeUrl || (data.platform === "youtube" ? data.url : undefined),
+        embedUrl: data.embedUrl,
+        social: rawSocial,
+      };
+    };
+
     try {
       const newsRef = collection(db, "news");
       const q = query(newsRef, orderBy("date", "desc"));
-      const unsubscribe = onSnapshot(
+      let unsub: (() => void) | undefined;
+
+      unsub = onSnapshot(
         q,
         (snapshot) => {
           if (!snapshot.empty) {
-            const fetched = snapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                title: data.title || "Yangilik",
-                summary: data.summary || data.content || "",
-                text: data.text || data.content || "",
-                date: data.date || new Date().toISOString().split("T")[0],
-                tag: data.tag || "YANGILIK",
-                image: data.imageUrl || data.image || "/data/maktab_binosi.png",
-                images: data.images,
-                instagramUrl: data.instagramUrl || data.url,
-                embedUrl: data.embedUrl,
-                social: data.social,
-              };
-            }) as NewsItem[];
+            const fetched = snapshot.docs.map(mapNewsItem);
             setNewsList(fetched);
           } else {
             setNewsList([]);
@@ -73,12 +80,24 @@ export default function NewsPage() {
           setLoading(false);
         },
         (err) => {
-          console.error("Firestore news fetch error:", err);
-          setNewsList([]);
-          setLoading(false);
+          console.warn("Firestore ordered news fetch fallback:", err);
+          const simpleUnsub = onSnapshot(newsRef, (simpleSnap) => {
+            if (!simpleSnap.empty) {
+              const fetched = simpleSnap.docs.map(mapNewsItem);
+              fetched.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+              setNewsList(fetched);
+            } else {
+              setNewsList([]);
+            }
+            setLoading(false);
+          });
+          unsub = simpleUnsub;
         }
       );
-      return () => unsubscribe();
+
+      return () => {
+        if (unsub) unsub();
+      };
     } catch {
       setLoading(false);
     }
@@ -248,11 +267,15 @@ export default function NewsPage() {
                         {newsTag}
                       </div>
                     )}
-                    {(news.instagramUrl || news.social === "instagram") && (
+                    {(news.youtubeUrl || news.social === "youtube") ? (
+                      <div className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                        YouTube
+                      </div>
+                    ) : (news.instagramUrl || news.social === "instagram") ? (
                       <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
                         Instagram
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Content */}
