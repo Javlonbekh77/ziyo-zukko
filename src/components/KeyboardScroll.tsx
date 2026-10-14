@@ -42,6 +42,24 @@ export default function KeyboardScroll() {
   // Qolgan 400vh scrollni interactiveStartFrame dan oxirigacha xaritalash
   const scrollFrameIndex = useTransform(scrollYProgress, [0, 1], [interactiveStartFrame, totalFrames - 1]);
 
+  const dimensionsRef = useRef<{ width: number; height: number; dpi: number }>({ width: 0, height: 0, dpi: 1 });
+
+  const updateCanvasDimensions = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || typeof window === "undefined") return;
+    const dpi = Math.min(window.devicePixelRatio || 1, 2);
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    dimensionsRef.current = { width, height, dpi };
+
+    const targetWidth = Math.round(width * dpi);
+    const targetHeight = Math.round(height * dpi);
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+    }
+  }, []);
+
   const renderFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -51,13 +69,19 @@ export default function KeyboardScroll() {
     const img = imagesRef.current[index];
     if (!img) return;
 
-    const dpi = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    let { width, height, dpi } = dimensionsRef.current;
+    if (width === 0 || height === 0) {
+      dpi = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+      width = typeof window !== "undefined" ? window.innerWidth : 1920;
+      height = typeof window !== "undefined" ? window.innerHeight : 1080;
+      dimensionsRef.current = { width, height, dpi };
 
-    if (canvas.width !== width * dpi || canvas.height !== height * dpi) {
-      canvas.width = width * dpi;
-      canvas.height = height * dpi;
+      const targetWidth = Math.round(width * dpi);
+      const targetHeight = Math.round(height * dpi);
+      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+      }
     }
 
     context.save();
@@ -83,6 +107,16 @@ export default function KeyboardScroll() {
     context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     context.restore();
   }, []);
+
+  useEffect(() => {
+    updateCanvasDimensions();
+    const handleResize = () => {
+      updateCanvasDimensions();
+      renderFrame(currentFrameRef.current);
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateCanvasDimensions, renderFrame]);
 
   useEffect(() => {
     let isMounted = true;

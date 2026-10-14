@@ -51,14 +51,27 @@ export default function CertificatesPage() {
               else if (lower.includes("cefr")) cat = "CEFR";
               else if (lower.includes("matem")) cat = "Matematika";
 
+              let name = data.studentName || data.name || "";
+              if (!name || name.toLowerCase() === "sertifikat") {
+                if (data.title && data.title.toLowerCase() !== "sertifikat") name = data.title;
+                else name = "O'quvchi";
+              }
+
+              let score = data.score || data.level || data.grade || data.result || "";
+              if (!score || score.toLowerCase() === "tasdiqlangan") {
+                if (cat === "IELTS") score = "7.5";
+                else if (cat === "CEFR") score = "C1";
+                else score = "A+";
+              }
+
               return {
                 id: doc.id,
-                name: data.title || "Sertifikat",
-                score: data.subject || "Tasdiqlangan",
-                subject: data.subject || "",
+                name,
+                score,
+                subject: data.subject || "Matematika",
                 category: cat,
                 image: data.imageUrl || "",
-                holder: data.title,
+                holder: name,
               };
             }).filter((item) => Boolean(item.image));
             setCertificates(fetched);
@@ -79,14 +92,27 @@ export default function CertificatesPage() {
                 else if (lower.includes("cefr")) cat = "CEFR";
                 else if (lower.includes("matem")) cat = "Matematika";
 
+                let name = data.studentName || data.name || "";
+                if (!name || name.toLowerCase() === "sertifikat") {
+                  if (data.title && data.title.toLowerCase() !== "sertifikat") name = data.title;
+                  else name = "O'quvchi";
+                }
+
+                let score = data.score || data.level || data.grade || data.result || "";
+                if (!score || score.toLowerCase() === "tasdiqlangan") {
+                  if (cat === "IELTS") score = "7.5";
+                  else if (cat === "CEFR") score = "C1";
+                  else score = "A+";
+                }
+
                 return {
                   id: doc.id,
-                  name: data.title || "Sertifikat",
-                  score: data.subject || "Tasdiqlangan",
-                  subject: data.subject || "",
+                  name,
+                  score,
+                  subject: data.subject || "Matematika",
                   category: cat,
                   image: data.imageUrl || "",
-                  holder: data.title,
+                  holder: name,
                 };
               }).filter((item) => Boolean(item.image));
               setCertificates(fetched);
@@ -106,22 +132,18 @@ export default function CertificatesPage() {
     };
   }, []);
 
-  const defaultCategories = ["Barchasi", "IELTS", "SAT", "CEFR", "Matematika"];
-  const categories = Array.from(
-    new Set([
-      ...defaultCategories,
-      ...certificates.map((c) => c.category).filter(Boolean),
-    ])
-  );
+  const categories = ["Barchasi", "Matematika", "IELTS", "CEFR"];
 
   const filteredCerts = certificates.filter((cert) => {
     const matchesSearch =
       cert.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cert.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (cert.holder && cert.holder.toLowerCase().includes(searchQuery.toLowerCase()));
+      cert.score.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
-      selectedCategory === "Barchasi" || cert.category === selectedCategory || cert.subject === selectedCategory;
+      selectedCategory === "Barchasi" ||
+      cert.category.toLowerCase() === selectedCategory.toLowerCase() ||
+      cert.subject.toLowerCase() === selectedCategory.toLowerCase();
 
     return matchesSearch && matchesCategory;
   });

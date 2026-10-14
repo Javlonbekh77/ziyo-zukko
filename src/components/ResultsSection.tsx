@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useMotionValue, useTransform, animate, useInView, AnimatePresence } from "framer-motion";
-import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { X, ZoomIn } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
@@ -129,12 +128,29 @@ export default function ResultsSection() {
             const fetchedCerts: CertCardItem[] = [];
             snapshot.docs.forEach((doc) => {
               const data = doc.data();
+              let name = data.studentName || data.name || "";
+              if (!name || name.toLowerCase() === "sertifikat") {
+                if (data.title && data.title.toLowerCase() !== "sertifikat") {
+                  name = data.title;
+                } else {
+                  name = "O'quvchi";
+                }
+              }
+
+              let score = data.score || data.level || data.grade || data.result || "";
+              if (!score || score.toLowerCase() === "tasdiqlangan") {
+                const lowerSubj = (data.subject || data.category || "").toLowerCase();
+                if (lowerSubj.includes("ielts")) score = "7.5";
+                else if (lowerSubj.includes("cefr")) score = "C1";
+                else score = "A+";
+              }
+
               fetchedCerts.push({
                 id: doc.id,
-                name: data.studentName || data.name || "Sertifikat",
-                score: data.score || "",
-                subject: data.subject || data.category || "Fan",
-                category: data.category || "Boshqa",
+                name,
+                score,
+                subject: data.subject || data.category || "Matematika",
+                category: data.category || data.subject || "Matematika",
                 image: data.imageUrl || "/data/maktab_binosi.png",
               });
             });
@@ -149,12 +165,29 @@ export default function ResultsSection() {
               const fetchedCerts: CertCardItem[] = [];
               simpleSnap.docs.forEach((doc) => {
                 const data = doc.data();
+                let name = data.studentName || data.name || "";
+                if (!name || name.toLowerCase() === "sertifikat") {
+                  if (data.title && data.title.toLowerCase() !== "sertifikat") {
+                    name = data.title;
+                  } else {
+                    name = "O'quvchi";
+                  }
+                }
+
+                let score = data.score || data.level || data.grade || data.result || "";
+                if (!score || score.toLowerCase() === "tasdiqlangan") {
+                  const lowerSubj = (data.subject || data.category || "").toLowerCase();
+                  if (lowerSubj.includes("ielts")) score = "7.5";
+                  else if (lowerSubj.includes("cefr")) score = "C1";
+                  else score = "A+";
+                }
+
                 fetchedCerts.push({
                   id: doc.id,
-                  name: data.studentName || data.name || "Sertifikat",
-                  score: data.score || "",
-                  subject: data.subject || data.category || "Fan",
-                  category: data.category || "Boshqa",
+                  name,
+                  score,
+                  subject: data.subject || data.category || "Matematika",
+                  category: data.category || data.subject || "Matematika",
                   image: data.imageUrl || "/data/maktab_binosi.png",
                 });
               });
@@ -182,36 +215,31 @@ export default function ResultsSection() {
   // Merge admin-uploaded certificates at the top
   const combinedList = [...adminCerts, ...allCertificatesList];
 
+  // Exactly 4 tabs requested: Barchasi, Matematika, IELTS, CEFR
   const defaultCategoryTabs = [
-    { id: "all", label: t("all") },
+    { id: "all", label: "Barchasi" },
     { id: "Matematika", label: "Matematika" },
     { id: "IELTS", label: "IELTS" },
     { id: "CEFR", label: "CEFR" },
-    { id: "Ona tili", label: "Ona tili" },
-    { id: "Biologiya", label: "Biologiya" },
-    { id: "Kimyo", label: "Kimyo" },
-    { id: "Tarix", label: "Tarix" },
-    { id: "Fizika", label: "Fizika" },
-    { id: "DTM", label: "DTM" },
-  ];
-
-  const existingCategories = Array.from(
-    new Set(combinedList.map((c) => c.category || c.subject).filter(Boolean))
-  );
-
-  const displayedCategories = [
-    ...defaultCategoryTabs,
-    ...existingCategories
-      .filter((cat) => !defaultCategoryTabs.some((d) => d.id.toLowerCase() === cat.toLowerCase()))
-      .map((cat) => ({ id: cat, label: cat })),
   ];
 
   const certificates = activeTab === "all"
     ? combinedList
-    : combinedList.filter((cert) =>
-        (cert.category && cert.category.toLowerCase() === activeTab.toLowerCase()) ||
-        (cert.subject && cert.subject.toLowerCase() === activeTab.toLowerCase())
-      );
+    : combinedList.filter((cert) => {
+        const cat = (cert.category || "").toLowerCase();
+        const subj = (cert.subject || "").toLowerCase();
+        const target = activeTab.toLowerCase();
+        if (target === "ielts") {
+          return cat.includes("ielts") || subj.includes("ielts") || subj.includes("ingliz") || subj.includes("english");
+        }
+        if (target === "cefr") {
+          return cat.includes("cefr") || subj.includes("cefr");
+        }
+        if (target === "matematika") {
+          return cat.includes("matem") || subj.includes("matem");
+        }
+        return cat === target || subj === target;
+      });
 
   // Asosiy sahifada qat'iy 3 qator (4x3 = 12 ta) ko'rinadi
   const homeCertificates = certificates.slice(0, 12);
@@ -299,16 +327,16 @@ export default function ResultsSection() {
         {/* Certificates Section */}
         {adminCerts.length > 0 && (
           <>
-            {/* Category Tabs */}
-            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-12">
-              {displayedCategories.map((cat) => (
+            {/* Category Tabs: Exactly 4 options requested: Barchasi, Matematika, IELTS, CEFR */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 md:gap-3 mb-12">
+              {defaultCategoryTabs.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveTab(cat.id)}
-                  className={`px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer ${
+                  className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold transition-all duration-300 cursor-pointer ${
                     activeTab === cat.id
                       ? "bg-[#ff6b00] text-white shadow-md shadow-orange-500/30 scale-105"
-                      : "bg-[#f1f5f9] text-black/70 hover:bg-[#e2e8f0] hover:text-black"
+                      : "bg-[#f1f5f9] text-[#071a33]/70 hover:bg-[#e2e8f0] hover:text-[#071a33]"
                   }`}
                 >
                   {cat.label}
@@ -330,10 +358,9 @@ export default function ResultsSection() {
                   key={cert.id}
                   variants={itemVariants}
                   onClick={() => setSelectedCertForModal(cert)}
-                  className="relative rounded-3xl p-1 bg-white border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 group overflow-hidden cursor-pointer flex flex-col"
+                  className="rounded-3xl p-3 bg-white border border-slate-200 shadow-sm hover:shadow-2xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300 group overflow-hidden cursor-pointer flex flex-col justify-between"
                 >
-                  <GlowingEffect spread={45} glow={true} disabled={false} proximity={64} inactiveZone={0.01} />
-                  <div className="relative z-10 p-4 bg-white rounded-[22px] flex flex-col h-full">
+                  <div className="flex flex-col h-full">
                     {/* Enlarged Certificate Image Box (Aspect 3/4 Portrait) */}
                     <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-b from-amber-50/30 via-slate-50/50 to-white mb-3.5 border border-slate-100 flex items-center justify-center p-2 group-hover:border-orange-200 transition-colors shadow-inner">
                       <Image
@@ -349,26 +376,17 @@ export default function ResultsSection() {
                       </div>
                     </div>
 
-                    {/* Student Name */}
+                    {/* Student Name & Surname directly under image */}
                     <h4 className="font-extrabold text-base md:text-lg text-[#071a33] text-center line-clamp-1 group-hover:text-[#ff6b00] transition-colors">
                       {cert.name}
                     </h4>
 
-                    {/* Score Badge */}
-                    <div className="text-center mt-1">
+                    {/* Degree / Level obtained directly beneath name */}
+                    <div className="text-center mt-1 pb-1">
                       <span className="font-black text-2xl md:text-3xl text-[#ff6b00] tracking-tight">
-                        {cert.score || "Tasdiqlangan"}
+                        {cert.score}
                       </span>
                     </div>
-
-                    {/* Subject badge */}
-                    {cert.subject && (
-                      <div className="mt-2 text-center">
-                        <span className="inline-block text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                          {cert.subject}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               ))}

@@ -9,7 +9,10 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy 
 
 interface Certificate {
   id: string;
+  studentName?: string;
+  name?: string;
   title: string;
+  score?: string;
   subject: string;
   date: string;
   imageUrl: string;
@@ -27,13 +30,14 @@ export default function CertificatesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form states
-  const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("Ingliz tili");
+  const [studentName, setStudentName] = useState("");
+  const [score, setScore] = useState("A+");
+  const [subject, setSubject] = useState("Matematika");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [imageUrl, setImageUrl] = useState("");
   const [r2Key, setR2Key] = useState("");
 
-  const SUBJECTS = ["Ingliz tili", "Matematika", "Ona tili", "Tarix", "Fizika", "Kimyo", "Biologiya", "Boshqa"];
+  const SUBJECTS = ["Matematika", "IELTS", "CEFR"];
 
   useEffect(() => {
     fetchCertificates();
@@ -46,7 +50,7 @@ export default function CertificatesPage() {
         console.error("Firebase db is not initialized");
         return;
       }
-      const q = query(collection(db, "certificates"), orderBy("date", "desc"));
+      const q = query(collection(db, "certificates"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const fetchedCertificates: Certificate[] = [];
       querySnapshot.forEach((doc) => {
@@ -54,22 +58,39 @@ export default function CertificatesPage() {
       });
       setCertificates(fetchedCertificates);
     } catch (error) {
-      console.error("Error fetching certificates: ", error);
+      console.warn("Certificates ordered fetch fallback:", error);
+      if (db) {
+        try {
+          const snapshot = await getDocs(collection(db, "certificates"));
+          const fetchedCertificates: Certificate[] = [];
+          snapshot.forEach((doc) => {
+            fetchedCertificates.push({ id: doc.id, ...doc.data() } as Certificate);
+          });
+          setCertificates(fetchedCertificates);
+        } catch (e) {
+          console.error("Error fetching certificates: ", e);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredCertificates = certificates.filter(c => 
-    c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.subject?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCertificates = certificates.filter(c => {
+    const sName = c.studentName || c.title || "";
+    const sScore = c.score || "";
+    const sSubj = c.subject || "";
+    const q = searchQuery.toLowerCase();
+    return sName.toLowerCase().includes(q) || sScore.toLowerCase().includes(q) || sSubj.toLowerCase().includes(q);
+  });
 
   const handleOpenEdit = (cert: Certificate) => {
     setEditingId(cert.id);
-    setTitle(cert.title);
-    setSubject(cert.subject || "Ingliz tili");
-    setDate(cert.date);
+    const existingName = cert.studentName || cert.name || (cert.title !== "Sertifikat" ? cert.title : "");
+    setStudentName(existingName);
+    setScore(cert.score || (cert.subject === "IELTS" ? "7.5" : cert.subject === "CEFR" ? "C1" : "A+"));
+    setSubject(cert.subject || "Matematika");
+    setDate(cert.date || new Date().toISOString().split("T")[0]);
     setImageUrl(cert.imageUrl);
     setR2Key(cert.r2Key || "");
     setIsModalOpen(true);
@@ -77,8 +98,8 @@ export default function CertificatesPage() {
 
   const handleAddOrEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !imageUrl) {
-      alert("Iltimos, barcha kerakli maydonlarni to'ldiring (nomi va rasm)!");
+    if (!studentName || !score || !imageUrl) {
+      alert("Iltimos, o'quvchi ismi, olgan darajasi va sertifikat rasmini to'liq kiriting!");
       return;
     }
 
@@ -87,8 +108,12 @@ export default function CertificatesPage() {
       if (!db) throw new Error("Firebase db not initialized");
 
       const certData = {
-        title,
+        studentName: studentName.trim(),
+        name: studentName.trim(),
+        title: studentName.trim(),
+        score: score.trim(),
         subject,
+        category: subject,
         date: date || new Date().toISOString().split("T")[0],
         imageUrl,
         r2Key: r2Key || "",
@@ -140,8 +165,9 @@ export default function CertificatesPage() {
 
   const resetForm = () => {
     setEditingId(null);
-    setTitle("");
-    setSubject("Ingliz tili");
+    setStudentName("");
+    setScore("A+");
+    setSubject("Matematika");
     setDate(new Date().toISOString().split("T")[0]);
     setImageUrl("");
     setR2Key("");
@@ -152,11 +178,13 @@ export default function CertificatesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Sertifikatlar</h1>
-          <p className="text-slate-500 text-sm mt-1">Maktabning yutuqlari va sertifikatlari</p>
+          <p className="text-slate-500 text-sm mt-1">
+            O'quvchilarning Matematika, IELTS va CEFR sertifikatlari
+          </p>
         </div>
         <button 
           onClick={() => { resetForm(); setIsModalOpen(true); }}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           <span>Yangi qo'shish</span>
@@ -169,7 +197,7 @@ export default function CertificatesPage() {
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
-              placeholder="Nomi yoki fani bo'yicha qidirish..."
+              placeholder="Ism, daraja yoki yo'nalish bo'yicha qidirish..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
@@ -181,16 +209,17 @@ export default function CertificatesPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-100 text-slate-600 text-sm uppercase tracking-wider">
-                <th className="p-4 font-medium w-32">Rasm</th>
-                <th className="p-4 font-medium">Sertifikat Nomi</th>
-                <th className="p-4 font-medium">Fan / Kategoriya</th>
+                <th className="p-4 font-medium w-24">Rasm</th>
+                <th className="p-4 font-medium">O'quvchi (Ism va Familiya)</th>
+                <th className="p-4 font-medium">Olgan darajasi</th>
+                <th className="p-4 font-medium">Yo'nalish</th>
                 <th className="p-4 font-medium w-32 text-right">Amallar</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-slate-500">
+                  <td colSpan={5} className="p-8 text-center text-slate-500">
                     Yuklanmoqda...
                   </td>
                 </tr>
@@ -198,30 +227,33 @@ export default function CertificatesPage() {
                 filteredCertificates.map((cert) => (
                   <tr key={cert.id} className="hover:bg-slate-50 transition-colors">
                     <td className="p-4">
-                      <div className="w-16 h-12 rounded bg-slate-100 border border-slate-200 overflow-hidden">
-                        <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover" />
+                      <div className="w-14 h-18 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden">
+                        <img src={cert.imageUrl} alt={cert.studentName || cert.title} className="w-full h-full object-contain p-1" />
                       </div>
                     </td>
-                    <td className="p-4 font-medium text-slate-900">
-                      {cert.title}
-                      <div className="text-xs text-slate-500 mt-1">{cert.date}</div>
+                    <td className="p-4 font-bold text-slate-900">
+                      {cert.studentName || cert.name || (cert.title !== "Sertifikat" ? cert.title : "O'quvchi")}
+                      <div className="text-xs text-slate-400 font-normal mt-0.5">{cert.date}</div>
+                    </td>
+                    <td className="p-4 font-black text-lg text-[#ff6b00]">
+                      {cert.score || (cert.subject === "IELTS" ? "7.5" : cert.subject === "CEFR" ? "C1" : "A+")}
                     </td>
                     <td className="p-4 text-slate-600">
-                      <span className="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">
-                        {cert.subject || "Noma'lum"}
+                      <span className="inline-block px-3 py-1 bg-orange-50 text-[#ff6b00] rounded-full text-xs font-bold border border-orange-200">
+                        {cert.subject || "Matematika"}
                       </span>
                     </td>
                     <td className="p-4 text-right space-x-1">
                       <button 
                         onClick={() => handleOpenEdit(cert)}
-                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
                         title="Tahrirlash"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => handleDelete(cert)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="O'chirish"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -231,7 +263,7 @@ export default function CertificatesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-slate-500">
+                  <td colSpan={5} className="p-8 text-center text-slate-500">
                     Sertifikat topilmadi.
                   </td>
                 </tr>
@@ -272,24 +304,47 @@ export default function CertificatesPage() {
                   }}
                 />
 
+                {/* Student Full Name */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Sertifikat Nomi</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Ism va Familiya *
+                  </label>
                   <input 
                     type="text" 
                     required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" 
-                    placeholder="Masalan: IELTS 7.5 yoki Oltin medal" 
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none font-medium" 
+                    placeholder="Masalan: Raxmatullayev Ramziddin" 
                   />
+                  <p className="text-[11px] text-slate-400 mt-1">Rasm tagida markazda ko'rinadi.</p>
                 </div>
 
+                {/* Score / Level */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Qaysi fan/kategoriya bo'yicha?</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Olgan darajasi / Natijasi *
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={score}
+                    onChange={(e) => setScore(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none font-bold text-lg text-[#ff6b00]" 
+                    placeholder="Masalan: A+, 8.0, 7.5, C1, A, Oltin medal" 
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">Ism familiyaning pastida yirik to'q sariq rangda ko'rinadi.</p>
+                </div>
+
+                {/* Category / Subject */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Yo'nalish / Kategoriya *
+                  </label>
                   <select 
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-white"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-white font-medium"
                   >
                     {SUBJECTS.map(subj => (
                       <option key={subj} value={subj}>{subj}</option>

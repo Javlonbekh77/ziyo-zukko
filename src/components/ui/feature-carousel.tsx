@@ -172,36 +172,51 @@ export const FeatureCarousel = React.forwardRef<HTMLDivElement, FeatureCarouselP
                       </div>
                     )}
 
-                    {/* Always render the cropped iframe to act as the thumbnail/video player */}
-                    <div 
-                      className={cn(
-                        "absolute inset-0 overflow-hidden bg-black transition-all duration-500",
-                        isActiveStory ? "z-10 pointer-events-auto" : "z-0 pointer-events-none opacity-80 group-hover:opacity-100 group-hover:scale-105"
-                      )}
-                      onClick={(e) => isActiveStory && e.stopPropagation()}
-                    >
-                      <iframe 
-                        src={`${item.embedUrl}?hidecaption=1`} 
-                        style={{ 
-                          width: '104%', 
-                          height: 'calc(100% + 180px)', 
-                          top: '-56px',
-                          left: '-2%',
-                          position: 'absolute'
-                        }}
-                        className="border-none bg-black" 
-                        scrolling="no" 
-                        allow="encrypted-media; autoplay"
-                        tabIndex={-1}
-                      />
-                    </div>
+                    {/* Render iframe only for the active center reel to prevent browser freezing from multiple concurrent Instagram iframes */}
+                    {isCenter && (isActiveStory || activeStory === null) ? (
+                      <div 
+                        className={cn(
+                          "absolute inset-0 overflow-hidden bg-black transition-all duration-500",
+                          isActiveStory ? "z-10 pointer-events-auto" : "z-0 pointer-events-none opacity-90 group-hover:opacity-100"
+                        )}
+                        onClick={(e) => isActiveStory && e.stopPropagation()}
+                      >
+                        <iframe 
+                          src={`${item.embedUrl}?hidecaption=1`} 
+                          style={{ 
+                            width: '104%', 
+                            height: 'calc(100% + 180px)', 
+                            top: '-56px',
+                            left: '-2%',
+                            position: 'absolute'
+                          }}
+                          className="border-none bg-black" 
+                          scrolling="no" 
+                          loading="lazy"
+                          allow="encrypted-media; autoplay"
+                          tabIndex={-1}
+                        />
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 overflow-hidden bg-slate-900 flex items-center justify-center">
+                        <img 
+                          src={item.img || "/data/maktab_binosi.png"} 
+                          alt={item.caption || "Instagram Reel"} 
+                          className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500" 
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-white/90 text-slate-900 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Invisible overlay when not active to capture clicks for carousel rotation */}
                     {!isActiveStory && (
                       <div className="absolute inset-0 z-20 bg-transparent cursor-pointer"></div>
                     )}
-
-                    {/* Removed custom play button since iframe has its own */}
 
                     {item.caption && !isActiveStory && (
                       <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white z-20 pointer-events-none">

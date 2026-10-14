@@ -298,9 +298,9 @@ export default function NewsSection() {
               {t("newsSubTitle")}<span className="text-[#8c1c3f]">{t("newsSubTitleAccent")}</span>
             </h3>
             
-            <div className="flex flex-col gap-2.5 h-full justify-between">
+            <div className="flex flex-col gap-4 h-full justify-between">
               {displayNewsItems.length > 0 ? (
-                displayNewsItems.map((item) => (
+                displayNewsItems.slice(0, 3).map((item) => (
                   <Link 
                     key={item.id} 
                     href={`/news/${item.id}`} 
@@ -308,10 +308,10 @@ export default function NewsSection() {
                   >
                     <motion.div 
                       variants={itemVariants} 
-                      className="bg-white rounded-2xl p-2.5 md:p-3 shadow-sm hover:shadow-md transition-all flex gap-3 md:gap-4 items-center cursor-pointer border border-gray-100 hover:border-gray-200"
+                      className="bg-white rounded-2xl p-3 md:p-3.5 shadow-sm hover:shadow-md transition-all flex gap-3.5 md:gap-4 items-center cursor-pointer border border-gray-100 hover:border-gray-200 h-[125px] sm:h-[135px] md:h-[145px] overflow-hidden"
                     >
-                      {/* News Image */}
-                      <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                      {/* News Image - Fixed dimensions */}
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
                         <Image 
                           src={item.img} 
                           alt={item.title} 
@@ -328,24 +328,34 @@ export default function NewsSection() {
                         )}
                       </div>
                       
-                      {/* News Content */}
-                      <div className="flex flex-col flex-1 h-full py-0.5 min-w-0">
-                        <h3 className="font-bold text-sm md:text-[15px] text-[#0b1b36] mb-1 leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-2">{item.title}</h3>
-                        <p className="text-[9px] md:text-[11px] text-[#8c1c3f] font-semibold mb-1">{item.tag}</p>
-                        <p className="text-[11px] md:text-[12px] text-[#0b1b36]/60 mb-1.5 line-clamp-1 sm:line-clamp-2 hidden sm:block">{item.summary}</p>
+                      {/* News Content - Uniform flex layout with strict text-ellipsis */}
+                      <div className="flex flex-col flex-1 h-full justify-between min-w-0 py-0.5 overflow-hidden">
+                        <div>
+                          <h3 className="font-bold text-xs sm:text-sm md:text-[14px] text-[#0b1b36] leading-snug group-hover:text-[#8c1c3f] transition-colors line-clamp-1 overflow-hidden text-ellipsis">
+                            {item.title}
+                          </h3>
+                          <p className="text-[9px] md:text-[10px] text-[#8c1c3f] font-bold uppercase tracking-wider mt-0.5">
+                            {item.tag}
+                          </p>
+                        </div>
+
+                        {/* Description / Summary strictly clamped with ellipsis so box size remains identical */}
+                        <p className="text-[11px] md:text-[12px] text-[#0b1b36]/70 leading-relaxed line-clamp-2 overflow-hidden text-ellipsis my-auto">
+                          {item.summary || "Maktabimiz hayotiga oid so'nggi yangilik va muhim ma'lumotlar bilan tanishing."}
+                        </p>
                         
-                        <div className="mt-auto flex items-center gap-2">
-                          <div className="bg-[#8c1c3f] text-white text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-lg">
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="bg-[#8c1c3f] text-white text-[10px] md:text-[11px] font-bold px-2.5 py-0.5 rounded-lg">
                             {item.date}
                           </div>
                           {(item.social === 'youtube' || item.social === 'both') && (
                             <div className="text-[#FF0000]">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon></svg>
                             </div>
                           )}
                           {(item.social === 'instagram' || item.social === 'both') && (
                             <div className="text-[#E1306C]">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
                             </div>
                           )}
                         </div>
