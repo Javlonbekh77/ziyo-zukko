@@ -22,6 +22,7 @@ const translations: Record<string, Record<Language, string>> = {
   graduates: { uz: "Bitiruvchilar", ru: "Выпускники", en: "Graduates" },
   certificates: { uz: "Sertifikatlar", ru: "Сертификаты", en: "Certificates" },
   contact: { uz: "Aloqa", ru: "Контакты", en: "Contact" },
+  admissions: { uz: "Qabul", ru: "Приём", en: "Admissions" },
   apply: { uz: "Qabulga ariza", ru: "Подать заявку", en: "Apply Now" },
 
   // ── Common & Buttons ──
@@ -133,6 +134,18 @@ const translations: Record<string, Record<Language, string>> = {
   admissionsExamTitle: { uz: "IMTIHON SANALARI", ru: "ДАТЫ ЭКЗАМЕНОВ", en: "EXAM DATES" },
   admissionsExamText: { uz: "Har haftaning shanba kunlari saralash imtihonlari bo'lib o'tadi.", ru: "Каждую субботу проводятся вступительные отборочные экзамены.", en: "Entrance examinations are held every Saturday." },
   admissionsRegisterBtn: { uz: "Ro'yxatdan o'tish", ru: "Зарегистрироваться", en: "Register Now" },
+  admissionsFormTitle: { uz: "Qabulga onlayn ariza topshirish", ru: "Онлайн-заявка на приём", en: "Online Admission Application" },
+  admissionsFormSubtitle: {
+    uz: "Farzandingizni «Ziyo-Zukko» maktabiga qabul qilish uchun quyidagi arizani to'ldiring. Operatorlarimiz 24 soat ichida siz bilan bog'lanishadi.",
+    ru: "Заполните форму для поступления в школу «Ziyo-Zukko». Наши операторы свяжутся с вами в течение 24 часов.",
+    en: "Fill out the form for admission to «Ziyo-Zukko» School. Our team will contact you within 24 hours.",
+  },
+  admissionsFormBtn: { uz: "Qabulga ariza yuborish", ru: "Отправить заявку на приём", en: "Submit Admission Application" },
+  admissionsSuccessMsg: {
+    uz: "Arizangiz muvaffaqiyatli qabul qilindi! Qabul komissiyasi operatorlarimiz tez orada siz bilan bog'lanishadi.",
+    ru: "Ваша заявка успешно принята! Операторы приёмной комиссии свяжутся с вами в ближайшее время.",
+    en: "Your application has been received successfully! Our admissions operators will contact you shortly.",
+  },
 
   // ── FAQ Section ──
   faqBadge: { uz: "FAQ", ru: "FAQ", en: "FAQ" },

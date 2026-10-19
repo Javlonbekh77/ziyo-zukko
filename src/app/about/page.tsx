@@ -30,6 +30,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage, Language } from "@/context/LanguageContext";
+import { scrollToSection } from "@/lib/scrollUtils";
 
 export default function AboutPage() {
   const { lang, t } = useLanguage();
@@ -565,6 +566,10 @@ export default function AboutPage() {
                 <div className="flex flex-wrap items-center gap-4 pt-4">
                   <Link
                     href="/#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection("contact");
+                    }}
                     className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#ff6b00] hover:bg-[#e05e00] text-white font-bold text-sm shadow-lg shadow-[#ff6b00]/30 transition-all transform hover:-translate-y-0.5"
                   >
                     <span>{tAbout.quickApply}</span>
@@ -732,6 +737,10 @@ export default function AboutPage() {
                 <div className="mt-8 pt-6 border-t border-slate-100">
                   <Link
                     href="/#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection("contact");
+                    }}
                     className="inline-flex items-center justify-center w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-100 hover:bg-[#ff6b00] hover:text-white text-slate-700 transition-colors"
                   >
                     Ariza topshirish →
@@ -917,6 +926,10 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
               <Link
                 href="/#contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("contact");
+                }}
                 className="px-8 py-4 rounded-xl bg-[#ff6b00] hover:bg-[#e05e00] text-white font-bold text-sm shadow-lg shadow-[#ff6b00]/30 transition-all transform hover:-translate-y-0.5"
               >
                 {tAbout.ctaButton}

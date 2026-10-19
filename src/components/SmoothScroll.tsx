@@ -42,9 +42,27 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  // Har safar sahifa marshruti (pathname) o'zgarganda lenis.start() va scroll 0 ga qaytishi
+  // Har safar sahifa marshruti (pathname) o'zgarganda lenis.start() va hash yoki scroll 0 ga o'tishi
   useEffect(() => {
-    if (lenisRef.current) {
+    if (!lenisRef.current) return;
+
+    const hash = window.location.hash;
+    if (hash) {
+      const cleanId = hash.replace(/^#/, "");
+      lenisRef.current.start();
+      window.dispatchEvent(new CustomEvent("unlock-scroll"));
+
+      const tryScroll = (attempts = 0) => {
+        const el = document.getElementById(cleanId);
+        if (el && lenisRef.current) {
+          lenisRef.current.scrollTo(el, { offset: -75, duration: 1.1 });
+        } else if (attempts < 10) {
+          setTimeout(() => tryScroll(attempts + 1), 100);
+        }
+      };
+
+      setTimeout(() => tryScroll(), 120);
+    } else {
       lenisRef.current.scrollTo(0, { immediate: true });
       lenisRef.current.start();
     }

@@ -154,6 +154,7 @@ export default function TeamSection() {
 
   return (
     <section id="team" className="py-14 sm:py-20 md:py-24 bg-white text-[#0b1b36] relative overflow-hidden">
+      <div id="teachers" className="absolute -top-24 pointer-events-none" />
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Section Top Header & Navigation Controls */}

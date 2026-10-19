@@ -41,7 +41,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
     { id: "home", href: "/" },
     { id: "about", href: "/about" },
     { id: "news", href: "/news" },
-    { id: "testimonials", href: "/#testimonials" },
+    { id: "teachers", href: "/#team" },
     { id: "olympiads", href: "/olympiads" },
     { id: "gallery", href: "/#galereya" },
     { id: "contact", href: "/#contact" },
@@ -65,13 +65,12 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
 
       <header
         style={{ backgroundColor: isMobileMenuOpen ? "#ffffff" : undefined }}
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-          isMobileMenuOpen
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isMobileMenuOpen
             ? "bg-white border-b border-black/5 shadow-md"
             : isSolid
-            ? "bg-white/95 backdrop-blur-2xl border-b border-black/5 shadow-sm"
-            : "bg-transparent"
-        }`}
+              ? "bg-white/95 backdrop-blur-2xl border-b border-black/5 shadow-sm"
+              : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -123,11 +122,10 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
 
             {/* Language Selector (Horizontal Expanding Pill with smooth animation) */}
             <div
-              className={`hidden lg:flex items-center p-1 rounded-full backdrop-blur-md transition-all duration-500 overflow-hidden group cursor-pointer border ${
-                isSolid
+              className={`hidden lg:flex items-center p-1 rounded-full backdrop-blur-md transition-all duration-500 overflow-hidden group cursor-pointer border ${isSolid
                   ? "bg-black/5 hover:bg-black/10 border-black/10 text-[#071a33]"
                   : "bg-white/10 hover:bg-white/20 border-white/20 text-white"
-              }`}
+                }`}
               title="Tilni tanlash / Выберите язык / Select language"
             >
               <div className="flex items-center">
@@ -147,11 +145,10 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
                           e.stopPropagation();
                           setLang(l.code);
                         }}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                          isSolid
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 cursor-pointer ${isSolid
                             ? "hover:bg-[#ff6b00] hover:text-white text-[#071a33]"
                             : "hover:bg-[#ff6b00] hover:text-white text-white"
-                        }`}
+                          }`}
                         title={l.label}
                       >
                         {l.label}
@@ -162,7 +159,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
             </div>
 
             <Link
-              href="#contact"
+              href="/#contact"
               className="hidden lg:inline-flex items-center justify-center bg-[#ff6b00] hover:bg-[#e05e00] text-white font-bold text-sm px-7 py-2.5 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
             >
               {t("apply")}
@@ -170,9 +167,8 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`lg:hidden p-2 z-50 relative ${
-                isMobileMenuOpen ? "text-[#071a33]" : (isSolid ? "text-[#071a33]" : "text-white")
-              }`}
+              className={`lg:hidden p-2 z-50 relative ${isMobileMenuOpen ? "text-[#071a33]" : (isSolid ? "text-[#071a33]" : "text-white")
+                }`}
               aria-label="Menu"
             >
               {isMobileMenuOpen ? (
@@ -196,11 +192,10 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
-                  className={`flex-1 py-2 text-center rounded-lg font-bold text-sm transition-all cursor-pointer ${
-                    lang === l.code
+                  className={`flex-1 py-2 text-center rounded-lg font-bold text-sm transition-all cursor-pointer ${lang === l.code
                       ? "bg-[#ff6b00] text-white shadow-sm"
                       : "text-gray-600 hover:text-black"
-                  }`}
+                    }`}
                 >
                   {l.label}
                 </button>
@@ -221,7 +216,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
             </nav>
             <div className="mt-auto pt-6 flex flex-col gap-4">
               <Link
-                href="#contact"
+                href="/#contact"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center bg-[#ff6b00] text-white font-bold text-base px-6 py-3.5 rounded-xl shadow-lg active:scale-95 transition-all"
               >

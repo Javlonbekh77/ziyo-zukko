@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
+import { scrollToSection } from "@/lib/scrollUtils";
 
 export default function Footer() {
   const { lang, t } = useLanguage();
 
   const galleryLinkText = lang === "ru" ? "Галерея" : lang === "en" ? "Gallery" : "Galereya";
+  const admissionsLinkText = lang === "ru" ? "Приём 2026–2027" : lang === "en" ? "Admissions 2026–2027" : "Qabul 2026–2027";
 
   return (
     <footer className="bg-[#071a33] text-white pt-16 pb-12 border-t border-white/10">
@@ -37,9 +39,28 @@ export default function Footer() {
             <nav className="flex flex-col gap-2.5 text-sm text-white/70">
               <Link href="/" className="hover:text-[#ff6b00] transition-colors">{t("home")}</Link>
               <Link href="/about" className="hover:text-[#ff6b00] transition-colors">{t("about")}</Link>
+              <Link
+                href="/#qabul"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("qabul");
+                }}
+                className="hover:text-[#ff6b00] transition-colors font-medium text-[#ff8a32]"
+              >
+                {admissionsLinkText}
+              </Link>
               <Link href="/olympiads" className="hover:text-[#ff6b00] transition-colors">{t("olympiads")}</Link>
               <Link href="/certificates" className="hover:text-[#ff6b00] transition-colors">{t("certificates")}</Link>
-              <Link href="/#galereya" className="hover:text-[#ff6b00] transition-colors">{galleryLinkText}</Link>
+              <Link
+                href="/#galereya"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("galereya");
+                }}
+                className="hover:text-[#ff6b00] transition-colors"
+              >
+                {galleryLinkText}
+              </Link>
             </nav>
           </div>
 
@@ -49,7 +70,14 @@ export default function Footer() {
               {t("footerContactTitle")}
             </h3>
             <div className="flex flex-col gap-2.5 text-sm text-white/70">
-              <Link href="#contact" className="text-[#ff6b00] font-semibold hover:underline">
+              <Link
+                href="/#contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("contact");
+                }}
+                className="text-[#ff6b00] font-semibold hover:underline"
+              >
                 {t("footerAskQuestion")}
               </Link>
               <span>+998 71 244 35 81</span>

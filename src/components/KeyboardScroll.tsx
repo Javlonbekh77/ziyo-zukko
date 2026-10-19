@@ -18,19 +18,34 @@ export default function KeyboardScroll() {
   const totalFrames = isMobileInitial ? 96 : 192;
   const interactiveStartFrame = isMobileInitial ? 50 : 100;
 
-  // Boshlanishida sahifa pastda bo'lsa yoki topda bo'lsa darhol phase aniqlash
+  // Boshlanishida sahifa pastda bo'lsa yoki hash mavjud bo'lsa darhol phase aniqlash
   const [phase, setPhase] = useState<Phase>(() => {
-    if (typeof window !== "undefined" && window.scrollY > 10) {
+    if (typeof window !== "undefined" && (window.scrollY > 10 || window.location.hash)) {
       return "interactive";
     }
     return "start";
   });
 
-  // Mount bo'lganda ham sahifa joylashuvini tekshirish
+  // Mount bo'lganda ham sahifa joylashuvi yoki hashni tekshirish
   useEffect(() => {
-    if (typeof window !== "undefined" && window.scrollY > 10) {
+    const unlock = () => {
       setPhase("interactive");
+      const lenis = (window as any).lenis;
+      if (lenis && typeof lenis.start === "function") {
+        lenis.start();
+      }
+    };
+
+    if (typeof window !== "undefined" && (window.scrollY > 10 || window.location.hash)) {
+      unlock();
     }
+
+    window.addEventListener("unlock-scroll", unlock);
+    window.addEventListener("hashchange", unlock);
+    return () => {
+      window.removeEventListener("unlock-scroll", unlock);
+      window.removeEventListener("hashchange", unlock);
+    };
   }, []);
   const currentFrameRef = useRef(0);
 
@@ -349,7 +364,7 @@ export default function KeyboardScroll() {
       if (phase === "interactive") {
         lenis.start();
       } else {
-        if (typeof window !== "undefined" && window.scrollY <= 10) {
+        if (typeof window !== "undefined" && window.scrollY <= 10 && !window.location.hash) {
           lenis.stop();
         } else {
           lenis.start();
