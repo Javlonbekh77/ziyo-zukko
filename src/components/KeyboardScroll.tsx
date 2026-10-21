@@ -14,17 +14,32 @@ export default function KeyboardScroll() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const isMobileInitial = typeof window !== "undefined" && window.innerWidth < 768;
-  const totalFrames = isMobileInitial ? 96 : 192;
-  const interactiveStartFrame = isMobileInitial ? 50 : 100;
+  const [loadProgress, setLoadProgress] = useState(0);
+  const loadedRef = useRef(false);
 
-  // Boshlanishida sahifa pastda bo'lsa yoki hash mavjud bo'lsa darhol phase aniqlash
-  const [phase, setPhase] = useState<Phase>(() => {
-    if (typeof window !== "undefined" && (window.scrollY > 10 || window.location.hash)) {
-      return "interactive";
-    }
-    return "start";
-  });
+  useEffect(() => {
+    loadedRef.current = loaded;
+  }, [loaded]);
+
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const totalFrames = isMobile ? 96 : 192;
+  const interactiveStartFrame = 100;
+  // Mobil versiyada birinchi scroll bo'lganda video oxirigacha (totalFrames - 1) o'ynaydi.
+  // Katta ekranlarda esa avvalgi holatdek interactiveStartFrame (100) gacha o'ynaydi.
+  const targetEndFrame = isMobile ? totalFrames - 1 : interactiveStartFrame;
+
+  // SSR va client initial hydration bir xil bo'lishi uchun statik "start" bilan boshlanadi
+  const [phase, setPhase] = useState<Phase>("start");
 
   // Mount bo'lganda ham sahifa joylashuvi yoki hashni tekshirish
   useEffect(() => {
@@ -40,13 +55,22 @@ export default function KeyboardScroll() {
       unlock();
     }
 
+    const handleScrollCheck = () => {
+      if (window.scrollY > 30) {
+        unlock();
+      }
+    };
+
     window.addEventListener("unlock-scroll", unlock);
     window.addEventListener("hashchange", unlock);
+    window.addEventListener("scroll", handleScrollCheck, { passive: true });
     return () => {
       window.removeEventListener("unlock-scroll", unlock);
       window.removeEventListener("hashchange", unlock);
+      window.removeEventListener("scroll", handleScrollCheck);
     };
   }, []);
+
   const currentFrameRef = useRef(0);
 
   const { scrollYProgress } = useScroll({
@@ -54,7 +78,7 @@ export default function KeyboardScroll() {
     offset: ["start start", "end end"]
   });
 
-  // Qolgan 400vh scrollni interactiveStartFrame dan oxirigacha xaritalash
+  // Katta ekranlar uchun: qolgan scrollni interactiveStartFrame dan oxirigacha xaritalash
   const scrollFrameIndex = useTransform(scrollYProgress, [0, 1], [interactiveStartFrame, totalFrames - 1]);
 
   const dimensionsRef = useRef<{ width: number; height: number; dpi: number }>({ width: 0, height: 0, dpi: 1 });
@@ -133,19 +157,22 @@ export default function KeyboardScroll() {
     return () => window.removeEventListener("resize", handleResize);
   }, [updateCanvasDimensions, renderFrame]);
 
+  // Kadrlar to'liq yuklanguncha kutish (katta va kichik ekranlar uchun ham)
   useEffect(() => {
     let isMounted = true;
     const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768;
     const basePath = isMobileDevice ? "/frames_mobile" : "/frames";
+    const frameCount = isMobileDevice ? 96 : 192;
 
     // 0. Agar global xotirada kesh mavjud bo'lsa - DARHOL 0ms da yuklash
     if (globalFrameCache.has(basePath)) {
       const cached = globalFrameCache.get(basePath)!;
       imagesRef.current = cached;
+      setLoadProgress(100);
       setLoaded(true);
       if (window.scrollY > 10) {
         setPhase("interactive");
-        currentFrameRef.current = Math.round(scrollFrameIndex.get());
+        currentFrameRef.current = isMobileDevice ? frameCount - 1 : Math.round(scrollFrameIndex.get());
         renderFrame(currentFrameRef.current);
       } else {
         renderFrame(0);
@@ -153,84 +180,60 @@ export default function KeyboardScroll() {
       return;
     }
 
-    const loadedImgs: HTMLImageElement[] = new Array(totalFrames);
+    setLoaded(false);
+    setLoadProgress(0);
 
-    // 1-bosqich: Dastlabki kadr (Frame 1) darhol ko'rsatiladi
-    const firstImg = new Image();
-    firstImg.src = `${basePath}/frame_001.jpg`;
-    firstImg.onload = () => {
+    const loadedImgs: HTMLImageElement[] = new Array(frameCount);
+    let loadedCount = 0;
+
+    const handleFrameLoaded = () => {
       if (!isMounted) return;
-      loadedImgs[0] = firstImg;
-      imagesRef.current = loadedImgs;
-      renderFrame(0);
-      setLoaded(true);
-    };
+      loadedCount++;
+      const progress = Math.min(100, Math.round((loadedCount / frameCount) * 100));
+      setLoadProgress(progress);
 
-    // 2-bosqich: Dastlabki intro animatsiyasi uchun zarur kadrlar (1..interactiveStartFrame)
-    // Yuqori ustuvorlikda yuklanadi va animatsiya darhol boshlanadi
-    const priorityPromises = [];
-    for (let i = 1; i <= interactiveStartFrame; i++) {
-      priorityPromises.push(
-        new Promise((resolve) => {
-          const img = new Image();
-          const frameNum = String(i).padStart(3, "0");
-          img.src = `${basePath}/frame_${frameNum}.jpg`;
-          img.onload = () => {
-            loadedImgs[i - 1] = img;
-            resolve(null);
-          };
-          img.onerror = () => resolve(null);
-        })
-      );
-    }
-
-    Promise.all(priorityPromises).then(() => {
-      if (!isMounted) return;
-      imagesRef.current = loadedImgs;
-      setLoaded(true);
-
-      // Agar foydalanuvchi sahifani yangilagan bo'lsa va pastda bo'lsa
-      if (window.scrollY > 10) {
-        setPhase("interactive");
-        currentFrameRef.current = Math.round(scrollFrameIndex.get());
-        renderFrame(currentFrameRef.current);
-      } else {
+      // 1-kadr yuklanganda orqa fondagi canvasga chizib qo'yish
+      if (loadedCount === 1 && loadedImgs[0]) {
+        imagesRef.current = loadedImgs;
         renderFrame(0);
       }
 
-      // 3-bosqich: Qolgan kadrlar (interactiveStartFrame+1 .. totalFrames) fonda parallel yuklanadi
-      const secondaryPromises = [];
-      for (let i = interactiveStartFrame + 1; i <= totalFrames; i++) {
-        secondaryPromises.push(
-          new Promise((resolve) => {
-            const img = new Image();
-            const frameNum = String(i).padStart(3, "0");
-            img.src = `${basePath}/frame_${frameNum}.jpg`;
-            img.onload = () => {
-              loadedImgs[i - 1] = img;
-              resolve(null);
-            };
-            img.onerror = () => resolve(null);
-          })
-        );
-      }
-
-      Promise.all(secondaryPromises).then(() => {
-        if (!isMounted) return;
+      // Animatsiyaning barcha kadrlari to'liq yuklangandan keyingina loadingni tugatish
+      if (loadedCount >= frameCount) {
         imagesRef.current = loadedImgs;
         globalFrameCache.set(basePath, loadedImgs);
-      });
-    });
+        setLoaded(true);
+
+        if (window.scrollY > 10) {
+          setPhase("interactive");
+          currentFrameRef.current = isMobileDevice ? frameCount - 1 : Math.round(scrollFrameIndex.get());
+          renderFrame(currentFrameRef.current);
+        } else {
+          renderFrame(0);
+        }
+      }
+    };
+
+    for (let i = 1; i <= frameCount; i++) {
+      const img = new Image();
+      const frameNum = String(i).padStart(3, "0");
+      img.src = `${basePath}/frame_${frameNum}.jpg`;
+      img.onload = () => {
+        loadedImgs[i - 1] = img;
+        handleFrameLoaded();
+      };
+      img.onerror = () => {
+        handleFrameLoaded();
+      };
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [renderFrame, scrollFrameIndex, interactiveStartFrame, totalFrames]);
+  }, [renderFrame, scrollFrameIndex, isMobile]);
 
   // Scrollni qulflash va Auto-playni boshqarish (oldinga va orqaga)
   useEffect(() => {
-    // "interactive" holatida hech qanday non-passive listener bo'lmasligi shart!
-    // Bu butun sayt bo'ylab 120Hz/60Hz silliq aylanishini kafolatlaydi.
     if (phase === "interactive") {
       const handleTopWheel = (e: WheelEvent) => {
         if (window.scrollY <= 0 && e.deltaY < -20) {
@@ -244,6 +247,12 @@ export default function KeyboardScroll() {
     let touchStartY = 0;
 
     const handleScrollAttempt = (e: Event) => {
+      // Animatsiya to'liq yuklanmaguncha har qanday scrollni bloklash
+      if (!loadedRef.current) {
+        e.preventDefault();
+        return;
+      }
+
       let isScrollingDown = false;
 
       if (e.type === "wheel") {
@@ -286,16 +295,18 @@ export default function KeyboardScroll() {
     };
   }, [phase]);
 
-  // Auto-play videosi (oldinga va orqaga) oldingi original 84 fps tezlikda
+  // Auto-play videosi:
+  // Mobil: frame 0 dan oxirigacha (totalFrames - 1)
+  // Desktop: frame 0 dan interactiveStartFrame (100) gacha
   useEffect(() => {
     if (phase === "playing-forward" || phase === "playing-backward") {
       let lastTime = performance.now();
-      const fps = 84; // Oldingi original video tezligi
+      const fps = 84; // Silliq original video tezligi
       const interval = 1000 / fps;
       let animationFrameId: number;
 
       const play = (currentTime: number) => {
-        if (phase === "playing-forward" && currentFrameRef.current >= interactiveStartFrame) {
+        if (phase === "playing-forward" && currentFrameRef.current >= targetEndFrame) {
           setPhase("interactive");
           return;
         }
@@ -308,7 +319,7 @@ export default function KeyboardScroll() {
         if (deltaTime >= interval) {
           if (phase === "playing-forward") {
             currentFrameRef.current = Math.min(
-              interactiveStartFrame,
+              targetEndFrame,
               currentFrameRef.current + 1
             );
           } else {
@@ -327,12 +338,19 @@ export default function KeyboardScroll() {
 
       return () => cancelAnimationFrame(animationFrameId);
     }
-  }, [phase, renderFrame, interactiveStartFrame]);
+  }, [phase, renderFrame, targetEndFrame]);
 
-  // Auto-play tugagandan so'ng, scroll orqali qolgan kadrlarni boshqarish
+  // Auto-play tugagandan so'ng:
+  // Desktopda: scroll orqali qolgan kadrlarni (100 - 191) boshqarish
+  // Mobilda: video oxirigacha o'ynagan (frame 95), oxirgi kadrda turadi va sahifa tabiiy scroll bo'ladi
   useEffect(() => {
     if (phase === "interactive") {
       const handleRender = () => {
+        if (isMobile) {
+          currentFrameRef.current = totalFrames - 1;
+          renderFrame(totalFrames - 1);
+          return;
+        }
         const idx = Math.min(
           totalFrames - 1,
           Math.max(interactiveStartFrame, Math.round(scrollFrameIndex.get()))
@@ -344,7 +362,6 @@ export default function KeyboardScroll() {
       const unsubscribe = scrollFrameIndex.on("change", handleRender);
       window.addEventListener("resize", handleRender);
 
-      // Scroll bo'yicha darhol joylashuvni yangilash
       handleRender();
 
       return () => {
@@ -352,14 +369,18 @@ export default function KeyboardScroll() {
         window.removeEventListener("resize", handleRender);
       };
     }
-  }, [phase, scrollFrameIndex, renderFrame, totalFrames, interactiveStartFrame]);
+  }, [phase, scrollFrameIndex, renderFrame, totalFrames, interactiveStartFrame, isMobile]);
 
-  // Lenis smooth scrollni birinchi video/frame animatsiyalari vaqtida to'xtatish,
-  // faqat interactive bosqichga o'tgach darhol faollashtirish
+  // Lenis smooth scroll holatini boshqarish
   useEffect(() => {
     const checkAndToggleLenis = () => {
       const lenis = (window as any).lenis;
       if (!lenis) return;
+
+      if (!loadedRef.current) {
+        lenis.stop();
+        return;
+      }
 
       if (phase === "interactive") {
         lenis.start();
@@ -385,24 +406,38 @@ export default function KeyboardScroll() {
         lenis.start();
       }
     };
-  }, [phase]);
+  }, [phase, loaded]);
 
   const { t } = useLanguage();
 
   return (
     <div
       ref={containerRef}
+      suppressHydrationWarning
       data-lenis-prevent={phase !== "interactive" ? "" : undefined}
-      className="h-[250vh] relative bg-black"
+      className="h-[100dvh] md:h-[250vh] relative bg-black"
     >
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         {!loaded && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-4 border-[#ff6b00]/30 border-t-[#ff6b00] rounded-full animate-spin" />
-              <p className="text-white tracking-wide text-sm font-semibold">
-                {t("loading")}
-              </p>
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black transition-opacity duration-300">
+            <div className="flex flex-col items-center gap-4 px-6 text-center select-none">
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <div className="w-12 h-12 border-3 border-[#ff6b00]/20 border-t-[#ff6b00] rounded-full animate-spin" />
+                <span className="absolute text-[11px] font-bold text-white/90">
+                  {loadProgress}%
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-white/90 tracking-wide text-sm font-semibold">
+                  {t("loading")}
+                </p>
+                <div className="w-44 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#ff6b00] via-[#f59e0b] to-[#2168f2] transition-all duration-150 ease-out rounded-full"
+                    style={{ width: `${loadProgress}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

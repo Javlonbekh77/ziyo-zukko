@@ -51,14 +51,7 @@ export default function Footer() {
               </Link>
               <Link href="/olympiads" className="hover:text-[#ff6b00] transition-colors">{t("olympiads")}</Link>
               <Link href="/certificates" className="hover:text-[#ff6b00] transition-colors">{t("certificates")}</Link>
-              <Link
-                href="/#galereya"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection("galereya");
-                }}
-                className="hover:text-[#ff6b00] transition-colors"
-              >
+              <Link href="/gallery" className="hover:text-[#ff6b00] transition-colors">
                 {galleryLinkText}
               </Link>
             </nav>

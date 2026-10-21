@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
@@ -9,7 +10,7 @@ import { getLocalCache, setLocalCache } from "@/lib/cache";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function GallerySection() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -159,6 +160,25 @@ export default function GallerySection() {
           </motion.div>
         </div>
       )}
+
+      {/* Button to full gallery page */}
+      <div className="mt-10 md:mt-14 text-center px-6">
+        <Link
+          href="/gallery"
+          className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-[#071a33] hover:text-white hover:bg-[#ff6b00] font-extrabold text-sm sm:text-base shadow-lg shadow-black/5 hover:shadow-orange-500/25 transition-all duration-300 border border-slate-200/90 hover:border-[#ff6b00] group cursor-pointer hover:scale-105 active:scale-95"
+        >
+          <span>
+            {lang === "ru"
+              ? "Смотреть все фотографии"
+              : lang === "en"
+              ? "View All Photos"
+              : "Barcha fotosuratlarni ko'rish"}
+          </span>
+          <span className="group-hover:translate-x-1.5 transition-transform duration-300 text-[#ff6b00] group-hover:text-white">
+            →
+          </span>
+        </Link>
+      </div>
     </section>
   );
 }

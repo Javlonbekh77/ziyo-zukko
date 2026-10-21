@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useLanguage, Language } from "@/context/LanguageContext";
+import { scrollToSection } from "@/lib/scrollUtils";
 
 interface NavbarProps {
   solidAtTop?: boolean;
@@ -12,6 +14,7 @@ interface NavbarProps {
 
 export default function Navbar({ solidAtTop }: NavbarProps = {}) {
   const { lang, setLang, t } = useLanguage();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -37,15 +40,41 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   const navLinks = [
     { id: "home", href: "/" },
     { id: "about", href: "/about" },
     { id: "news", href: "/news" },
-    { id: "teachers", href: "/#team" },
+    { id: "teachers", href: "/teachers" },
     { id: "olympiads", href: "/olympiads" },
-    { id: "gallery", href: "/#galereya" },
+    { id: "gallery", href: "/gallery" },
     { id: "contact", href: "/#contact" },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#")) {
+      const targetId = href.replace("/#", "");
+      if (pathname === "/") {
+        e.preventDefault();
+        scrollToSection(targetId);
+        setIsMobileMenuOpen(false);
+      } else {
+        setIsMobileMenuOpen(false);
+      }
+    } else {
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   const languages: { code: Language; label: string }[] = [
     { code: "uz", label: "UZ" },
@@ -94,6 +123,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
               <Link
                 key={link.id}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="relative py-1 transition-colors hover:text-[#ff6b00] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#ff6b00] after:transition-all after:duration-300"
               >
                 {t(link.id)}
@@ -160,6 +190,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
 
             <Link
               href="/#contact"
+              onClick={(e) => handleNavClick(e, "/#contact")}
               className="hidden lg:inline-flex items-center justify-center bg-[#ff6b00] hover:bg-[#e05e00] text-white font-bold text-sm px-7 py-2.5 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
             >
               {t("apply")}
@@ -207,7 +238,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
                 <Link
                   key={link.id}
                   href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="py-2.5 px-3 rounded-xl hover:bg-slate-100 hover:text-[#ff6b00] transition-colors"
                 >
                   {t(link.id)}
@@ -217,7 +248,7 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
             <div className="mt-auto pt-6 flex flex-col gap-4">
               <Link
                 href="/#contact"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, "/#contact")}
                 className="w-full text-center bg-[#ff6b00] text-white font-bold text-base px-6 py-3.5 rounded-xl shadow-lg active:scale-95 transition-all"
               >
                 {t("apply")}

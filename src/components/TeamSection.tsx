@@ -182,14 +182,12 @@ export default function TeamSection() {
 
             {/* Action Controls: View mode and slider arrows */}
             <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-              <button
-                onClick={() => setIsGridMode(!isGridMode)}
-                className="border-2 border-[#ff6b00] text-[#ff6b00] hover:bg-[#ff6b00] hover:text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
+              <Link
+                href="/teachers"
+                className="border-2 border-[#ff6b00] text-[#ff6b00] hover:bg-[#ff6b00] hover:text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl transition-all shrink-0 cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5"
               >
-                {isGridMode
-                  ? (lang === "ru" ? "← Слайдер" : lang === "en" ? "← Slider" : "← Slayder")
-                  : (lang === "ru" ? "Смотреть всех →" : lang === "en" ? "See All →" : "Barchasini ko'rish →")}
-              </button>
+                <span>{lang === "ru" ? "Все педагоги →" : lang === "en" ? "All Teachers →" : "Barcha ustozlar →"}</span>
+              </Link>
 
               {!isGridMode && (
                 <div className="flex items-center gap-2 shrink-0">
