@@ -6,6 +6,15 @@ import SmoothScroll from "@/components/SmoothScroll";
 export const metadata: Metadata = {
   title: "ZIYO-ZUKKO — Xususiy Maktab",
   description: "ZIYO-ZUKKO xususiy maktabi — Bilim, tarbiya va kelajak bir maskanda.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png" },
+    ],
+  },
 };
 
 import type { Viewport } from "next";
