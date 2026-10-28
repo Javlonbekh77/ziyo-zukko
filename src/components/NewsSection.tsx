@@ -52,6 +52,10 @@ interface RawNewsItem {
   image?: string;
   date: string;
   social?: string;
+  platform?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  url?: string;
   embedUrl?: string;
 }
 

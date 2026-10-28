@@ -54,6 +54,9 @@ export default function Footer() {
               <Link href="/gallery" className="hover:text-[#ff6b00] transition-colors">
                 {galleryLinkText}
               </Link>
+              <Link href="/documents" className="hover:text-[#ff6b00] transition-colors">
+                {t("documents")}
+              </Link>
             </nav>
           </div>
 

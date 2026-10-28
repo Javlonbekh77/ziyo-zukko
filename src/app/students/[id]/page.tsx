@@ -74,7 +74,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
   }, [studentId]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071a33] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] flex flex-col font-sans">
       <Navbar solidAtTop={true} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 pt-28 md:pt-32 pb-16">

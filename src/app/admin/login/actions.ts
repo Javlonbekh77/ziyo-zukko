@@ -10,6 +10,7 @@ import {
   CAPTCHA_TRIGGER_ATTEMPTS
 } from "@/lib/rate-limit";
 import { generateCaptcha, verifyCaptcha, CaptchaChallenge } from "@/lib/captcha";
+export type { CaptchaChallenge };
 import { createSession } from "@/lib/session";
 import { headers } from "next/headers";
 

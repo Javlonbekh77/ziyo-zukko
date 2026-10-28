@@ -83,7 +83,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
+      <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
         <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-[#ff6b00] rounded-full animate-spin mb-4" />
         <p className="text-gray-500 font-semibold">Yuklanmoqda...</p>
       </div>
@@ -92,7 +92,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
 
   if (!news) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
+      <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] py-20 px-4 flex flex-col items-center justify-center font-sans">
         <div className="bg-white rounded-3xl p-10 text-center max-w-md shadow-xl border border-gray-100">
           <h2 className="text-2xl font-bold text-[#071a33] mb-4">Yangilik topilmadi</h2>
           <Link href="/news" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#ff6b00] text-white font-bold text-sm">
@@ -110,7 +110,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
   const isYouTube = displayNews.platform === "youtube" || (displayNews.embedUrl && displayNews.embedUrl.includes("youtube")) || (displayNews.url && displayNews.url.includes("youtube"));
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071a33] py-10 px-4 flex flex-col items-center font-sans">
+    <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] py-10 px-4 flex flex-col items-center font-sans">
       {/* Top Pill Back Button */}
       <div className="w-full max-w-[900px] mb-8 flex justify-center sm:justify-start">
         <Link

@@ -9,38 +9,46 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 0.85, // Chaqqon, silliq va o'ta sezgir inersiya (ortiqcha kechikishsiz)
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.0,
-      infinite: false,
-    });
-
-    lenisRef.current = lenis;
-
-    let animationFrameId: number;
-
-    function raf(time: number) {
-      lenis.raf(time);
-      animationFrameId = requestAnimationFrame(raf);
+    // Admin sahifalarida Lenis inersiyasini to'xtatish (formlar, modal va jadvallar erkin skroll bo'lishi uchun)
+    if (pathname?.startsWith("/admin")) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+        delete (window as any).lenis;
+      }
+      return;
     }
 
-    animationFrameId = requestAnimationFrame(raf);
+    if (!lenisRef.current) {
+      const lenis = new Lenis({
+        duration: 0.85, // Chaqqon, silliq va o'ta sezgir inersiya
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.0,
+        infinite: false,
+      });
 
-    // Global ravishda navigation/anchor scroll uchun lenis obyektini ulash
-    (window as any).lenis = lenis;
+      lenisRef.current = lenis;
+      (window as any).lenis = lenis;
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      lenis.destroy();
-      lenisRef.current = null;
-      delete (window as any).lenis;
-    };
-  }, []);
+      let animationFrameId: number;
+      function raf(time: number) {
+        lenis.raf(time);
+        animationFrameId = requestAnimationFrame(raf);
+      }
+      animationFrameId = requestAnimationFrame(raf);
+
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+        lenis.destroy();
+        lenisRef.current = null;
+        delete (window as any).lenis;
+      };
+    }
+  }, [pathname]);
 
   // Har safar sahifa marshruti (pathname) o'zgarganda lenis.start() va hash yoki scroll 0 ga o'tishi
   useEffect(() => {

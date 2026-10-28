@@ -151,11 +151,11 @@ export function ImageUploader({
 
       <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-4 transition-all hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/20 group">
         {currentUrl ? (
-          <div className={`relative w-full rounded-lg overflow-hidden border border-slate-200 group-hover:shadow-md transition ${cropShape === "round" ? "aspect-square rounded-full max-w-[200px] mx-auto" : "aspect-video"}`}>
+          <div className={`relative w-full rounded-lg overflow-hidden border border-slate-200 group-hover:shadow-md transition bg-slate-900/5 ${cropShape === "round" ? "aspect-square rounded-full max-w-[140px] mx-auto" : "h-40 sm:h-44 max-h-44 flex items-center justify-center p-1"}`}>
             <img
               src={currentUrl}
               alt="Uploaded preview"
-              className="w-full h-full object-cover"
+              className="h-full w-auto max-w-full object-contain rounded-lg mx-auto"
             />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
               <button
@@ -203,10 +203,10 @@ export function ImageUploader({
 
       {error && <p className="text-xs text-red-600 mt-1.5 font-medium">{error}</p>}
       {currentUrl && (
-        <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1 font-mono truncate">
-          <CheckCircle className="w-3 h-3 shrink-0" />
-          R2 URL: {currentUrl}
-        </p>
+        <div className="text-[11px] text-emerald-600 mt-1.5 flex items-center gap-1.5 font-medium truncate">
+          <CheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+          <span className="font-semibold">Rasm Cloudflare R2 ga yuklandi</span>
+        </div>
       )}
 
       {/* Crop Modal */}

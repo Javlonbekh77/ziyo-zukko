@@ -259,12 +259,12 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071a33] flex flex-col selection:bg-[#ff6b00] selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] flex flex-col selection:bg-[#ff6b00] selection:text-white">
       {/* 1. Header */}
       <Navbar solidAtTop />
 
       {/* 2. Hero Header Section */}
-      <section className="relative pt-32 pb-14 md:pt-40 md:pb-20 bg-gradient-to-b from-white via-[#f1f5f9] to-[#f8fafc] border-b border-slate-200/60 overflow-hidden">
+      <section className="relative pt-32 pb-14 md:pt-40 md:pb-20 bg-gradient-to-b from-white/90 via-[#f1f5f9]/80 to-transparent border-b border-slate-200/60 overflow-hidden backdrop-blur-xs">
         {/* Orqa fon dekoratsiyasi */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -left-20 w-96 h-96 bg-[#ff6b00]/10 rounded-full blur-3xl" />

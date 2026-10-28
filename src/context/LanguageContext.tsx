@@ -22,6 +22,7 @@ const translations: Record<string, Record<Language, string>> = {
   graduates: { uz: "Bitiruvchilar", ru: "Выпускники", en: "Graduates" },
   certificates: { uz: "Sertifikatlar", ru: "Сертификаты", en: "Certificates" },
   contact: { uz: "Aloqa", ru: "Контакты", en: "Contact" },
+  documents: { uz: "Hujjatlar", ru: "Документы", en: "Documents" },
   admissions: { uz: "Qabul", ru: "Приём", en: "Admissions" },
   apply: { uz: "Qabulga ariza", ru: "Подать заявку", en: "Apply Now" },
 
@@ -29,6 +30,7 @@ const translations: Record<string, Record<Language, string>> = {
   seeAll: { uz: "Barchasini ko'rish →", ru: "Смотреть все →", en: "See All →" },
   backToHome: { uz: "← Asosiy sahifaga qaytish", ru: "← Вернуться на главную", en: "← Back to Home" },
   backToNews: { uz: "← Barcha yangiliklarga qaytish", ru: "← Вернуться к новостям", en: "← Back to News" },
+  backToDocuments: { uz: "← Barcha hujjatlarga qaytish", ru: "← Вернуться к документам", en: "← Back to Documents" },
   backToStudents: { uz: "← Barcha bitiruvchilarga qaytish", ru: "← Вернуться к выпускникам", en: "← Back to Graduates" },
   backToOlympiads: { uz: "← Barcha yutuqlarga qaytish", ru: "← Вернуться к достижениям", en: "← Back to Achievements" },
   readMore: { uz: "Batafsil o'qish", ru: "Читать далее", en: "Read More" },

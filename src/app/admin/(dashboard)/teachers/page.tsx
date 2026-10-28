@@ -510,8 +510,8 @@ const defaultSeedStaff: Omit<TeacherItem, "id">[] = [
 
       {/* Add / Edit Modal with Guaranteed Smooth Scrolling */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-3 sm:p-6 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[88vh] my-auto flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div data-lenis-prevent className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-y-auto">
+          <div data-lenis-prevent className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[92vh] my-auto flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50">
               <div className="flex items-center gap-2">
@@ -534,7 +534,7 @@ const defaultSeedStaff: Omit<TeacherItem, "id">[] = [
             {/* Modal Form */}
             <form onSubmit={handleAddOrEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
-              <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-4">
+              <div data-lenis-prevent className="p-4 sm:p-6 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-4 custom-scrollbar" style={{ maxHeight: "calc(90vh - 135px)" }}>
                 {/* Teacher Image */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">

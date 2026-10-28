@@ -69,7 +69,7 @@ export default function OlympiadDetailPage({ params }: { params: Promise<{ id: s
 
 
 return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071a33] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] flex flex-col font-sans">
       <Navbar solidAtTop={true} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 pt-28 md:pt-32 pb-16">
@@ -114,8 +114,8 @@ return (
           </div>
         ) : (
           <article className="space-y-8">
-            {/* Header */}
-            <div>
+            {/* Header Card */}
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-md relative overflow-hidden">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-extrabold uppercase tracking-wider mb-4">
                 <Trophy className="w-4 h-4" />
                 Maktab Yutuqlari

@@ -42,11 +42,49 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ensure no scrollbar issues on the body */
-::-webkit-scrollbar {
+/* Hide scrollbar on body only for clean full-height canvas */
+body::-webkit-scrollbar {
   width: 0px;
   background: transparent;
 }
+
+/* Elegant visible scrollbar for inner scrollable modals, sheets and containers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  border-radius: 9999px;
+  border: 1px solid #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
+
+/* Ornamental geometric pattern background */
+.bg-ornament-pattern {
+  background-color: #f8fafc;
+  background-image: url('/images/bg-ornament.png');
+  background-repeat: repeat;
+  background-size: 360px auto;
+}
+
 
 /* Tesseract Marketing style Border & Line Animations */
 @keyframes tesseractBeam {

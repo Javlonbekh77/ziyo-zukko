@@ -57,8 +57,8 @@ export default function Navbar({ solidAtTop }: NavbarProps = {}) {
     { id: "news", href: "/news" },
     { id: "teachers", href: "/teachers" },
     { id: "olympiads", href: "/olympiads" },
-    { id: "gallery", href: "/gallery" },
     { id: "contact", href: "/#contact" },
+    { id: "documents", href: "/documents" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

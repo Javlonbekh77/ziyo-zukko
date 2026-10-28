@@ -498,7 +498,7 @@ export default function AboutPage() {
   const tAbout = content[lang] || content.uz;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071a33] selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+    <div className="min-h-screen bg-[#f8fafc] bg-[url('/images/bg-ornament.png')] bg-repeat bg-[size:360px_auto] text-[#071a33] selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
       {/* Top Navbar with solid background */}
       <Navbar solidAtTop />
 
